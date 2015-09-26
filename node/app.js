@@ -21,3 +21,5 @@ io.of('/stream_classify')
 		})
 		.on ('disconnect', function () {})
  	}) 
+
+app.get ()
