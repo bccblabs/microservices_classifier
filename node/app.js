@@ -1,6 +1,6 @@
 var app = require ('express')(),
-    server = require ('http').createServer(app),
-    io = require ('socket.io')(server),
+    server = require ('http').createServer(app).listen(8080),
+    io = require ('socket.io').listen(server),
     fs = require ('fs'),
     bodyParser = require ('body-parser'),
     file_path = '/tmp/hdd_uploads',
@@ -8,18 +8,19 @@ var app = require ('express')(),
 
 
 app.use (bodyParser.urlencoded ({ extended: true }))
-server.listen (80)
+console.log ("Socket server listening on 8080")
 temp.track()
 
 //io.of('/stream_classify')
-io.on ('connection', function (socket) {
-    socket.on ('connection', function (id, msg) {
+//io.on ('connection', function (socket) {
+
+io.sockets.on ('connection', function (client) {
 		/* emit the register event, give client its id */
-        var socket_id = { socket_id: id}
-		client.emit ('register', socket_id)  	
-	})
-	.on ('clz_data', function (id, data) {
-        console.log (id + ": " + data)
+	console.log ("client connected: " + client.id)
+	
+	client.on ('clz_data', function (data) {
+		console.log ("client " + client.id + " sent clz data ")
+		console.dir (data)
 			/* reads image as a buffer */
 			/* try pass the original id for testing */
             // temp.open ({dir: file_path, suffix: '.jpg'}, function (err, info) {
@@ -32,12 +33,12 @@ io.on ('connection', function (socket) {
             //     })
             // })
 	})
-	.on ('image_s3_url', function (id, url) {
-            /* passing s3.url directly onto the queue */
+	client.on ('image_s3_url', function (s3_url) {
+		console.log ("client " + client.id + " sent url " + s3_url)
 	})
-	.on ('disconnect', function () {
-        
-    })
+	client.on ('disconnect', function () {
+        	console.log ("client " + client.id + " disconnected")
+    	})
 }) 
 
 app.post ('/notify', function (req, res) {
