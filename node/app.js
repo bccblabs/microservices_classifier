@@ -10,8 +10,20 @@ var app = require ('express')(),
 app.use (bodyParser.urlencoded ({ extended: true }))
 console.log ("Socket server listening on 8080")
 temp.track()
+console.log ("created mq connection")
 
-//io.of('/stream_classify')
+mq_connection.on ('ready', function () {
+    console.log (mq_host + " mq ready")
+    clz_exchange = mq_connection.exchange ('clzX', {'type': 'fanout'})
+    mq_connection.queue ('clz_pipeline', function (q) {
+        q.bind ('#')
+        q.subscribe (function (msg) {
+            console.log (msg)
+        })
+    })
+})
+
+
 io.on ('connection', function (socket) {
 	console.log ("connected " + socket)
 })
@@ -24,24 +36,15 @@ io.sockets.on ('connection', function (client) {
 	client.on ('clz_data', function (data) {
 		console.log ("client " + client.id + " sent clz data ")
 		console.dir (data)
-			/* reads image as a buffer */
-			/* try pass the original id for testing */
-            // temp.open ({dir: file_path, suffix: '.jpg'}, function (err, info) {
-            //     if (err)
-            //         throw err;
-            //     fs.write (info.fd, data)
-            //     fs.close (info.fd, function (err) {
-            //         if (err) throw err
-            //         /* passing info.path on to the queue */
-            //     })
-            // })
+        var rk_clz = 'hdd_image'
+        clz_exchange.publish (rk_clz, data)
 	})
 	client.on ('image_s3_url', function (s3_url) {
 		console.log ("client " + client.id + " sent url " + s3_url)
 	})
 	client.on ('disconnect', function () {
         	console.log ("client " + client.id + " disconnected")
-    	})
+    })
 }) 
 
 app.post ('/notify', function (req, res) {
