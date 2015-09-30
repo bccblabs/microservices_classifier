@@ -12,10 +12,13 @@ console.log ("Socket server listening on 8080")
 temp.track()
 
 //io.of('/stream_classify')
-//io.on ('connection', function (socket) {
+io.on ('connection', function (socket) {
+	console.log ("connected " + socket)
+})
 
 io.sockets.on ('connection', function (client) {
 		/* emit the register event, give client its id */
+	client.emit ('register', client.id)
 	console.log ("client connected: " + client.id)
 	
 	client.on ('clz_data', function (data) {
