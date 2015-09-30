@@ -23,4 +23,6 @@ amqp.connect ('amqp://localhost:5672', function (err, conn) {
 				})
 
       		}
+		})
+	})
 })
