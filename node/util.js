@@ -15,12 +15,8 @@ var connect_mongo = function (callback) {
 }
 
 var decode_base64_image = function (dataString) {
-	var matches = dataString.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/),
-		response = {};
-	if (matches.length !== 3)
-		return new Error('Invalid input string');
-	response.type = matches[1];
-	response.data = new Buffer(matches[2], 'base64');
+	var response = {};
+	response.data = new Buffer(dataString, 'base64');
 	return response;
 }
 
@@ -28,20 +24,20 @@ var store_to_mongo = function (socket_client, data, callback) {
     connect_mongo (function (err, mongoClient) {
         mongoClient.db ('hdd')
                    .collection ('classifications')
-                   .insert (_.omit (data, 'imageData'), function (err, doc) {
+                   .insert (_.omit (data, 'imageData'), function (err, docs) {
                         if (err) {
                             socket_client.emit ('err', 'cannot store to mongo')
                             callback (err, null)
                         } else {
                             socket_client.emit ('progress', 'object persisted in db')
-                            callback (null, {object_id: doc._id})
+                            callback (null, {object_id: docs[0]._id})
                         }
                    })
 	})
 }
 
 var store_to_disk = function (socket_client, data, callback, temp) {
-	var tmp_file_path = '/tmp/hdd_uploads',
+	var tmp_file_path = 'hdd_uploads/',
 		image_buffer = decode_base64_image (data.imageData)
         temp.open (tmp_file_path, function (err, info) {
             if (!err) {
@@ -55,7 +51,9 @@ var store_to_disk = function (socket_client, data, callback, temp) {
                         callback (null, {tmp_path: info.path})
                     }
                 })
-            }
+            } else {
+	    	callback (err)
+	    }
         })                
 }
 

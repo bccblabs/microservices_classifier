@@ -3,7 +3,7 @@ var app = require ('express')(),
     io = require ('socket.io').listen(server),
     bodyParser = require ('body-parser'),
     util = require ('./util'),
-    amqp = require ('amqplib'),
+    amqp = require ('amqplib/callback_api'),
     _ = require ('underscore-node'),
     async = require ('async'),
     temp = require ('temp')
@@ -17,33 +17,28 @@ var channel = "",
     hdd_exchange = 'hdd',
     channel_opts = {durable: false}
 
-amqp.connect ('amqp://localhost', function (err, conn) {
-    if (err)
+amqp.connect ('amqp://localhost:5672', function (err, conn) {
+    if (err) {
         console.log ("amqp conn error")
-    conn.createChannel (function (err, ch) {
-        ch.assertExchange(hdd_exchange, 'topic', exopts, function(err, ok) {
-            if (err)
-                console.log ('amqp channel creation err')
-            channel = ch
-        })
-    })
-})
-
-io.on ('connection', function (socket) {
-	console.log ("connected " + socket)
+    } else {
+	conn.createChannel (function (err, ch) {
+        	ch.assertExchange(hdd_exchange, 'topic', channel_opts, function(err, ok) {
+            		if (err) {
+                		console.log ('amqp channel creation err')
+            		} else {
+				channel = ch
+        		}
+		})
+    	})
+    }
 })
 
 io.sockets.on ('connection', function (client) {
-		/* emit the register event, give client its id */
 	client.emit ('register', client.id)
 	console.log ("client connected: " + client.id)
-	
 	client.on ('clz_data', function (data) {
 		console.log ("client " + client.id + " sent clz data ")
-		console.log (_.keys (data))
-        util.connect_mongo (function (err, mongoClient) {
-                clz_coll = mongoClient.db ('hdd').collection ('classifications')
-
+		data = JSON.parse (data)
         var mongo_store_minitask = function (callback) {
             util.store_to_mongo (client, data, callback)
         }
@@ -52,18 +47,19 @@ io.sockets.on ('connection', function (client) {
             util.store_to_disk (client, data, callback, temp)
         }
         async.parallel ([mongo_store_minitask, local_store_minitask], function (err, res) {
+		console.log ("init task returned")
                 if (err) {
+		    console.log (err)
                     client.emit ('err', 'init_task_error')                    
                 } else {
                     var channel_msg = {
-                            object_id: _.pluck (res, 'object_id'), 
-                            file_path: _.pluck (res, 'tmp_path')
+                            object_id: _.first(_.filter(_.pluck (res, 'object_id'), function (val) {return val!==null && val!== undefined})), 
+                            file_path: _.first(_.filter(_.pluck (res, 'tmp_path'), function (val) {return val !== null && val !== undefined}))
                     }
                     console.log (channel_msg)
-                    channel.publish (hdd_exchange, 'classify', channel_msg)
+                    channel.publish (hdd_exchange, 'classify', new Buffer (channel_msg))
                 }
-            })
-    	})
+       })
     })
 	client.on ('disconnect', function () {
         console.log ("client " + client.id + " disconnected")
