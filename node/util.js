@@ -37,11 +37,12 @@ var store_to_mongo = function (socket_client, data, callback) {
 }
 
 var store_to_disk = function (socket_client, data, callback, temp) {
-	var tmp_file_path = 'hdd_uploads/',
-		image_buffer = decode_base64_image (data.imageData)
+	var tmp_file_path = 'hdd_uploads/'
+//		image_buffer = decode_base64_image (data.imageData)
         temp.open (tmp_file_path, function (err, info) {
             if (!err) {
-                fs.write (info.fd, image_buffer.data, function (err) {
+//		console.log (image_buffer.data)
+                fs.writeFile (info.path, data.imageData, 'base64', function (err) {
                     if (err) {
                         callback (err)
                     } else {
