@@ -29,7 +29,9 @@ amqp.connect ('amqp://localhost:5672', function (err, conn) {
         			channel = ch
         		}
     		})
+
     	})
+
     }
 })
 
@@ -56,9 +58,8 @@ io.sockets.on ('connection', function (client) {
                     object_id: _.first(_.filter(_.pluck (res, 'object_id'), function (val) {return val!==null && val!== undefined})), 
                     file_path: _.first(_.filter(_.pluck (res, 'tmp_path'), function (val) {return val !== null && val !== undefined}))
                 }
-                console.log (channel_msg)
-                channel.publish (hdd_exchange, 'classify', new Buffer (channel_msg))
-                channel.publish (hdd_exchange, 's3', new Buffer (channel_msg))
+                channel.publish (hdd_exchange, 'classify', new Buffer (JSON.stringify(channel_msg)))
+                channel.publish (hdd_exchange, 's3', new Buffer (JSON.stringify(channel_msg)))
             }
        })
     })

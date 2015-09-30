@@ -19,19 +19,16 @@ amqp.connect ('amqp://localhost:5672', function (err, conn) {
 					if (err !== null) {
 						console.log ('subscribe queue error');						
 					} else {
-						ch.bindQueue(queue, ex, 's3', {}, sub);
+						ch.bindQueue(queue, hdd_exchange, 's3', {}, sub);
 					}
 				}
 				ch.consume(queue, util.push_to_s3, {noAck: true}, function(err) {
-					ch.bindQueue (queue, hdd_exchange, 's3', {}, function (err, ok) {
 						if (err)
 							console.log ('bind queue err')
 						else {
 					        sub(null);
 						}
-					})
 				})
-
       		}
 		})
 	})

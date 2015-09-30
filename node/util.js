@@ -58,9 +58,9 @@ var store_to_disk = function (socket_client, data, callback, temp) {
 }
 
 var push_to_s3 = function (msg) {
-    console.log( " [x] %s:'%s'", msg.fields.routingKey, msg.content.toString());
 }
 
 exports.connect_mongo = module.exports.connect_mongo = connect_mongo
 exports.store_to_mongo = module.exports.store_to_mongo = store_to_mongo
 exports.store_to_disk = module.exports.store_to_disk = store_to_disk
+exports.push_to_s3 = module.exports.push_to_s3 = push_to_s3
