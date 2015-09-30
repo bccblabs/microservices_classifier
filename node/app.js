@@ -4,8 +4,8 @@ var app = require ('express')(),
     fs = require ('fs'),
     bodyParser = require ('body-parser'),
     file_path = '/tmp/hdd_uploads',
-    temp = require ('temp')
-
+    temp = require ('temp'),
+    util = require ('./util')
 
 app.use (bodyParser.urlencoded ({ extended: true }))
 console.log ("Socket server listening on 8080")
