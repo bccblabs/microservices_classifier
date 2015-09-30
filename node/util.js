@@ -17,7 +17,6 @@ var connect_mongo = function (callback) {
 var decode_base64_image = function (dataString) {
 	var response = {};
 	response.data = new Buffer(dataString, 'base64');
-    console.log (dataString)
 	return response;
 }
 
@@ -42,16 +41,18 @@ var store_to_disk = function (socket_client, data, callback, temp) {
 		image_buffer = decode_base64_image (data.imageData)
         temp.open (tmp_file_path, function (err, info) {
             if (!err) {
-                fs.write (info.fd, image_buffer.data)
-                fs.close (info.fd, function (err) {
-                    if (err) {
-                        client.emit ('err', 'cannot store to server')
-                        callback (err)                                
-                    } else {
-                        client.emit ('progress', 'stored_on_server')
-                        callback (null, {tmp_path: info.path})
-                    }
-                })
+                fs.write (info.fd, image_buffer.data, function (err) {
+			if (err) callback (err)
+			fs.close (info.fd, function (err) {
+			    if (err) {
+				client.emit ('err', 'cannot store to server')
+				callback (err)                                
+			    } else {
+				client.emit ('progress', 'stored_on_server')
+				callback (null, {tmp_path: info.path})
+			    }
+			})
+		})
             } else {
 	    	callback (err)
 	    }
