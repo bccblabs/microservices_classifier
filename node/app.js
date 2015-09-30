@@ -40,7 +40,7 @@ io.sockets.on ('connection', function (client) {
 	
 	client.on ('clz_data', function (data) {
 		console.log ("client " + client.id + " sent clz data ")
-		console.dir (data)
+		console.log (_.keys (data))
         util.connect_mongo (function (err, mongoClient) {
                 clz_coll = mongoClient.db ('hdd').collection ('classifications')
 

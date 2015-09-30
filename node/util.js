@@ -62,3 +62,4 @@ var store_to_disk = function (socket_client, data, callback, temp) {
 
 exports.connect_mongo = module.exports.connect_mongo = connect_mongo
 exports.store_to_mongo = module.exports.store_to_mongo = store_to_mongo
+exports.store_to_disk = module.exports.store_to_disk = store_to_disk
