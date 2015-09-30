@@ -17,6 +17,7 @@ var connect_mongo = function (callback) {
 var decode_base64_image = function (dataString) {
 	var response = {};
 	response.data = new Buffer(dataString, 'base64');
+    console.log (dataString)
 	return response;
 }
 
