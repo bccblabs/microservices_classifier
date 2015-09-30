@@ -5,8 +5,7 @@ var app = require ('express')(),
     bodyParser = require ('body-parser'),
     file_path = '/tmp/hdd_uploads',
     temp = require ('temp'),
-    mq_host = "amqp://0.0.0.0:5672",
-    amqp = require ('amqplib').connect(mq_host),
+    util = require ('./util')
 
 app.use (bodyParser.urlencoded ({ extended: true }))
 console.log ("Socket server listening on 8080")
