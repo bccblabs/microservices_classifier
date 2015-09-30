@@ -21,14 +21,14 @@ amqp.connect ('amqp://localhost:5672', function (err, conn) {
     if (err) {
         console.log ("amqp conn error")
     } else {
-	conn.createChannel (function (err, ch) {
+    	conn.createChannel (function (err, ch) {
         	ch.assertExchange(hdd_exchange, 'topic', channel_opts, function(err, ok) {
-            		if (err) {
-                		console.log ('amqp channel creation err')
-            		} else {
-				channel = ch
+        		if (err) {
+            		console.log ('amqp channel creation err')
+        		} else {
+        			channel = ch
         		}
-		})
+    		})
     	})
     }
 })
@@ -48,17 +48,18 @@ io.sockets.on ('connection', function (client) {
         }
         async.parallel ([mongo_store_minitask, local_store_minitask], function (err, res) {
 		console.log ("init task returned")
-                if (err) {
-		    console.log (err)
-                    client.emit ('err', 'init_task_error')                    
-                } else {
-                    var channel_msg = {
-                            object_id: _.first(_.filter(_.pluck (res, 'object_id'), function (val) {return val!==null && val!== undefined})), 
-                            file_path: _.first(_.filter(_.pluck (res, 'tmp_path'), function (val) {return val !== null && val !== undefined}))
-                    }
-                    console.log (channel_msg)
-                    channel.publish (hdd_exchange, 'classify', new Buffer (channel_msg))
+            if (err) {
+    		    console.log (err)
+                client.emit ('err', 'init_task_error')                    
+            } else {
+                var channel_msg = {
+                    object_id: _.first(_.filter(_.pluck (res, 'object_id'), function (val) {return val!==null && val!== undefined})), 
+                    file_path: _.first(_.filter(_.pluck (res, 'tmp_path'), function (val) {return val !== null && val !== undefined}))
                 }
+                console.log (channel_msg)
+                channel.publish (hdd_exchange, 'classify', new Buffer (channel_msg))
+                channel.publish (hdd_exchange, 's3', new Buffer (channel_msg))
+            }
        })
     })
 	client.on ('disconnect', function () {
