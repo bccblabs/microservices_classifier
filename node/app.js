@@ -1,28 +1,33 @@
 var app = require ('express')(),
     server = require ('http').createServer(app).listen(8080),
     io = require ('socket.io').listen(server),
-    fs = require ('fs'),
     bodyParser = require ('body-parser'),
-    file_path = '/tmp/hdd_uploads',
-    temp = require ('temp'),
-    util = require ('./util')
+    util = require ('./util'),
+    amqp = require ('amqplib'),
+    _ = require ('underscore-node'),
+    async = require ('async'),
+    temp = require ('temp')
 
 app.use (bodyParser.urlencoded ({ extended: true }))
 console.log ("Socket server listening on 8080")
 temp.track()
-console.log ("created mq connection")
 
-mq_connection.on ('ready', function () {
-    console.log (mq_host + " mq ready")
-    clz_exchange = mq_connection.exchange ('clzX', {'type': 'fanout'})
-    mq_connection.queue ('clz_pipeline', function (q) {
-        q.bind ('#')
-        q.subscribe (function (msg) {
-            console.log (msg)
+
+var channel = "",
+    hdd_exchange = 'hdd',
+    channel_opts = {durable: false}
+
+amqp.connect ('amqp://localhost', function (err, conn) {
+    if (err)
+        console.log ("amqp conn error")
+    conn.createChannel (function (err, ch) {
+        ch.assertExchange(hdd_exchange, 'topic', exopts, function(err, ok) {
+            if (err)
+                console.log ('amqp channel creation err')
+            channel = ch
         })
     })
 })
-
 
 io.on ('connection', function (socket) {
 	console.log ("connected " + socket)
@@ -36,14 +41,32 @@ io.sockets.on ('connection', function (client) {
 	client.on ('clz_data', function (data) {
 		console.log ("client " + client.id + " sent clz data ")
 		console.dir (data)
-        var rk_clz = 'hdd_image'
-        clz_exchange.publish (rk_clz, data)
-	})
-	client.on ('image_s3_url', function (s3_url) {
-		console.log ("client " + client.id + " sent url " + s3_url)
-	})
+        util.connect_mongo (function (err, mongoClient) {
+                clz_coll = mongoClient.db ('hdd').collection ('classifications')
+
+        var mongo_store_minitask = function (callback) {
+            util.store_to_mongo (client, data, callback)
+        }
+
+        var local_store_minitask = function (callback) {
+            util.store_to_disk (client, data, callback, temp)
+        }
+        async.parallel ([mongo_store_minitask, local_store_minitask], function (err, res) {
+                if (err) {
+                    client.emit ('err', 'init_task_error')                    
+                } else {
+                    var channel_msg = {
+                            object_id: _.pluck (res, 'object_id'), 
+                            file_path: _.pluck (res, 'tmp_path')
+                    }
+                    console.log (channel_msg)
+                    channel.publish (hdd_exchange, 'classify', channel_msg)
+                }
+            })
+    	})
+    })
 	client.on ('disconnect', function () {
-        	console.log ("client " + client.id + " disconnected")
+        console.log ("client " + client.id + " disconnected")
     })
 }) 
 
@@ -57,8 +80,8 @@ app.post ('/notify', function (req, res) {
 
 app.post ('/classifications', function (req, res) {
     util.connect_mongo (function (err, mongoClient) {
-    var clz_coll = mongoClient.db ('hdd').collection ('classifications'),
-	query_obj = {}
+        var clz_coll = mongoClient.db ('hdd').collection ('classifications'),
+    	query_obj = {}
         clz_coll.find (query_obj)
                 .limit(req.body.pageSize)
                 .sort ({'date_created': -1})
@@ -68,5 +91,6 @@ app.post ('/classifications', function (req, res) {
                     else
                         res.json ({samples: results})
                 })
+        mongoClient.close()
     })
 })
