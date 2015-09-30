@@ -1,7 +1,8 @@
 var amqp = require('amqplib/callback_api'),
 	channel = "",
     hdd_exchange = 'hdd',
-    channel_opts = {durable: false}
+    channel_opts = {durable: false},
+    util = require ('../util')
 
 amqp.connect ('amqp://localhost:5672', function (err, conn) {
 	if (err !== null) {
@@ -14,12 +15,15 @@ amqp.connect ('amqp://localhost:5672', function (err, conn) {
       			console.log ('queue error')	      			
       		} else {
 				var queue = ok.queue, i = 0;
-				ch.bindQueue (queue, hdd_exchange, 's3', function (err, ok) {
+				ch.bindQueue (queue, hdd_exchange, 's3', {}, function (err, ok) {
 					if (err)
 						console.log ('bind queue err')
 				})
-				ch.consume(queue, logMessage, {noAck: true}, function(err) {
-						console.log ('consume queue err')
+				ch.consume(queue, util.push_to_s3, {noAck: true}, function(err) {
+					ch.bindQueue (queue, hdd_exchange, 's3', {}, function (err, ok) {
+						if (err)
+							console.log ('bind queue err')
+					})
 				})
 
       		}
