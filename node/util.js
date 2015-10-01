@@ -1,7 +1,7 @@
 var _ = require ('underscore-node'),
     fs = require ('fs'),
 	mongo = require ('mongodb'),
-    aws = require ('aws-sdk'),
+    aws = require ('aws-sdk')
 
 var connect_mongo = function (callback) {
     var mongo_client = mongo.MongoClient
@@ -74,8 +74,8 @@ var push_to_s3 = function (msg) {
         connect_mongo (function (err, mongoClient) {
             mongoClient.db ('hdd')
                        .collection ('classifications')
-                       .update ({'_id': require('mongodb').ObjectId(msg.content._id)}
-                                { $set: {'image_url': 'https://s3-us-west-2.amazonaws.com/hddimages/' + file_name},
+                       .update ({'_id': require('mongodb').ObjectId(msg.content._id)},
+                                { $set: {'image_url': 'https://s3-us-west-2.amazonaws.com/hddimages/' + file_name}},
                                 function (err, result) {
                                     mongoClient.close()
                                     if (err)
