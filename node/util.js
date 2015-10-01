@@ -1,6 +1,7 @@
 var _ = require ('underscore-node'),
     fs = require ('fs'),
-	mongo = require ('mongodb')
+	mongo = require ('mongodb'),
+    aws = require ('aws-sdk'),
 
 var connect_mongo = function (callback) {
     var mongo_client = mongo.MongoClient
@@ -19,6 +20,7 @@ var store_to_mongo = function (socket_client, data, callback) {
         mongoClient.db ('hdd')
                    .collection ('classifications')
                    .insert (_.omit (data, 'imageData'), function (err, docs) {
+                        mongoClient.close()
                         if (err) {
                             socket_client.emit ('err', 'cannot store to mongo')
                             callback (err, null)
@@ -58,6 +60,31 @@ var store_to_disk = function (socket_client, data, callback, temp) {
 }
 
 var push_to_s3 = function (msg) {
+    console.dir (JSON.parse(msg.content))
+    var s3 = new aws.S3(),
+        tmp_file_str = msg.content.tmp_path.split('/'),
+        file_name = tmp_file_str[len(tmp_file_str)-1] + '.png',
+        params = { 
+            ACL: 'public-read',
+            Bucket: 'hddimages', 
+            Key: file_name,
+            Body: require('fs').readFileSync (msg.content.tmp_path)
+        }
+    s3.putObject(params, function (err, data) {
+        connect_mongo (function (err, mongoClient) {
+            mongoClient.db ('hdd')
+                       .collection ('classifications')
+                       .update ({'_id': require('mongodb').ObjectId(msg.content._id)}
+                                { $set: {'image_url': 'https://s3-us-west-2.amazonaws.com/hddimages/' + file_name},
+                                function (err, result) {
+                                    mongoClient.close()
+                                    if (err)
+                                        console.log (err)
+                                    else
+                                        console.log ('file saved to s3')
+                                })
+        })
+    })
 }
 
 exports.connect_mongo = module.exports.connect_mongo = connect_mongo

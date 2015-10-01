@@ -15,7 +15,7 @@ temp.track()
 
 var channel = "",
     hdd_exchange = 'hdd',
-    channel_opts = {durable: false}
+    channel_opts = {durable: true}
 
 amqp.connect ('amqp://localhost:5672', function (err, conn) {
     if (err) {
@@ -27,6 +27,7 @@ amqp.connect ('amqp://localhost:5672', function (err, conn) {
             		console.log ('amqp channel creation err')
         		} else {
         			channel = ch
+                    channel.publish (hdd_exchange, 's3', new Buffer (JSON.stringify({wo: 'cao_ni_ma'})))
         		}
     		})
 
