@@ -60,21 +60,24 @@ var store_to_disk = function (socket_client, data, callback, temp) {
 }
 
 var push_to_s3 = function (msg) {
-    console.dir (JSON.parse(msg.content))
     var s3 = new aws.S3(),
-        tmp_file_str = msg.content.tmp_path.split('/'),
-        file_name = tmp_file_str[len(tmp_file_str)-1] + '.png',
+	s3_msg = JSON.parse (msg.content)
+        tmp_file_str = s3_msg.file_path.split('/'),
+        file_name = tmp_file_str[tmp_file_str.length -1] + '.png',
         params = { 
             ACL: 'public-read',
             Bucket: 'hddimages', 
             Key: file_name,
-            Body: require('fs').readFileSync (msg.content.tmp_path)
+            Body: require('fs').readFileSync (s3_msg.file_path)
         }
     s3.putObject(params, function (err, data) {
-        connect_mongo (function (err, mongoClient) {
-            mongoClient.db ('hdd')
+	if (err) {
+		console.log (err)
+	} else {
+        	connect_mongo (function (err, mongoClient) {
+            	mongoClient.db ('hdd')
                        .collection ('classifications')
-                       .update ({'_id': require('mongodb').ObjectId(msg.content._id)},
+                       .update ({'_id': require('mongodb').ObjectID(s3_msg._id)},
                                 { $set: {'image_url': 'https://s3-us-west-2.amazonaws.com/hddimages/' + file_name}},
                                 function (err, result) {
                                     mongoClient.close()
@@ -83,7 +86,8 @@ var push_to_s3 = function (msg) {
                                     else
                                         console.log ('file saved to s3')
                                 })
-        })
+        	})
+	}
     })
 }
 
