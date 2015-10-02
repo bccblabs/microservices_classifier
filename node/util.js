@@ -75,9 +75,10 @@ var push_to_s3 = function (msg) {
 		console.log (err)
 	} else {
         	connect_mongo (function (err, mongoClient) {
+		if (err) console.log (err)
             	mongoClient.db ('hdd')
                        .collection ('classifications')
-                       .update ({'_id': require('mongodb').ObjectID(s3_msg._id)},
+                       .update ({'_id': require('mongodb').ObjectID(s3_msg.object_id)},
                                 { $set: {'image_url': 'https://s3-us-west-2.amazonaws.com/hddimages/' + file_name}},
                                 function (err, result) {
                                     mongoClient.close()
