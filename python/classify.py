@@ -1,6 +1,6 @@
-from celery import Celery, Task
-import time, requests, pickle, caffe
+import time, requests, pika
 import numpy as np
+import caffe
 from caffe import Net, SGDSolver
 caffe.set_mode_cpu()
 caffe_root = "/home/ubuntu/caffe/"
@@ -13,20 +13,35 @@ hdd_classifier = caffe.Classifier (
                 raw_scale = 255,
                 image_dims = (256, 256)
 )
+classifiers = [hdd_classifier]
 print '[classifier] labels loaded ' + str (labels) 
 
+def classifier_callback (ch, method, properties, body):
+    print body
+    image = caffe.io.load_image(body.tmp_path)
+    resized_image = caffe.io.resize_image (image, (256,256,3))
+    res = np.zeros (num_outs * len (classifiers)).reshape (num_outs, len(classifiers))
+    for i, x in enumerate (classifiers):
+        res[:,i] = x.predict ([resized_image])[0]
+    avg_probs = np.average (res, axis=1)
+    top_k_idx = avg_probs.argsort()[-1:-6:-1]
+    result = [( labels[x], avg_probs[x]) for x in top_k_idx]
 
-broker = 'amqp://localhost:5672'
-app = Celery (__name__, broker=broker)
+    url = 'http://localhost:8080/notify'
+    data = {'socket_id': body.socket_id, 'classification_result': result}
+    requests.post (url, data)
 
-class NotifierTask (Task):
-    abstract = True
-    def after_return (self, status, retval, task_id, args, kwargs, einfo):
-        url = 'http://localhost:80/notify'
-        data = {'socket_id': 0, 'classification_result': retval}
-        requests.post (url, data)
 
-@app.task
-def classify_task(base=NotifierTask):
-	time.sleep(3)
-	return 'test'
+hdd_exchange = 'hdd'
+binding_key = 'classify'
+connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+channel = connection.channel()
+channel.exchange_declare(exchange=hdd_exchange, type='topic')
+result = channel.queue_declare(exclusive=True)
+queue_name = result.method.queue
+channel.queue_bind (exchange=hdd_exchange, queue=queue_name, routing_key=binding_key)
+
+print ' [*] Waiting for image classifications'
+
+channel.basic_consume (classifier_callback, queue = queue_name, no_ack = True)
+channel.start_consuming()
