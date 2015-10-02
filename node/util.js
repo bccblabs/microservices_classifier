@@ -91,7 +91,22 @@ var push_to_s3 = function (msg) {
     })
 }
 
+var write_classifier_result = function (classification_result, _id, callback) {
+    connect_mongo (function (err, mongoClient) {
+        mongoClient.db ('hdd')
+               .collection ('classifications')
+               .update ({'_id': require('mongodb').ObjectID(_id)},
+                        { $set: classification_result},
+                        function (err, result) {
+                            mongoClient.close()
+                            console.log ('[util] result in db')
+                            callback (err, result)
+                        })
+    })
+}
+
 exports.connect_mongo = module.exports.connect_mongo = connect_mongo
 exports.store_to_mongo = module.exports.store_to_mongo = store_to_mongo
 exports.store_to_disk = module.exports.store_to_disk = store_to_disk
 exports.push_to_s3 = module.exports.push_to_s3 = push_to_s3
+exports.write_classifier_result = module.exports.write_classifier_result = write_classifier_result

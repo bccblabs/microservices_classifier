@@ -28,12 +28,17 @@ def classifier_callback (ch, method, properties, body):
         res[:,i] = x.predict ([resized_image])[0]
     avg_probs = np.average (res, axis=1)
     top_k_idx = avg_probs.argsort()[-1:-6:-1]
-    result = [( labels[x], avg_probs[x]) for x in top_k_idx]
-    print result
-
-#    url = 'http://localhost:8080/notify'
-#    data = {'socket_id': body['socket_id'], 'classification_result': result}
-#    requests.post (url, data)
+    result_dict = {}
+    for x in top_k_idx.tolist():
+        res_dict = {}
+        res_dict["class_name"] = labels.tolist()[x][0]
+        res_dict["prob"] = avg_probs.tolist()[x]
+        result_dict['top_3'].append (res_dict)
+    result_dict['top_1'] = result_dict['top_3'][0]
+    print result_dict
+    url = 'http://localhost:8080/notify'
+    data = {'socket_id': body['socket_id'], 'classification_result': result_dict, 'object_id': body['object_id']}
+    requests.post (url, data)
 
 
 

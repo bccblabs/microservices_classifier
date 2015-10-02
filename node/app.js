@@ -70,11 +70,18 @@ io.sockets.on ('connection', function (client) {
 }) 
 
 app.post ('/notify', function (req, res) {
-    var client = io.sockets[req.body.socket_id]
-    console.log (client.sockets)
-    client.emit ('classification_result', req.body.classification_result)
-    res.type ('text/plain')
-    res.send ('Response Sent To Mobile socket[' + req.body.socket_id + ']')
+    util.write_classifier_result (req.body.classification_result, 
+                                  req.body.object_id,
+        function (err, result) {
+            if (err) {
+                console.log (err)                
+            } else {
+                var client = io.sockets[req.body.socket_id]
+                client.emit ('classification_result', req.body.classification_result)
+                res.type ('text/plain')
+                res.send ('Response Sent To Mobile socket[' + req.body.socket_id + ']')
+            }
+        })    
 })
 
 app.post ('/classifications', function (req, res) {
