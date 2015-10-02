@@ -16,9 +16,8 @@ hdd_classifier = caffe.Classifier (
 classifiers = [hdd_classifier]
 print '[classifier] labels loaded ' + str (labels) 
 
-def classifier_callback (ch, method, properties, body):
-    body = json.loads(body)
-    image = caffe.io.load_image(body['file_path'])
+def classify (file_path):
+    image = caffe.io.load_image(file_path)
     resized_image = caffe.io.resize_image (image, (256,256,3))
     res = np.zeros (len (labels) * len (classifiers)).reshape (len(labels), len(classifiers))
     for i, x in enumerate (classifiers):
@@ -33,10 +32,18 @@ def classifier_callback (ch, method, properties, body):
         res_dict["prob"] = avg_probs.tolist()[x]
         result_dict['top_5'].append (res_dict)
     result_dict['top_1'] = result_dict['top_5'][0]
-    print result_dict
+    return result_dict
+
+
+def classifier_callback (ch, method, properties, body):
+    body = json.loads(body)
+    result_dict = classify(body['file_path'])
     url = 'http://localhost:8080/notify'
-    data = {'socket_id': body['socket_id'], 'classification_result': result_dict, 'object_id': body['object_id']}
-    requests.post (url, data)
+    data = json.dumps({'socket_id': body['socket_id'], 'classification_result': result_dict, 'object_id': body['object_id']})
+    print data 
+    headers = {'Content-type': 'application/json', 'Accept': 'text/plain'} 
+    r = requests.post (url, data=data, headers=headers)
+    print r.text 
 
 
 

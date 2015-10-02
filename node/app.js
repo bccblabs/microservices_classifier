@@ -1,14 +1,18 @@
 var app = require ('express')(),
-    server = require ('http').createServer(app).listen(8080),
+    bodyParser = require ('body-parser')
+    app.use(bodyParser.json());
+    app.use(bodyParser.urlencoded());
+
+
+
+var server = require ('http').createServer(app).listen(8080),
     io = require ('socket.io').listen(server),
-    bodyParser = require ('body-parser'),
     util = require ('./util'),
     amqp = require ('amqplib/callback_api'),
     _ = require ('underscore-node'),
     async = require ('async'),
     temp = require ('temp')
 
-app.use (bodyParser.urlencoded ({ extended: true }))
 console.log ("Socket server listening on 8080")
 temp.track()
 
@@ -69,22 +73,24 @@ io.sockets.on ('connection', function (client) {
     })
 }) 
 
+
 app.post ('/notify', function (req, res) {
+    console.log (req.body)
     util.write_classifier_result (req.body.classification_result, 
                                   req.body.object_id,
         function (err, result) {
             if (err) {
-                console.log (err)                
+		res.status(500).end()
             } else {
-                var client = io.sockets[req.body.socket_id]
-                client.emit ('classification_result', req.body.classification_result)
-                res.type ('text/plain')
-                res.send ('Response Sent To Mobile socket[' + req.body.socket_id + ']')
+//                var client = io.sockets[req.body.socket_id]
+//                client.emit ('classification_result', req.body.classification_result)
+                res.status(201).send ('Response Sent To Mobile socket[' + req.body.socket_id + ']')
             }
         })    
 })
 
 app.post ('/classifications', function (req, res) {
+    console.log (req.body)
     util.connect_mongo (function (err, mongoClient) {
         var clz_coll = mongoClient.db ('hdd').collection ('classifications'),
     	query_obj = {}
@@ -92,11 +98,13 @@ app.post ('/classifications', function (req, res) {
                 .limit(req.body.pageSize)
                 .sort ({'date_created': -1})
                 .toArray (function (err, results) {
-                    if (err)
-                        res.status (500)
-                    else
+        	    mongoClient.close()
+                    if (err) {
+			console.log (err)
+			res.status (500).end()
+		    } else {
                         res.json ({samples: results})
-                })
-        mongoClient.close()
+                    }
+		})
     })
 })
