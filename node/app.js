@@ -55,7 +55,7 @@ io.sockets.on ('connection', function (client) {
                 client.emit ('err', 'init_task_error')                    
             } else {
                 var channel_msg = {
-                    socket_id: client.id
+                    socket_id: client.id,
                     object_id: _.first(_.filter(_.pluck (res, 'object_id'), function (val) {return val!==null && val!== undefined})), 
                     file_path: _.first(_.filter(_.pluck (res, 'tmp_path'), function (val) {return val !== null && val !== undefined}))
                 }
