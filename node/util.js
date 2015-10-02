@@ -96,7 +96,7 @@ var write_classifier_result = function (classification_result, _id, callback) {
         mongoClient.db ('hdd')
                .collection ('classifications')
                .update ({'_id': require('mongodb').ObjectID(_id)},
-                        { $set: classification_result},
+                        { $set: {'classifications': classification_result} },
                         function (err, result) {
                             mongoClient.close()
                             console.log ('[util] result in db')

@@ -20,18 +20,19 @@ def classifier_callback (ch, method, properties, body):
     body = json.loads(body)
     image = caffe.io.load_image(body['file_path'])
     resized_image = caffe.io.resize_image (image, (256,256,3))
-    res = np.zeros (len (labels) * len (classifiers)).reshape (num_outs, len(classifiers))
+    res = np.zeros (len (labels) * len (classifiers)).reshape (len(labels), len(classifiers))
     for i, x in enumerate (classifiers):
         res[:,i] = x.predict ([resized_image])[0]
     avg_probs = np.average (res, axis=1)
     top_k_idx = avg_probs.argsort()[-1:-6:-1]
     result_dict = {}
+    result_dict['top_5'] = []
     for x in top_k_idx.tolist():
         res_dict = {}
         res_dict["class_name"] = labels.tolist()[x][0]
         res_dict["prob"] = avg_probs.tolist()[x]
-        result_dict['top_3'].append (res_dict)
-    result_dict['top_1'] = result_dict['top_3'][0]
+        result_dict['top_5'].append (res_dict)
+    result_dict['top_1'] = result_dict['top_5'][0]
     print result_dict
     url = 'http://localhost:8080/notify'
     data = {'socket_id': body['socket_id'], 'classification_result': result_dict, 'object_id': body['object_id']}

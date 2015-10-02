@@ -15,7 +15,7 @@ temp.track()
 
 var channel = "",
     hdd_exchange = 'hdd',
-    channel_opts = {durable: false}
+    channel_opts = {durable: true}
 
 amqp.connect ('amqp://localhost:5672', function (err, conn) {
     if (err) {
