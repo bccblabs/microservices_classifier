@@ -10,7 +10,7 @@ amqp.connect ('amqp://localhost:5672', function (err, conn) {
 	}
 	conn.createChannel (function(err, ch) {
 		ch.assertExchange(hdd_exchange, 'topic', channel_opts)
-	    ch.assertQueue('', {exclusive: true}, function(err, ok) {
+	    ch.assertQueue('', {exclusive: false}, function(err, ok) {
       		if (err !== null) {
       			console.log ('queue error')	      			
       		} else {
