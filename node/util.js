@@ -92,6 +92,7 @@ var push_to_s3 = function (msg) {
 }
 
 var write_classifier_result = function (classification_result, _id, callback) {
+    console.log (classification_result)
     connect_mongo (function (err, mongoClient) {
         mongoClient.db ('hdd')
                .collection ('classifications')
