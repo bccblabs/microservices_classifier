@@ -18,12 +18,9 @@ print '[classifier] labels loaded ' + str (labels)
 
 def classifier_callback (ch, method, properties, body):
     body = json.loads(body)
-    print body
     image = caffe.io.load_image(body['file_path'])
     resized_image = caffe.io.resize_image (image, (256,256,3))
-    num_outs = len(labels)
-
-    res = np.zeros (num_outs * len (classifiers)).reshape (num_outs, len(classifiers))
+    res = np.zeros (len (labels) * len (classifiers)).reshape (num_outs, len(classifiers))
     for i, x in enumerate (classifiers):
         res[:,i] = x.predict ([resized_image])[0]
     avg_probs = np.average (res, axis=1)
@@ -50,8 +47,6 @@ channel.exchange_declare(exchange=hdd_exchange, type='topic', durable=True)
 result = channel.queue_declare(exclusive=True)
 queue_name = result.method.queue
 channel.queue_bind (exchange=hdd_exchange, queue=queue_name, routing_key=binding_key)
-
 print ' [*] Waiting for image classifications'
-
 channel.basic_consume (classifier_callback, queue = queue_name, no_ack = True)
 channel.start_consuming()
