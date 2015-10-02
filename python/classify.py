@@ -40,10 +40,10 @@ def classifier_callback (ch, method, properties, body):
     result_dict = classify(body['file_path'])
     url = 'http://localhost:8080/notify'
     data = json.dumps({'socket_id': body['socket_id'], 'classification_result': result_dict, 'object_id': body['object_id']})
-    print data 
     headers = {'Content-type': 'application/json', 'Accept': 'text/plain'} 
     r = requests.post (url, data=data, headers=headers)
-    print r.text 
+    print r.text
+
 
 
 

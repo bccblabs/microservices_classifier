@@ -75,16 +75,16 @@ io.sockets.on ('connection', function (client) {
 
 
 app.post ('/notify', function (req, res) {
-    console.log (req.body)
     util.write_classifier_result (req.body.classification_result, 
                                   req.body.object_id,
         function (err, result) {
             if (err) {
 		res.status(500).end()
             } else {
-//                var client = io.sockets[req.body.socket_id]
-//                client.emit ('classification_result', req.body.classification_result)
-                res.status(201).send ('Response Sent To Mobile socket[' + req.body.socket_id + ']')
+		console.log ( "socket id: " + req.body.socket_id)
+                var client = io.sockets.connected[req.body.socket_id]
+                client.emit ('classification_result', req.body.classification_result)
+                res.status(201).send ('[app.js] sent result to client ' + req.body.socket_id + ']')
             }
         })    
 })
