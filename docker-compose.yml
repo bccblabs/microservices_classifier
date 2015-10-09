@@ -1,0 +1,26 @@
+s3_worker:
+    image: bski006/s3_worker
+    links:
+        - rabbitmq
+        - db
+
+classifier:
+    image: bski006/classifier
+    links: 
+        - rabbitmq
+
+api:
+    image: bski006/api
+    links: 
+        - rabbitmq
+        - db
+    ports:
+        "8080:8080"
+
+rabbitmq:
+    image:
+        rabbitmq:3.4
+db:
+    image: mongo:2.6.11
+    volumes: /home/data/db
+

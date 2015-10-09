@@ -1,2 +1,3 @@
-celery
-requests
+numpy==1.9.2
+pika==0.10.0
+requests==2.6.2

@@ -1,0 +1,2 @@
+FROM node:0.12.7-wheezy
+CMD ["node", "s3_task.js"]
