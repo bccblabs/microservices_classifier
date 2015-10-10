@@ -3,8 +3,6 @@ var app = require ('express')(),
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded());
 
-
-
 var server = require ('http').createServer(app).listen(8080),
     io = require ('socket.io').listen(server),
     util = require ('./util'),
@@ -15,7 +13,6 @@ var server = require ('http').createServer(app).listen(8080),
 
 console.log ("Socket server listening on 8080")
 temp.track()
-
 
 var channel = "",
     hdd_exchange = 'hdd',
@@ -46,14 +43,14 @@ io.sockets.on ('connection', function (client) {
 		console.log ("client " + client.id + " sent clz data ")
 		data = JSON.parse (data)
         var mongo_store_minitask = function (callback) {
-            util.store_to_mongo (client, data, callback)
+            util.store_to_mongo (data, callback)
         }
 
         var local_store_minitask = function (callback) {
-            util.store_to_disk (client, data, callback, temp)
+            util.store_to_disk (data, callback, temp)
         }
         async.parallel ([mongo_store_minitask, local_store_minitask], function (err, res) {
-		console.log ("init task returned")
+    		console.log ("init task returned")
             if (err) {
     		    console.log (err)
                 client.emit ('err', 'init_task_error')                    
@@ -73,6 +70,31 @@ io.sockets.on ('connection', function (client) {
     })
 }) 
 
+app.post ('/classify', function (req, res) {
+    var data = JSON.parse (req.body),
+        mongo_store_minitask = function (callback) {
+            util.store_to_mongo (data, callback)
+        },
+        local_store_minitask = function (callback) {
+            util.store_to_disk (data, callback, temp)
+        }
+
+    async.parallel ([mongo_store_minitask, local_store_minitask], function (err, res) {
+        if (err) {
+            console.log (err)
+            client.emit ('err', 'init_task_error')                    
+        } else {
+            var channel_msg = {
+                socket_id: client.id,
+                object_id: _.first(_.filter(_.pluck (res, 'object_id'), function (val) {return val!==null && val!== undefined})), 
+                file_path: _.first(_.filter(_.pluck (res, 'tmp_path'), function (val) {return val !== null && val !== undefined}))
+            }
+            channel.publish (hdd_exchange, 'classify', new Buffer (JSON.stringify(channel_msg)))
+            channel.publish (hdd_exchange, 's3', new Buffer (JSON.stringify(channel_msg)))
+        }
+   })
+
+})
 
 app.post ('/notify', function (req, res) {
     util.write_classifier_result (req.body.classification_result, 
@@ -90,7 +112,7 @@ app.post ('/notify', function (req, res) {
 })
 
 app.post ('/listings', function (req, res) {
-    util.fetch_listings (req.params.label, req.body, function (err, result) {
+    util.fetch_listings (req.body.label, req.body, function (err, result) {
         if (err)
             res.status (500).end()
         else

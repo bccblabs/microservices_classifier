@@ -3,23 +3,7 @@ var _ = require ('underscore-node'),
 	mongo = require ('mongodb'),
     async = require ('async')
 
-var fetch_edmunds_listings = function (request_opts, styleId, callback) {
-    request_opts.url = 'https://api.edmunds.com/api/inventory/v2/styles/' + styleId
-    request (request_opts, function (err, res, body) {
-        if (err) {
-            callback (err, null)
-        } else if (res.statusCode != 200) {
-            callback ({status: res.statusCode}, null)
-        } else {
-            try {
-                var data = JSON.parse (body)
-            } catch (e) {
-                callback (err, null)
-            }
-            callback (null, data.inventories)
-        }
-    })
-}
+
 
 var connect_mongo = function (callback) {
     var mongo_client = mongo.MongoClient
@@ -33,48 +17,22 @@ var connect_mongo = function (callback) {
     })
 }
 
-var get_token = function (callback, results) {  
-    var edmunds_client_key="d442cka8a6mvgfnjcdt5fbns",
-        edmunds_client_secret="tVsB2tChr7wXqk47ZZMQneKq",
-        oauth2 = new OAuth2 (   
-                                edmunds_client_key, 
-                                edmunds_client_secret,
-                                'https://api.edmunds.com/inventory/token',
-                                null, 'oauth/token', null
-                            )
-
-    oauth2.getOAuthAccessToken ('', 
-                                {'grant_type': 'client_credentials'}, 
-                                function (err, access_token, refresh_token, results) {
-                                if (err) {
-                                    console.log (err)
-                                    callback (err, null)
-                                } else {
-                                    time_since_token = new Date().getTime()
-                                    last_access_token = access_token
-                                    callback (null, access_token)
-                                }
-                                });
-}
-
-var store_to_mongo = function (socket_client, data, callback) {
+var store_to_mongo = function (data, callback) {
     connect_mongo (function (err, mongoClient) {
         mongoClient.db ('hdd')
                    .collection ('classifications')
                    .insert (_.omit (data, 'imageData'), function (err, docs) {
                         mongoClient.close()
                         if (err) {
-                            socket_client.emit ('err', 'cannot store to mongo')
                             callback (err, null)
                         } else {
-                            socket_client.emit ('progress', 'object persisted in db')
                             callback (null, {object_id: docs[0]._id})
                         }
                    })
 	})
 }
 
-var store_to_disk = function (socket_client, data, callback, temp) {
+var store_to_disk = function (data, callback, temp) {
 	var tmp_file_path = 'hdd_uploads/'
         temp.open (tmp_file_path, function (err, info) {
             if (!err) {
@@ -112,6 +70,48 @@ var write_classifier_result = function (classification_result, _id, callback) {
                             console.log ('[util] result in db')
                             callback (err, result)
                         })
+    })
+}
+
+var get_token = function (callback, results) {  
+    var edmunds_client_key="d442cka8a6mvgfnjcdt5fbns",
+        edmunds_client_secret="tVsB2tChr7wXqk47ZZMQneKq",
+        oauth2 = new OAuth2 (   
+                                edmunds_client_key, 
+                                edmunds_client_secret,
+                                'https://api.edmunds.com/inventory/token',
+                                null, 'oauth/token', null
+                            )
+
+    oauth2.getOAuthAccessToken ('', 
+                                {'grant_type': 'client_credentials'}, 
+                                function (err, access_token, refresh_token, results) {
+                                if (err) {
+                                    console.log (err)
+                                    callback (err, null)
+                                } else {
+                                    time_since_token = new Date().getTime()
+                                    last_access_token = access_token
+                                    callback (null, access_token)
+                                }
+                                });
+}
+
+var fetch_edmunds_listings = function (request_opts, styleId, callback) {
+    request_opts.url = 'https://api.edmunds.com/api/inventory/v2/styles/' + styleId
+    request (request_opts, function (err, res, body) {
+        if (err) {
+            callback (err, null)
+        } else if (res.statusCode != 200) {
+            callback ({status: res.statusCode}, null)
+        } else {
+            try {
+                var data = JSON.parse (body)
+            } catch (e) {
+                callback (err, null)
+            }
+            callback (null, data.inventories)
+        }
     })
 }
 
@@ -175,3 +175,4 @@ exports.connect_mongo = module.exports.connect_mongo = connect_mongo
 exports.store_to_mongo = module.exports.store_to_mongo = store_to_mongo
 exports.store_to_disk = module.exports.store_to_disk = store_to_disk
 exports.write_classifier_result = module.exports.write_classifier_result = write_classifier_result
+exports.fetch_listings = module.exports.fetch_listings = fetch_listings
