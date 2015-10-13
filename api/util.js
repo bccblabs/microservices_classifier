@@ -3,8 +3,6 @@ var _ = require ('underscore-node'),
 	mongo = require ('mongodb'),
     async = require ('async')
 
-
-
 var connect_mongo = function (callback) {
     var mongo_client = mongo.MongoClient
     server = mongo.Server

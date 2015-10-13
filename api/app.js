@@ -1,7 +1,7 @@
 var app = require ('express')(),
     bodyParser = require ('body-parser')
-    app.use(bodyParser.json());
-    app.use(bodyParser.urlencoded());
+    app.use(bodyParser.json({limit: '50mb'}));
+    app.use(bodyParser.urlencoded({limit: '50mb'}));
 
 var server = require ('http').createServer(app).listen(8080),
     io = require ('socket.io').listen(server),
@@ -68,32 +68,40 @@ io.sockets.on ('connection', function (client) {
 	client.on ('disconnect', function () {
         console.log ("client " + client.id + " disconnected")
     })
+    client.on ('listings', function (query) {
+        
+    })
 }) 
 
 app.post ('/classify', function (req, res) {
-    var data = JSON.parse (req.body),
-        mongo_store_minitask = function (callback) {
-            util.store_to_mongo (data, callback)
-        },
-        local_store_minitask = function (callback) {
-            util.store_to_disk (data, callback, temp)
-        }
-
-    async.parallel ([mongo_store_minitask, local_store_minitask], function (err, res) {
-        if (err) {
-            console.log (err)
-            client.emit ('err', 'init_task_error')                    
-        } else {
-            var channel_msg = {
-                socket_id: client.id,
-                object_id: _.first(_.filter(_.pluck (res, 'object_id'), function (val) {return val!==null && val!== undefined})), 
-                file_path: _.first(_.filter(_.pluck (res, 'tmp_path'), function (val) {return val !== null && val !== undefined}))
+    try {
+        var data = JSON.parse (req.body),
+            mongo_store_minitask = function (callback) {
+                util.store_to_mongo (data, callback)
+            },
+            local_store_minitask = function (callback) {
+                util.store_to_disk (data, callback, temp)
             }
-            channel.publish (hdd_exchange, 'classify', new Buffer (JSON.stringify(channel_msg)))
-            channel.publish (hdd_exchange, 's3', new Buffer (JSON.stringify(channel_msg)))
-        }
-   })
 
+        async.parallel ([mongo_store_minitask, local_store_minitask], function (err, res) {
+            if (err) {
+                throw new Error (err)
+            } else {
+                var channel_msg = {
+                    socket_id: req.body.userId,
+                    object_id: _.first(_.filter(_.pluck (res, 'object_id'), function (val) {return val!==null && val!== undefined})), 
+                    file_path: _.first(_.filter(_.pluck (res, 'tmp_path'), function (val) {return val !== null && val !== undefined}))
+                }
+                channel.publish (hdd_exchange, 'classify', new Buffer (JSON.stringify(channel_msg)))
+                channel.publish (hdd_exchange, 's3', new Buffer (JSON.stringify(channel_msg)))
+                /* here, binds a listener with client id to listen for message after classification */
+            }
+       })
+
+    } catch (ex) {
+        console.log (ex)
+        res.status (500).send (JSON.stringify (ex))
+    }
 })
 
 app.post ('/notify', function (req, res) {
