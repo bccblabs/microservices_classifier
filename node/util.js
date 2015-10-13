@@ -106,8 +106,87 @@ var write_classifier_result = function (classification_result, _id, callback) {
     })
 }
 
+var fetch_edmunds_listings = function (request_opts, styleId, client_info, callback) {
+    request_opts.url = 'https://api.edmunds.com/api/inventory/v2/styles/' + styleId
+    request (request_opts, function (err, res, body) {
+        if (err) {
+            callback (err, null)
+        } else if (res.statusCode != 200) {
+            callback ({status: res.statusCode}, null)
+        } else {
+            try {
+                var data = JSON.parse (body)
+            } catch (e) {
+                callback (err, null)
+            }
+            var returned_data = {
+                socket_id: client_info.client_socket_id,
+                listings: data.inventories
+            },
+                post_opts = {
+                url: 'http://localhost:8080/notifyListings',
+                method: 'POST',
+                body: returned_data,
+                json: true
+            },
+                user_data = {
+                user_id: user_id,
+                zip: client_info.zip,
+                query: client_info.query,
+                listing_ids: _.pick (data.inventories, 'vin')              
+            }
+            request.post (post_opts, function (err, res, body) {
+                if (err)
+                    callback (err)
+                else
+                    callback (null, user_data)
+
+            })
+        }
+    })
+}
+var fetch_listings = function (msg) {
+    var query = JSON.parse (msg)
+        connect_mongo (function (err, mongoClient) {
+        mongoClient.db ('vehicle_data')
+            .collection ('trims')
+            .distinct ('styleId', car_query, function (err, styleIds) {
+                if (err) {
+                    callback (err, null)                    
+                } else {
+                    var request_opts = {
+                            method: "GET",
+                            followRedirect: true,
+                            qs: {
+                                access_token: access_token_,
+                                fmt: 'json',
+                                view: 'basic',
+                                zipcode: car_query.zipcode,
+                                radius: car_query.radius,
+                                pagenum: car_query.pagenum,
+                                pagesize: 30/car_query.pagesize
+                            }
+                    }
+                    _.each (styleIds, function (styleId) {
+                        var listing_worker = function (callback) {
+                            fetch_edmunds_listings (request_opts, styleId, client_id, callback)
+                        }.bind (this)
+                        listing_tasks.push (listing_worker)
+                    })
+
+                    async.parallelLimit (listing_tasks, 10, function (err, results) {
+                        mongoClient.db('user_info').collection ('listing_queries').insert (results, function (err, res) {
+                            mongoClient.close()
+                        })
+                    })
+                }
+            })
+    })
+}
+
 exports.connect_mongo = module.exports.connect_mongo = connect_mongo
 exports.store_to_mongo = module.exports.store_to_mongo = store_to_mongo
 exports.store_to_disk = module.exports.store_to_disk = store_to_disk
 exports.push_to_s3 = module.exports.push_to_s3 = push_to_s3
 exports.write_classifier_result = module.exports.write_classifier_result = write_classifier_result
+exports.fetch_listings = module.exports.fetch_listings = fetch_listings

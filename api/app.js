@@ -15,7 +15,7 @@ console.log ("Socket server listening on 8080")
 temp.track()
 
 var channel = "",
-    hdd_exchange = 'hdd',
+    car_exchange = 'cars',
     channel_opts = {durable: true}
 
 amqp.connect ('amqp://localhost:5672', function (err, conn) {
@@ -23,7 +23,7 @@ amqp.connect ('amqp://localhost:5672', function (err, conn) {
         console.log ("amqp conn error")
     } else {
     	conn.createChannel (function (err, ch) {
-        	ch.assertExchange(hdd_exchange, 'topic', channel_opts, function(err, ok) {
+        	ch.assertExchange(car_exchange, 'topic', channel_opts, function(err, ok) {
         		if (err) {
             		console.log ('amqp channel creation err')
         		} else {
@@ -38,7 +38,7 @@ amqp.connect ('amqp://localhost:5672', function (err, conn) {
 
 io.sockets.on ('connection', function (client) {
 	client.emit ('register', client.id)
-	console.log ("client connected: " + client.id)
+    
 	client.on ('clz_data', function (data) {
 		console.log ("client " + client.id + " sent clz data ")
 		data = JSON.parse (data)
@@ -60,49 +60,23 @@ io.sockets.on ('connection', function (client) {
                     object_id: _.first(_.filter(_.pluck (res, 'object_id'), function (val) {return val!==null && val!== undefined})), 
                     file_path: _.first(_.filter(_.pluck (res, 'tmp_path'), function (val) {return val !== null && val !== undefined}))
                 }
-                channel.publish (hdd_exchange, 'classify', new Buffer (JSON.stringify(channel_msg)))
-                channel.publish (hdd_exchange, 's3', new Buffer (JSON.stringify(channel_msg)))
+                channel.publish (car_exchange, 'classify', new Buffer (JSON.stringify(channel_msg)))
+                channel.publish (car_exchange, 's3', new Buffer (JSON.stringify(channel_msg)))
             }
        })
     })
+
 	client.on ('disconnect', function () {
         console.log ("client " + client.id + " disconnected")
     })
+
     client.on ('listings', function (query) {
-        
+        try {
+            var data = util.validate_query (JSON.parse (query))
+            channel.publish (car_exchange, 'listings', new Buffer (JSON.stringify (data)))
+        }
     })
 }) 
-
-app.post ('/classify', function (req, res) {
-    try {
-        var data = JSON.parse (req.body),
-            mongo_store_minitask = function (callback) {
-                util.store_to_mongo (data, callback)
-            },
-            local_store_minitask = function (callback) {
-                util.store_to_disk (data, callback, temp)
-            }
-
-        async.parallel ([mongo_store_minitask, local_store_minitask], function (err, res) {
-            if (err) {
-                throw new Error (err)
-            } else {
-                var channel_msg = {
-                    socket_id: req.body.userId,
-                    object_id: _.first(_.filter(_.pluck (res, 'object_id'), function (val) {return val!==null && val!== undefined})), 
-                    file_path: _.first(_.filter(_.pluck (res, 'tmp_path'), function (val) {return val !== null && val !== undefined}))
-                }
-                channel.publish (hdd_exchange, 'classify', new Buffer (JSON.stringify(channel_msg)))
-                channel.publish (hdd_exchange, 's3', new Buffer (JSON.stringify(channel_msg)))
-                /* here, binds a listener with client id to listen for message after classification */
-            }
-       })
-
-    } catch (ex) {
-        console.log (ex)
-        res.status (500).send (JSON.stringify (ex))
-    }
-})
 
 app.post ('/notify', function (req, res) {
     util.write_classifier_result (req.body.classification_result, 
@@ -117,6 +91,16 @@ app.post ('/notify', function (req, res) {
                 res.status(201).send ('[app.js] sent result to client ' + req.body.socket_id + ']')
             }
         })    
+})
+
+app.post ('/notifyListings', function (req, res) {
+    try {
+        var client = io.sockets.connected[req.body.socket_id]
+        client.emit ('listings_results', req.body.listings)
+        res.status(201).send ('[app.js] sent listings to client ' + req.body.socket_id + ']')
+    } catch (exp) {
+        res.status(500).send ({'msg': 'server error'})
+    }
 })
 
 app.post ('/listings', function (req, res) {

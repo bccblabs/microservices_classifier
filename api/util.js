@@ -169,6 +169,9 @@ var fetch_listings = function (label_string, car_query, callback) {
     })
 }
 
+var validate_query = function (query) {
+
+}
 exports.connect_mongo = module.exports.connect_mongo = connect_mongo
 exports.store_to_mongo = module.exports.store_to_mongo = store_to_mongo
 exports.store_to_disk = module.exports.store_to_disk = store_to_disk
