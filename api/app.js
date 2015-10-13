@@ -38,9 +38,8 @@ amqp.connect ('amqp://localhost:5672', function (err, conn) {
 
 io.sockets.on ('connection', function (client) {
 	client.emit ('register', client.id)
-    
+
 	client.on ('clz_data', function (data) {
-		console.log ("client " + client.id + " sent clz data ")
 		data = JSON.parse (data)
         var mongo_store_minitask = function (callback) {
             util.store_to_mongo (data, callback)
@@ -57,6 +56,8 @@ io.sockets.on ('connection', function (client) {
             } else {
                 var channel_msg = {
                     socket_id: client.id,
+                    user_id: res.user_id,
+                    zipcode: res.zipcode,
                     object_id: _.first(_.filter(_.pluck (res, 'object_id'), function (val) {return val!==null && val!== undefined})), 
                     file_path: _.first(_.filter(_.pluck (res, 'tmp_path'), function (val) {return val !== null && val !== undefined}))
                 }
@@ -85,10 +86,7 @@ app.post ('/notify', function (req, res) {
             if (err) {
         		res.status(500).end()
             } else {
-        		console.log ( "socket id: " + req.body.socket_id)
-                var client = io.sockets.connected[req.body.socket_id]
-                client.emit ('classification_result', req.body.classification_result)
-                res.status(201).send ('[app.js] sent result to client ' + req.body.socket_id + ']')
+                channel.publish (car_exchange, 'listings', new Buffer (JSON.stringify (req.body)))
             }
         })    
 })
@@ -130,4 +128,8 @@ app.post ('/classifications', function (req, res) {
                     }
 		})
     })
+})
+
+app.get ('/vehicle_info', function (req, res) {
+    
 })

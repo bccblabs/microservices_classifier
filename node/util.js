@@ -145,6 +145,7 @@ var fetch_edmunds_listings = function (request_opts, styleId, client_info, callb
         }
     })
 }
+
 var fetch_listings = function (msg) {
     var query = JSON.parse (msg)
         connect_mongo (function (err, mongoClient) {

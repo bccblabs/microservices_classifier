@@ -27,7 +27,6 @@ amqp.connect ('amqp://localhost:5672', function (err, conn) {
 				})
       		}
 		})
-
 		ch.assertQueue ('', {exclusive: false}, function (err, ok) {
       		if (err !== null) {
       			console.log ('queue error')	      			
