@@ -1,7 +1,10 @@
 var _ = require ('underscore-node'),
     fs = require ('fs'),
 	mongo = require ('mongodb'),
-    async = require ('async')
+    async = require ('async'),
+    OAuth = require ('oauth'),
+    request = require ('request'),
+    OAuth2 = OAuth.OAuth2
 
 var connect_mongo = function (callback) {
     var mongo_client = mongo.MongoClient
@@ -96,15 +99,20 @@ var get_token = function (callback, results) {
 }
 
 var fetch_edmunds_listings = function (request_opts, styleId, callback) {
+    console.log (request_opts)
     request_opts.url = 'https://api.edmunds.com/api/inventory/v2/styles/' + styleId
     request (request_opts, function (err, res, body) {
         if (err) {
+            console.log (err)
             callback (err, null)
         } else if (res.statusCode != 200) {
+            console.log ("not 200 returned")
             callback ({status: res.statusCode}, null)
         } else {
+            console.log (body)
             try {
                 var data = JSON.parse (body)
+                console.log (data)
             } catch (e) {
                 callback (err, null)
             }
@@ -113,11 +121,11 @@ var fetch_edmunds_listings = function (request_opts, styleId, callback) {
     })
 }
 
-var fetch_listings = function (label_string, car_query, callback) {
+var fetch_listings = function (query, callback) {
     connect_mongo (function (err, mongoClient) {
         mongoClient.db ('vehicle_data')
             .collection ('trims')
-            .distinct ('styleId', car_query, function (err, styleIds) {
+            .distinct ('styleId', query.car_query, function (err, styleIds) {
                 if (err)
                     callback (err, null)
                 else {
@@ -126,6 +134,12 @@ var fetch_listings = function (label_string, car_query, callback) {
                         if (err) {
                             callback (err, null)
                         } else {
+                            var res_per_req = 5
+                            if (styleIds.length > 0) {
+                                res_per_req = query.query_opts.pagesize / (styleIds.length)
+                                if (res_per_req < 5)
+                                    res_per_req = 5
+                            }
                             var request_opts = {
                                     method: "GET",
                                     followRedirect: true,
@@ -133,13 +147,14 @@ var fetch_listings = function (label_string, car_query, callback) {
                                         access_token: access_token_,
                                         fmt: 'json',
                                         view: 'basic',
-                                        zipcode: car_query.zipcode,
-                                        radius: car_query.radius,
-                                        pagenum: car_query.pagenum,
-                                        pagesize: 30/car_query.pagesize
+                                        zipcode: query.query_opts.zipcode,
+                                        radius: query.query_opts.radius,
+                                        pagenum: query.query_opts.pagenum,
+                                        pagesize: res_per_req
                                     }
                             }
                             _.each (styleIds, function (styleId) {
+                                console.log (styleId)
                                 var listing_worker = function (callback) {
                                     fetch_edmunds_listings (request_opts, styleId, callback)
                                 }.bind (this)

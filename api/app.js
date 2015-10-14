@@ -11,6 +11,7 @@ var server = require ('http').createServer(app).listen(8080),
     async = require ('async'),
     temp = require ('temp')
 
+
 console.log ("Socket server listening on 8080")
 temp.track()
 
@@ -75,6 +76,8 @@ io.sockets.on ('connection', function (client) {
         try {
             var data = util.validate_query (JSON.parse (query))
             channel.publish (car_exchange, 'listings', new Buffer (JSON.stringify (data)))
+        } catch (exp) {
+            console.log (exp)
         }
     })
 }) 
@@ -102,11 +105,15 @@ app.post ('/notifyListings', function (req, res) {
 })
 
 app.post ('/listings', function (req, res) {
-    util.fetch_listings (req.body.label, req.body, function (err, result) {
-        if (err)
-            res.status (500).end()
-        else
+    util.fetch_listings (req.body, function (err, result) {
+        if (err) {
+            console.log (err) 
+            res.status (500).end()            
+        }
+        else {
+            console.log (result)
             res.json (result)
+        }
     })
 })
 
