@@ -1,7 +1,9 @@
 var _ = require ('underscore-node'),
     fs = require ('fs'),
 	mongo = require ('mongodb'),
-    aws = require ('aws-sdk')
+    aws = require ('aws-sdk'),    
+    OAuth = require ('oauth')
+
 
 var connect_mongo = function (callback) {
     var mongo_client = mongo.MongoClient
@@ -59,6 +61,30 @@ var store_to_disk = function (socket_client, data, callback, temp) {
         })                
 }
 
+var get_token = function (callback, results) {  
+    var edmunds_client_key="d442cka8a6mvgfnjcdt5fbns",
+        edmunds_client_secret="tVsB2tChr7wXqk47ZZMQneKq",
+        oauth2 = new OAuth2 (   
+                                edmunds_client_key, 
+                                edmunds_client_secret,
+                                'https://api.edmunds.com/inventory/token',
+                                null, 'oauth/token', null
+                            )
+
+    oauth2.getOAuthAccessToken ('', 
+                                {'grant_type': 'client_credentials'}, 
+                                function (err, access_token, refresh_token, results) {
+                                if (err) {
+                                    console.log (err)
+                                    callback (err, null)
+                                } else {
+                                    time_since_token = new Date().getTime()
+                                    last_access_token = access_token
+                                    callback (null, access_token)
+                                }
+                                });
+}
+
 var push_to_s3 = function (msg) {
     var s3 = new aws.S3(),
 	s3_msg = JSON.parse (msg.content)
@@ -106,7 +132,7 @@ var write_classifier_result = function (classification_result, _id, callback) {
     })
 }
 
-var fetch_edmunds_listings = function (request_opts, styleId, client_info, callback) {
+var fetch_edmunds_listings = function (request_opts, styleId, client_socket_id, callback) {
     request_opts.url = 'https://api.edmunds.com/api/inventory/v2/styles/' + styleId
     request (request_opts, function (err, res, body) {
         if (err) {
@@ -120,7 +146,7 @@ var fetch_edmunds_listings = function (request_opts, styleId, client_info, callb
                 callback (err, null)
             }
             var returned_data = {
-                socket_id: client_info.client_socket_id,
+                socket_id: client_socket_id,
                 listings: data.inventories
             },
                 post_opts = {
@@ -129,17 +155,13 @@ var fetch_edmunds_listings = function (request_opts, styleId, client_info, callb
                 body: returned_data,
                 json: true
             },
-                user_data = {
-                user_id: user_id,
-                zip: client_info.zip,
-                query: client_info.query,
-                listing_ids: _.pick (data.inventories, 'vin')              
-            }
+                received_vins = _.pick (data.inventories, 'vin')
+
             request.post (post_opts, function (err, res, body) {
                 if (err)
                     callback (err)
                 else
-                    callback (null, user_data)
+                    callback (null, received_vins)
 
             })
         }
@@ -153,34 +175,49 @@ var fetch_listings = function (msg) {
             .collection ('trims')
             .distinct ('styleId', car_query, function (err, styleIds) {
                 if (err) {
-                    callback (err, null)                    
+                    console.log (err)                    
                 } else {
-                    var request_opts = {
-                            method: "GET",
-                            followRedirect: true,
-                            qs: {
-                                access_token: access_token_,
-                                fmt: 'json',
-                                view: 'basic',
-                                zipcode: car_query.zipcode,
-                                radius: car_query.radius,
-                                pagenum: car_query.pagenum,
-                                pagesize: 30/car_query.pagesize
+                    var listing_tasks = []
+                    async.retry (3, get_token, function (err, access_token_) {
+                        if (err) {
+                            console.log (err)
+                        } else {
+                            var res_per_req = 5
+                            if (styleIds.length > 0) {
+                                res_per_req = query.car_query.pagesize / (styleIds.length)
+                                if (res_per_req < 5)
+                                    res_per_req = 5
                             }
-                    }
-                    _.each (styleIds, function (styleId) {
-                        var listing_worker = function (callback) {
-                            fetch_edmunds_listings (request_opts, styleId, client_id, callback)
-                        }.bind (this)
-                        listing_tasks.push (listing_worker)
-                    })
+                            var request_opts = {
+                                    method: "GET",
+                                    followRedirect: true,
+                                    qs: {
+                                        access_token: access_token_,
+                                        fmt: 'json',
+                                        view: 'basic',
+                                        zipcode: query.car_query.zipcode,
+                                        radius: query.car_query.radius,
+                                        pagenum: query.car_query.pagenum,
+                                        pagesize: res_per_req
+                                    }
+                            }
+                            _.each (styleIds, function (styleId) {
+                                var listing_worker = function (callback) {
+                                    fetch_edmunds_listings (request_opts, styleId, query.socket_id, callback)
+                                }.bind (this)
+                                listing_tasks.push (listing_worker)
+                            })
 
-                    async.parallelLimit (listing_tasks, 10, function (err, results) {
-                        mongoClient.db('user_info').collection ('listing_queries').insert (results, function (err, res) {
-                            mongoClient.close()
-                        })
+                            async.parallelLimit (listing_tasks, 10, function (err, results) {
+                                mongoClient.db('user_info').collection ('listing_queries').insert (results, function (err, res) {
+                                    if (err)
+                                        console.log (err)
+                                    mongoClient.close()
+                                })
+                            })
+                        }
                     })
-                }
+                }           
             })
     })
 }

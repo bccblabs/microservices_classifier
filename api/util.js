@@ -99,20 +99,15 @@ var get_token = function (callback, results) {
 }
 
 var fetch_edmunds_listings = function (request_opts, styleId, callback) {
-    console.log (request_opts)
     request_opts.url = 'https://api.edmunds.com/api/inventory/v2/styles/' + styleId
     request (request_opts, function (err, res, body) {
         if (err) {
-            console.log (err)
             callback (err, null)
         } else if (res.statusCode != 200) {
-            console.log ("not 200 returned")
             callback ({status: res.statusCode}, null)
         } else {
-            console.log (body)
             try {
                 var data = JSON.parse (body)
-                console.log (data)
             } catch (e) {
                 callback (err, null)
             }
@@ -154,7 +149,6 @@ var fetch_listings = function (query, callback) {
                                     }
                             }
                             _.each (styleIds, function (styleId) {
-                                console.log (styleId)
                                 var listing_worker = function (callback) {
                                     fetch_edmunds_listings (request_opts, styleId, callback)
                                 }.bind (this)

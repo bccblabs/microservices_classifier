@@ -74,7 +74,8 @@ io.sockets.on ('connection', function (client) {
 
     client.on ('listings', function (query) {
         try {
-            var data = util.validate_query (JSON.parse (query))
+            var data = util.validate_query (JSON.parse (query)),
+            data.socket_id = client.id
             channel.publish (car_exchange, 'listings', new Buffer (JSON.stringify (data)))
         } catch (exp) {
             console.log (exp)
