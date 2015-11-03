@@ -1,0 +1,6 @@
+#Dockerfile.s3worker
+
+FROM node:0.12-onbuild
+ADD . /src
+RUN cd /src; npm install
+CMD ["node", "index.js"]

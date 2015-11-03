@@ -1,0 +1,8 @@
+numpy==1.9.2
+requests==2.6.2
+rsa==3.1.2
+scikit-image==0.10.1
+scipy==0.15.1
+anyjson==0.3.3
+simplejson==3.6.5
+pika==0.10.0

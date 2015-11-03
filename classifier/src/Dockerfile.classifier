@@ -1,0 +1,11 @@
+#Dockerfile.classifier
+
+FROM tleyden5iwx/caffe-cpu-master
+RUN mkdir /home/src
+ENV NOTIFIER_URI="0.0.0.0"
+ENV NOTIFIER_PORT="8080"
+ENV AMQP_HOST="0.0.0.0:5672"
+ADD src /home/src/
+RUN cd /home/src/; pip install -r requirements.txt
+WORKDIR /home/src
+CMD ["python", "classify.py"]

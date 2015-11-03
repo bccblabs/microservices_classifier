@@ -1,0 +1,32 @@
+server:
+ image: bski67/server
+ ports: 
+  - "8080:8080"
+ links:
+  - rabbitmq
+  - db
+
+listings_worker:
+ image: bski67/listings_worker
+ links:
+  - rabbitmq
+  - db
+
+s3_worker:
+ image: bski67/s3_worker
+ links:
+  - rabbitmq
+
+classifier:
+ image: bski67/classifier_worker
+ links:
+  - rabbitmq
+db:
+ image: bski67/db
+ ports:
+  - "27017:27017"
+
+
+
+rabbitmq:
+ image: rabbitmq:3.4
