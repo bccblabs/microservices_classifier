@@ -2,15 +2,14 @@ import json, time, requests, pika, os
 import numpy as np
 import caffe
 from caffe import Net, SGDSolver
-# classifier_dir = '/home/src/'
 
-classifier_dir="/Users/bski/Dev/microservices_classifier/classifier/src/"
-NOTIFIER_URI = os.environ['NOTIFIER_URI'] 
-NOTIFIER_PORT = os.environ['NOTIFIER_PORT']
-AMQP_HOST = os.environ['AMQP_HOST']
+classifier_dir="/home/ubuntu/microservices_classifier/classifier/src/"
+NOTIFIER_URI = 'localhost'
+NOTIFIER_PORT = 8080
+AMQP_HOST = 'localhost'
 caffe.set_mode_cpu()
 # caffe.set_device(0)
-
+print NOTIFIER_URI
 labels = np.loadtxt(classifier_dir + "labels.txt", str, delimiter="\t")
 hdd_classifier = caffe.Classifier (
                 classifier_dir + "deploy.prototxt",
