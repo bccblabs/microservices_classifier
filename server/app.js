@@ -9,8 +9,8 @@ var server = require ('http').createServer(app).listen(8080),
     amqp = require ('amqplib/callback_api'),
     _ = require ('underscore-node'),
     async = require ('async'),
-    temp = require ('temp')
-
+    temp = require ('temp'),
+    AMQP_ADDR = process.env['RABBITMQ_PORT_5672_TCP_ADDR'] + ':' + process.env['MICROSERVICESCLASSIFIER_RABBITMQ_1_PORT_5672_TCP_PORT'] || 'localhost:5672'
 
 console.log ("Socket server listening on 8080")
 temp.track()
@@ -19,7 +19,7 @@ var channel = "",
     car_exchange = 'cars',
     channel_opts = {durable: true}
 
-amqp.connect ('amqp://localhost:5672', function (err, conn) {
+amqp.connect ('amqp://' + AMQP_ADDR, function (err, conn) {
     if (err) {
         console.log ("amqp conn error")
     } else {

@@ -4,12 +4,14 @@ var _ = require ('underscore-node'),
     async = require ('async'),
     OAuth = require ('oauth'),
     OAuth2 = OAuth.OAuth2
-    request = require ('request')
+    request = require ('request'),
+    MONGO_HOST = process.env['DB_PORT_27017_TCP_ADDR'] || 'localhost',
+    MONGO_PORT = process.env['DB_1_PORT_27017_TCP_PORT'] || '27017'
 
 var connect_mongo = function (callback) {
     var mongo_client = mongo.MongoClient
     server = mongo.Server
-    client = new mongo_client (new server ('localhost', 27017), {native_parser: true})
+    client = new mongo_client (new server (MONGO_HOST, MONGO_PORT), {native_parser: true})
     client.open (function (err, mongoClient) {
         if (err)
             callback (err, null)
