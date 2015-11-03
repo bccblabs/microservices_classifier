@@ -44,7 +44,12 @@ def classifier_callback (ch, method, properties, body):
     body = json.loads(body)
     result_dict = classify(body['file_path'])
     url = NOTIFIER_URI + ':' + NOTIFIER_PORT + '/notify'
-    data = json.dumps({'socket_id': body['socket_id'], 'classification_result': result_dict, 'object_id': body['object_id']})
+    data =  json.dumps({
+                        'socket_id': body['socket_id'], 
+                        'classification_result': result_dict, 
+                        'object_id': body['object_id'],
+                        'query': body['query']
+            })
     headers = {'Content-type': 'application/json', 'Accept': 'text/plain'} 
     r = requests.post (url, data=data, headers=headers)
 
