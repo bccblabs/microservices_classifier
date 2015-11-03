@@ -4,7 +4,7 @@ server:
   - "8080:8080"
  links:
   - db
-  # - rabbitmq
+  - rabbitmq
 
 # listings:
 #  image: bski67/listings
@@ -26,5 +26,5 @@ db:
  ports:
   - "27017:27017"
 
-# rabbitmq:
-#  image: rabbitmq:3.4
+rabbitmq:
+ image: rabbitmq:3.4
