@@ -213,15 +213,15 @@ var parse_car_query = function (query_params) {
         query['powertrain.engine.cylinder'] = {'$in': query_params['cylinders']}
     }
     if (_.has (query_params, 'minHp')) {
-        query['powertrain.engine.horsepower'] = {'$gte': query_params['min_hp']}
+        query['powertrain.engine.horsepower'] = {'$gte': query_params['minHp']}
     }
 
     if (_.has (query_params, 'minTq')) {
-        query['powertrain.engine.torque'] = {'$gte': query_params['min_tq']}
+        query['powertrain.engine.torque'] = {'$gte': query_params['minTq']}
     }
 
     if (_.has (query_params, 'minMpg')) {
-        query['mpg.city'] = {'$gte': query_params['min_mpg']}
+        query['mpg.city'] = {'$gte': query_params['minMpg']}
     }
 
     if (_.has (query_params, 'tags')) {
