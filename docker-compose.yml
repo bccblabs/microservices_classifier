@@ -6,21 +6,15 @@ server:
   - db
   - rabbitmq
 
-# listings:
-#  image: bski67/listings
-#  links:
-#   - rabbitmq
-#   - db
+s3:
+ image: bski67/s3
+ links:
+  - rabbitmq
 
-# s3:
-#  image: bski67/s3
-#  links:
-#   - rabbitmq
-
-# classifier:
-#  image: bski67/classifier
-#  links:
-#   - rabbitmq
+classifier:
+ image: bski67/classifier
+ links:
+  - rabbitmq
 db:
  image: bski67/db
  ports:
