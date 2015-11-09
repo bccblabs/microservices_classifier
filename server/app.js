@@ -141,6 +141,7 @@ app.post ('/listings', function (req, res) {
             var listings_data = {
                 'cars': _.flatten(_.pluck(listings, 'inventories'))
             }
+            console.dir (listings_data)
             res.status (201).json (listings_data)
         }
     })
