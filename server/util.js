@@ -221,7 +221,7 @@ var parse_car_query = function (query_params) {
     }
 
     if (_.has (query_params, 'minMpg')) {
-        query['mpg.city'] = {'$gte': query_params['minMpg']}
+        query['powertrain.mpg.city'] = {'$gte': query_params['minMpg']}
     }
 
     if (_.has (query_params, 'tags')) {
