@@ -138,7 +138,7 @@ app.post ('/listings', function (req, res) {
         if (err) {
             res.status (500).json (err)
         } else {
-            res.status (201).json (_.flatten(_.pluck(listings, 'inventories')))
+            res.status (201).json ({listings: _.flatten(_.pluck(listings, 'inventories'))})
         }
     })
 })
