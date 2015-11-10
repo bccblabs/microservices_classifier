@@ -143,6 +143,7 @@ var listings_request_worker = function (styleIds, edmunds_query, listings_callba
                 }
                 request_opts.qs = _.extend (request_opts.qs, edmunds_query)
 
+                console.log ('[ got ' + styleIds.length + ' style Ids]')
                 if (styleIds.length > 50) {
                     remaining_style_ids = styleIds.slice (50, styleIds.length)                    
                     styleIds = styleIds.slice (0, 50)
@@ -259,7 +260,6 @@ var listings_request_callback = function (err, listings) {
     if (err) {
         this.res.status (500).json (err)
     } else {
-        console.dir (listings)
         this.res.status (201).json (listings)
     }
 }
