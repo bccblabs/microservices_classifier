@@ -134,15 +134,10 @@ app.post ('/listings', function (req, res) {
     var listings_query = util.parse_listings_query (req.body.api),
         cars_query = util.parse_car_query (req.body.car)
     console.log (listings_query, cars_query)
-    util.fetch_listings (cars_query, listings_query, function (err, listings) {
-        if (err) {
-            res.status (500).json (err)
-        } else {
-            var listings_data = {
-                'listings': _.flatten(_.pluck(listings, 'inventories'))
-            }
-            console.dir (listings_data)
-            res.status (201).json (listings_data)
-        }
-    })
+    this.res = res
+    if (cars_query.hasOwnProperty ('styleIds') && cars_query['styleIds'].length > 0) {
+        util.listings_request_worker (cars_query.styleIds, listings_query, util.listings_request_callback.bind(this))
+    } else {
+        util.fetch_listings (cars_query, listings_query, util.listings_request_callback.bind (this))
+    }
 })

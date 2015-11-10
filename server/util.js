@@ -117,6 +117,61 @@ var fetch_edmunds_listings = function (request_opts, styleId, callback) {
     })
 }
 
+var listings_request_worker = function (styleIds, edmunds_query, listings_callback) {
+        var listing_tasks = [],
+            remaining_style_ids = []
+        
+        async.retry (3, get_token, function (err, access_token_) {
+            if (err) {
+                listings_callback (err)
+            } else {
+                var res_per_req = 5
+                if (styleIds.length > 0) {
+                    res_per_req = edmunds_query.pagesize / (styleIds.length)
+                    if (res_per_req < 5)
+                        res_per_req = 5
+                }
+                var request_opts = {
+                        method: "GET",
+                        followRedirect: true,
+                        qs: {
+                            access_token: access_token_,
+                            fmt: 'json',
+                            view: 'basic',
+                            pagesize: res_per_req
+                        }
+                }
+                request_opts.qs = _.extend (request_opts.qs, edmunds_query)
+
+                if (styleIds.length > 50) {
+                    remaining_style_ids = styleIds.slice (50, styleIds.length)                    
+                    styleIds = styleIds.slice (0, 50)
+                }
+
+                _.each (styleIds, function (styleId) {
+                    var listing_worker = function (callback) {
+                        fetch_edmunds_listings (request_opts, styleId, callback)
+                    }.bind (this)
+                    listing_tasks.push (listing_worker)
+                })
+
+                async.parallelLimit (listing_tasks, 10, function (err, results) {
+                    if (err) {
+                        listings_callback (err, null)
+                    } else {
+                        var response_obj = {}
+                        response_obj['listings'] =  _.flatten(_.pluck(listings, 'inventories'))
+                        if (remaining_style_ids.length > 0) {}
+                            response_obj['remaining_ids'] = remaining_style_ids
+                        response_obj['count'] = response_obj['listings'].length
+                        listings_callback (err, response_obj)
+                    }
+                })
+            }
+        })
+
+}
+
 var fetch_listings = function (styldId_query, edmunds_query, listings_callback) {
         connect_mongo (function (err, mongoClient) {
             mongoClient.db ('trims').collection ('car_data')
@@ -124,41 +179,7 @@ var fetch_listings = function (styldId_query, edmunds_query, listings_callback) 
                     if (err) {
                         console.log (err)                    
                     } else {
-                        var listing_tasks = []
-                        async.retry (3, get_token, function (err, access_token_) {
-                            if (err) {
-                                listings_callback (err)
-                            } else {
-                                var res_per_req = 5
-                                if (styleIds.length > 0) {
-                                    res_per_req = edmunds_query.pagesize / (styleIds.length)
-                                    if (res_per_req < 5)
-                                        res_per_req = 5
-                                }
-                                var request_opts = {
-                                        method: "GET",
-                                        followRedirect: true,
-                                        qs: {
-                                            access_token: access_token_,
-                                            fmt: 'json',
-                                            view: 'basic',
-                                            pagesize: res_per_req
-                                        }
-                                }
-                                request_opts.qs = _.extend (request_opts.qs, edmunds_query)
-                                console.log (styleIds.length)
-                                _.each (styleIds, function (styleId) {
-                                    var listing_worker = function (callback) {
-                                        fetch_edmunds_listings (request_opts, styleId, callback)
-                                    }.bind (this)
-                                    listing_tasks.push (listing_worker)
-                                })
-
-                                async.parallelLimit (listing_tasks, 10, function (err, results) {
-                                    listings_callback (err, results)
-                                })
-                            }
-                        })
+                        listings_request_worker (styleIds, edmunds_query, listings_callback)
                     }           
                 })
     })
@@ -234,6 +255,15 @@ var parse_car_query = function (query_params) {
     return query
 }
 
+var listings_request_callback = function (err, listings) {
+    if (err) {
+        this.res.status (500).json (err)
+    } else {
+        console.dir (listings)
+        this.res.status (201).json (listings)
+    }
+}
+
 
 exports.connect_mongo = module.exports.connect_mongo = connect_mongo
 exports.store_to_mongo = module.exports.store_to_mongo = store_to_mongo
@@ -242,3 +272,5 @@ exports.write_classifier_result = module.exports.write_classifier_result = write
 exports.fetch_listings = module.exports.fetch_listings = fetch_listings
 exports.parse_listings_query = module.exports.parse_listings_query = parse_listings_query
 exports.parse_car_query = module.parse_car_query = parse_car_query
+exports.listings_request_worker = module.listings_request_worker = listings_request_worker
+exports.listings_request_callback = module.listings_request_callback = listings_request_callback
