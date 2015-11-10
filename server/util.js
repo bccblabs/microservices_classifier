@@ -160,7 +160,7 @@ var listings_request_worker = function (styleIds, edmunds_query, listings_callba
                         listings_callback (err, null)
                     } else {
                         var response_obj = {}
-                        response_obj['listings'] =  _.flatten(_.pluck(listings, 'inventories'))
+                        response_obj['listings'] =  _.flatten(_.pluck(results, 'inventories'))
                         if (remaining_style_ids.length > 0) {}
                             response_obj['remaining_ids'] = remaining_style_ids
                         response_obj['count'] = response_obj['listings'].length

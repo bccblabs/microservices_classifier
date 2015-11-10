@@ -53,7 +53,7 @@ async.retry ({times: 10, interval: 1000}, conn_amqp_wrapper, function (err, chan
     if (err) {
         console.error (err)
         console.log ("amqp conn error, exiting")
-        process.exit()
+        // process.exit()
     } else {
         console.log ("[## rabbitmq connected ##]")
         io.sockets.on ('connection', function (client) {
