@@ -165,6 +165,7 @@ var listings_request_worker = function (styleIds, edmunds_query, listings_callba
                         if (remaining_style_ids.length > 0) {}
                             response_obj['remaining_ids'] = remaining_style_ids
                         response_obj['count'] = response_obj['listings'].length
+			console.log ("[* " + response_obj['count'] + "] listings fetched")
                         listings_callback (err, response_obj)
                     }
                 })
@@ -213,7 +214,7 @@ var parse_car_query = function (query_params) {
     }
 
     if (_.has (query_params, 'models') && query_params.models.length > 0) {
-        query['model'] = {'$in': make_reg_type(query_params.models)}
+        query['submodel'] = {'$in': make_reg_type(query_params.models)}
     }
 
     if (_.has (query_params, 'bodyTypes') && query_params.bodyTypes.length > 0) {
