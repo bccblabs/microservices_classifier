@@ -95,11 +95,6 @@ async.retry ({times: 10, interval: 1000}, conn_amqp_wrapper, function (err, chan
     }
 })
 
-
-
-
-
-
 app.post ('/notify', function (req, res) {
     util.fetch_listings (   {
                                 'compact_label': req.body.classification_result['top_1'].class_name.replace (/[^a-zA-Z0-9]/g, '').toLowerCase()
@@ -132,9 +127,9 @@ app.get ('/vehicle_info', function (req, res) {
 
 app.post ('/listings', function (req, res) {
     var listings_query = util.parse_listings_query (req.body.api),
-        cars_query = util.parse_car_query (req.body.car)
-    console.log (listings_query, cars_query)
+        cars_query = util.parse_car_query (req.body.car, req.body.min_price, req.body.max_price)
     this.res = res
+    this.body = req.body
     if (cars_query.hasOwnProperty ('styleIds') && cars_query['styleIds'].length > 0) {
         util.listings_request_worker (cars_query.styleIds, listings_query, util.listings_request_callback.bind(this))
     } else {

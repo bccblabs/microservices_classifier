@@ -117,19 +117,19 @@ var fetch_edmunds_listings = function (request_opts, styleId, callback) {
     })
 }
 
-var listings_request_worker = function (styleIds, edmunds_query, listings_callback) {
+var listings_request_worker = function (styleIds, edmunds_query, car_doc ,api_callback) {
         var listing_tasks = [],
             remaining_style_ids = []
         
         async.retry (3, get_token, function (err, access_token_) {
             if (err) {
-                listings_callback (err)
+                api_callback (null, {'count':0, 'listings': [], remaining_ids: []})
             } else {
-                var res_per_req = 5
+                var res_per_req = 50
                 if (styleIds.length > 0) {
                     res_per_req = edmunds_query.pagesize / (styleIds.length)
-                    if (res_per_req < 5)
-                        res_per_req = 5
+                    if (res_per_req < 50)
+                        res_per_req = 50
                 }
                 var request_opts = {
                         method: "GET",
@@ -142,11 +142,9 @@ var listings_request_worker = function (styleIds, edmunds_query, listings_callba
                         }
                 }
                 request_opts.qs = _.extend (request_opts.qs, edmunds_query)
-
-                console.log ('[ got ' + styleIds.length + ' style Ids]')
-                if (styleIds.length > 50) {
-                    remaining_style_ids = styleIds.slice (50, styleIds.length)                    
-                    styleIds = styleIds.slice (0, 50)
+                if (styleIds.length > 10) {
+                    remaining_style_ids = styleIds.slice (10, styleIds.length)                    
+                    styleIds = styleIds.slice (0, 10)
                 }
 
                 _.each (styleIds, function (styleId) {
@@ -158,15 +156,35 @@ var listings_request_worker = function (styleIds, edmunds_query, listings_callba
 
                 async.parallelLimit (listing_tasks, 10, function (err, results) {
                     if (err) {
-                        listings_callback (err, null)
+                        api_callback (err, null)
                     } else {
                         var response_obj = {}
-                        response_obj['listings'] =  _.flatten(_.pluck(results, 'inventories'))
-                        if (remaining_style_ids.length > 0) {}
-                            response_obj['remaining_ids'] = remaining_style_ids
-                        response_obj['count'] = response_obj['listings'].length
-			console.log ("[* " + response_obj['count'] + "] listings fetched")
-                        listings_callback (err, response_obj)
+                        try {
+                            response_obj['listings'] =  _.map (_.flatten(_.pluck(results, 'inventories')), function (listing) {
+                                if (car_doc.hasOwnProperty ('powertrain') && 
+                                    car_doc.powertrain.hasOwnProperty('engine') &&
+                                    car_doc.powertrain.engine.hasOwnProperty('horsepower'))
+                                    listing.horsepower = car_doc.powertrain.engine.horsepower
+                                if (car_doc.hasOwnProperty ('powertrain') && 
+                                    car_doc.powertrain.hasOwnProperty('engine') &&
+                                    car_doc.powertrain.engine.hasOwnProperty('torque'))
+                                    listing.torque = car_doc.powertrain.engine.torque
+                                if (car_doc.hasOwnProperty ('mpg') && car_doc.mpg.hasOwnProperty('city'))
+                                    listing.citympg = car_doc.powertrain.mpg.city
+                                if (car_doc.hasOwnProperty ('complaints') && car_doc.complaints.hasOwnProperty('count'))
+                                    listing.complaints_cnt = car_doc.complaints.count
+                                if (car_doc.hasOwnProperty ('recalls') && car_doc.recalls.hasOwnProperty('numberOfRecalls'))
+                                    listing.recalls_cnt = car_doc.recalls.numberOfRecalls
+                                return listing                              
+                            })
+                            response_obj['count'] = response_obj['listings'].length
+                            response_obj['query'] = car_doc
+                            console.log ("[* " + response_obj['count'] + "] listings fetched")
+                            api_callback (err, response_obj)
+                        } catch (exp) {
+                            console.error ('[ ERR fetching listings]' + exp)
+                            api_callback (null, {'count':0, 'listings': [], remaining_ids: []})
+                        }
                     }
                 })
             }
@@ -174,17 +192,75 @@ var listings_request_worker = function (styleIds, edmunds_query, listings_callba
 
 }
 
-var fetch_listings = function (styldId_query, edmunds_query, listings_callback) {
-        connect_mongo (function (err, mongoClient) {
-            mongoClient.db ('trims').collection ('car_data')
-                .distinct ('styleId', styldId_query, function (err, styleIds) {
+var submodel_worker = function (max_per_model, submodel_doc, edmunds_query, callback) {
+    connect_mongo (function (err, mongoClient) {
+        mongoClient.db ('trims').collection ('car_data').distinct ('styleId', 
+                                                                    {'submodel': submodel_doc.submodel},
+                function (err, styleIds) {
+                    mongoClient.close()
                     if (err) {
-                        console.log (err)                    
+                        console.error ('[* ERR ' + submodel +']: ' + err)
+                        callback (null, {'count':0, 'listings': [], 'styleIds': [], 'submodels': []})
                     } else {
-                        listings_request_worker (styleIds, edmunds_query, listings_callback)
-                    }           
+                        console.log ('[* fetched ' + styleIds.length +' styleIds for ' + submodel_doc.submodel + ' ]')
+                        if (styleIds.length > 200)
+                            styleIds = styleIds.slice (0, 200)
+                        listings_request_worker (styleIds, edmunds_query, submodel_doc ,callback)
+                    }
                 })
     })
+}
+
+var fetch_listings = function (db_query, edmunds_query, listings_callback) {
+    console.log (db_query)
+    var query_obj = {},
+        sort = {}
+        if (db_query.hasOwnProperty('sortby')) {
+            query_obj = _.omit(db_query, 'sortby')
+            sort = db_query.sortby            
+        } else {
+            query_obj = db_query
+        }
+        console.log (db_query)
+        connect_mongo (function (err, mongoClient) {
+            mongoClient.db ('trims').collection ('car_data')
+                .find ( query_obj, 
+                        {
+                            'powertrain.engine.horsepower':1 ,
+                            'powertrain.engine.torque':1,
+                            'powertrain.mpg': 1,
+                            'complaints.count': 1,
+                            'recalls.numberOfRecalls': 1,
+                            'submodel': 1,
+                            'make': 1,
+                            'model': 1,
+                            'bodyType': 1,
+                            'year': 1,
+                            'powertrain.engine.compressorType': 1,
+                            'powertrain.engine.cylinder': 1,
+                            'powertrain.drivenWheels': 1,
+                            'tags': 1             
+                        }).sort (sort).toArray (
+                            function (err, submodels_docs) {
+                                mongoClient.close()
+                                if (err) {
+                                    console.log (err)                    
+                                } else {
+                                    console.log ('[* fetched ' + submodels_docs.length +' submodels ]\n[* submodels: ]')
+                                    if (submodels_docs.length > 200)
+                                        submodels_docs = submodels_docs.slice (0, 200)
+                                    var tasks = []
+                                    _.each (submodels_docs, function (submodel_doc) {
+                                        var worker = function (callback) {
+                                            submodel_worker (20, submodel_doc, edmunds_query, callback)
+                                        }.bind (this)
+                                        tasks.push (worker)
+                                    })
+                                    async.parallelLimit (tasks, 20, listings_callback)
+                                }           
+                            }
+                        )
+        })
 }
 
 var make_reg_type = function (original_field) {
@@ -198,7 +274,7 @@ var make_reg_type = function (original_field) {
 var parse_listings_query = function (params) {
     var obj = {}
     _.each (['zipcode', 'pagesize', 'pagenum', 'radius', 'intcolor',
-            'extcolor', 'msrpmin', 'msrpmax', 'lpmin', 'lpmax', 'type'], 
+            'extcolor', 'msrpmin', 'msrpmax', 'lpmin', 'lpmax', 'type', 'sortby'], 
             function (key) {
                 if (params.hasOwnProperty (key)) {
                     obj[key] = params[key]
@@ -207,7 +283,7 @@ var parse_listings_query = function (params) {
     return obj
 }
 
-var parse_car_query = function (query_params) {
+var parse_car_query = function (query_params, min_price, max_price) {
     var query = {}
     if (_.has (query_params, 'makes') && query_params.makes.length > 0) {
         query['make'] = {'$in': make_reg_type(query_params.makes)}
@@ -254,17 +330,130 @@ var parse_car_query = function (query_params) {
     if (_.has (query_params, 'drivenWheels')) {
         query['powertrain.drivenWheels'] = {'$in': query_params['drivenWheels']}
     }
+
+    if (_.has (query_params, 'sortby')) {
+        query['sortby'] = query_params.sortby
+    }
+
+    if (max_price !== undefined || min_price !== undefined) {
+        query['$or'] = []
+        query['$or'].push ({$or: [{'prices.usedTmvRetail': {'$lte': max_price}}, {'prices.usedTmvRetail': {'$exists': false}}]})
+        query['$or'].push ({$or: [{'prices.usedPrivateParty': {'$lte': max_price}}, {'prices.usedPrivateParty': {'$exists': false}}]})
+    }
+    return query
+}
+
+var construct_query_stats = function (queries) {
+    var query = {}
+    query.makes = _.uniq (_.pluck (queries, 'make'))
+    query.models = _.uniq (_.pluck (queries, 'model'))
+    query.bodyTypes = _.uniq (_.pluck (queries, 'bodyType'))
+    query.tags = _.uniq (_.flatten(_.pluck (queries, 'tags')))
+
+    query.drivenWheels = []
+    query.cylinders = []
+    query.compressors = []
+    _.each (_.pluck (queries, 'powertrain'), function (powertrain) {
+        if (powertrain.hasOwnProperty ('drivenWheels')) {
+            query.drivenWheels.push (powertrain.drivenWheels)
+        }
+        if (powertrain.hasOwnProperty ('engine') && powertrain.engine.hasOwnProperty ('cylinder')) {
+            query.cylinders.push (powertrain.engine.cylinder)
+        }
+        if (powertrain.hasOwnProperty ('engine') && powertrain.engine.hasOwnProperty ('compressorType')) {
+            query.compressors.push (powertrain.engine.compressorType)
+        }
+    })
+    query.drivenWheels = _.uniq (query.drivenWheels)
+    query.cylinders = _.uniq (query.cylinders)
+    query.compressors = _.uniq (query.compressors)
     return query
 }
 
 var listings_request_callback = function (err, listings) {
+    var response_obj = {},
+        max_mileage = 5000000,
+        max_price = 5000000,
+        min_price = 0
+
+    if (this.body.hasOwnProperty ('max_mileage'))
+        max_mileage = this.body.max_mileage
+    if (this.body.hasOwnProperty ('min_price'))
+        min_price = this.body.min_price
+    if (this.body.hasOwnProperty ('max_price'))
+        max_price = this.body.max_price
+
+    console.log ('[* prefiltered listings count : ' + _.flatten(_.pluck(listings, 'listings')).length + ' ]')
+    response_obj['listings'] =  _.filter (
+                                    _.map (
+                                        _.flatten(
+                                            _.pluck(listings, 'listings')
+                                        ),
+                                        listing_formatter
+                                    ), function (listing) {
+                                        return (listing !== undefined && 
+                                                listing.min_price >= min_price &&
+                                                listing.min_price <= max_price &&
+                                                listing.mileage <= max_mileage)
+                                    }
+                                )
+    response_obj['count'] =  response_obj['listings'].length
+    response_obj['query'] = construct_query_stats (_.flatten (_.pluck (listings, 'query')))
+    // response_obj['remaining_models'] =  _.flatten(_.pluck(results, 'remaining_models'))
+    // response_obj['remaining_ids'] =  _.flatten(_.pluck(results, 'remaining_ids'))
+    if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'mileage:asc') {
+        response_obj['listings'] =  _.sortBy (response_obj['listings'], function (listing) {
+            return listing.mileage
+        })
+    }
+    if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'mileage:desc') {
+        response_obj['listings'] =  _.sortBy (response_obj['listings'], function (listing) {
+            return 5000000 - listing.mileage
+        })
+    }
+    if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'price:asc') {
+        response_obj['listings'] =  _.sortBy (response_obj['listings'], function (listing) {
+            return listing.min_price
+        })
+    }
+    if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'price:desc') {
+        response_obj['listings'] =  _.sortBy (response_obj['listings'], function (listing) {
+            return 5000000 - listing.min_price
+        })
+    }
+    if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'year:asc') {
+        response_obj['listings'] =  _.sortBy (response_obj['listings'], function (listing) {
+            return year.year
+        })
+    }
+    if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'year:desc') {
+        response_obj['listings'] =  _.sortBy (response_obj['listings'], function (listing) {
+            return 5000000 - year.year
+        })
+    }
+
     if (err) {
         this.res.status (500).json (err)
     } else {
-        this.res.status (201).json (listings)
+        this.res.status (201).json (response_obj)
     }
 }
 
+var listing_formatter = function (listing) {
+    if (listing !== undefined && listing.hasOwnProperty ('media') && 
+        listing.media.hasOwnProperty ('photos') && 
+        listing.media.photos.hasOwnProperty ('large') && 
+        listing.media.photos.large.count > 1) {
+        listing.media.photos.large.links = _.sortBy (listing.media.photos.large.links, function (photo) {
+            var matched_nums = photo.href.match (new RegExp (/\d+/g))
+            return parseInt (matched_nums[matched_nums.length -1])
+        })
+    }
+    if (listing !== undefined && listing.hasOwnProperty ('prices'))
+        listing.min_price = _.filter (_.values (listing.prices), function (price) {return price > 0}).sort()[0]
+
+    return listing
+}
 
 exports.connect_mongo = module.exports.connect_mongo = connect_mongo
 exports.store_to_mongo = module.exports.store_to_mongo = store_to_mongo
