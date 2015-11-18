@@ -136,7 +136,7 @@ var parse_car_query = function (query_params, min_price, max_price, sort_query) 
         query['powertrain.mpg.city'] = {'$gte': query_params['minMpg']}
     }
 
-    if (_.has (query_params, 'tags')) {
+    if (_.has (query_params, 'tags') && query_params.tags.length > 0) {
         query['tags'] = {'$all': make_reg_type (query_params['tags'])}
     }
 
@@ -331,6 +331,7 @@ var fetch_listings = function (db_query, edmunds_query, listings_callback) {
         } else {
             query_obj = db_query
         }
+        console.dir (db_query)
         console.dir (sort)
         connect_mongo (function (err, mongoClient) {
             mongoClient.db ('trims').collection ('car_data')
