@@ -379,7 +379,7 @@ var fetch_listings = function (db_query, edmunds_query, listings_callback) {
 var construct_query_stats = function (queries, all_submodels) {
     var query = {}
     query.makes = _.uniq (_.pluck (queries, 'make'))
-    query.models = _.uniq (_.pluck (queries, 'model'))
+    // query.models = _.uniq (_.pluck (queries, 'submodel'))
     query.bodyTypes = _.uniq (_.pluck (queries, 'bodyType'))
     query.tags = _.filter (_.uniq (_.flatten(_.pluck (queries, 'tags'))), function (tag) {return tag !== null && tag !== undefined})
 
