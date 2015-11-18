@@ -360,8 +360,8 @@ var fetch_listings = function (db_query, edmunds_query, listings_callback) {
                                 } else {
                                     console.log ('[* fetched ' + submodels_docs.length +' submodels ]\n[* submodels: ]')
                                     this.submodels = _.pluck (submodels_docs, 'submodel')
-                                    if (submodels_docs.length > 25)
-                                        submodels_docs = submodels_docs.slice (0, 25)
+                                    if (submodels_docs.length > 50)
+                                        submodels_docs = submodels_docs.slice (0, 50)
                                     var tasks = []
                                     _.each (submodels_docs, function (submodel_doc) {
                                         var worker = function (callback) {
