@@ -181,7 +181,7 @@ var parse_car_query = function (query_params, min_price, max_price, sort_query) 
         query['sortBy'] = [['year', -1]]
     }
 
-    if (_.has (query_params, 'remaining_submodels')) {
+    if (_.has (query_params, 'remaining_submodels') && query_params.remaining_submodels.length > 0) {
         query['remaining_submodels'] = query_params.remaining_submodels
     }
 
