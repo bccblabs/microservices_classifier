@@ -137,7 +137,7 @@ var parse_car_query = function (query_params, min_price, max_price, sort_query) 
     }
 
     if (_.has (query_params, 'tags') && query_params.tags.length > 0) {
-        query['tags'] = {'$all': make_reg_type (query_params['tags'])}
+        query['tags'] = {'$in': make_reg_type (query_params['tags'])}
     }
 
     if (_.has (query_params, 'drivenWheels')) {
@@ -379,9 +379,9 @@ var fetch_listings = function (db_query, edmunds_query, listings_callback) {
 var construct_query_stats = function (queries, all_submodels) {
     var query = {}
     query.makes = _.uniq (_.pluck (queries, 'make'))
-    // query.models = _.uniq (_.pluck (queries, 'submodel'))
+    query.models = _.uniq (_.pluck (queries, 'model'))
     query.bodyTypes = _.uniq (_.pluck (queries, 'bodyType'))
-    // query.tags = _.filter (_.uniq (_.flatten(_.pluck (queries, 'tags'))), function (tag) {return tag !== null && tag !== undefined})
+    query.tags = _.filter (_.uniq (_.flatten(_.pluck (queries, 'tags'))), function (tag) {return tag !== null && tag !== undefined})
 
     query.drivenWheels = []
     query.cylinders = []
