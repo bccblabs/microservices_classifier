@@ -136,9 +136,9 @@ var parse_car_query = function (query_params, min_price, max_price, sort_query) 
         query['powertrain.mpg.city'] = {'$gte': query_params['minMpg']}
     }
 
-    if (_.has (query_params, 'tags') && query_params.tags.length > 0) {
-        query['tags'] = {'$in': make_reg_type (query_params['tags'])}
-    }
+    // if (_.has (query_params, 'tags') && query_params.tags.length > 0) {
+    //     query['tags'] = {'$in': make_reg_type (query_params['tags'])}
+    // }
 
     if (_.has (query_params, 'drivenWheels')) {
         query['powertrain.drivenWheels'] = {'$in': query_params['drivenWheels']}
