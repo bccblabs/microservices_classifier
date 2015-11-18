@@ -127,9 +127,10 @@ app.get ('/vehicle_info', function (req, res) {
 
 app.post ('/listings', function (req, res) {
     var listings_query = util.parse_listings_query (req.body.api),
-        cars_query = util.parse_car_query (req.body.car, req.body.min_price, req.body.max_price)
+        cars_query = util.parse_car_query (req.body.car, req.body.min_price, req.body.max_price, req.body.sortBy)
     this.res = res
     this.body = req.body
+    console.dir (this.body)
     if (cars_query.hasOwnProperty ('remaining_submodels') && cars_query['remaining_submodels'].length > 0) {
         console.log ('[getting remaining submodels]')
         util.fetch_listings ({'submodel': {'$in': cars_query['remaining_submodels']}}, listings_query, util.listings_request_callback.bind(this))

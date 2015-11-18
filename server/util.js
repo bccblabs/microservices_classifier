@@ -76,7 +76,6 @@ var write_classifier_result = function (classification_result, _id, callback) {
     })
 }
 
-
 var make_reg_type = function (original_field) {
     var reg_exp_arr = []
     _.each (original_field, function (field) {
@@ -97,7 +96,7 @@ var parse_listings_query = function (params) {
     return obj
 }
 
-var parse_car_query = function (query_params, min_price, max_price) {
+var parse_car_query = function (query_params, min_price, max_price, sort_query) {
     var query = {}
     if (_.has (query_params, 'makes') && query_params.makes.length > 0) {
         query['make'] = {'$in': make_reg_type(query_params.makes)}
@@ -145,9 +144,43 @@ var parse_car_query = function (query_params, min_price, max_price) {
         query['powertrain.drivenWheels'] = {'$in': query_params['drivenWheels']}
     }
 
-    if (_.has (query_params, 'sortby')) {
-        query['sortby'] = query_params.sortby
+    if (sort_query === 'mpg:asc') {
+        query['sortBy'] = [['powertrain.mpg', 1]]
     }
+    if (sort_query === 'mpg:desc') {
+        query['sortBy'] = [['powertrain.mpg', -1]]
+    }
+    if (sort_query === 'horsepower:asc') {
+        query['sortBy'] = [['powertrain.engine.horsepower', 1]]
+    }
+    if (sort_query === 'horsepower:desc') {
+        query['sortBy'] = [['powertrain.engine.horsepower', -1]]
+    }
+    if (sort_query === 'torque:asc') {
+        query['sortBy'] = [['powertrain.engine.torque', 1]]
+    }
+    if (sort_query === 'torque:desc') {
+        query['sortBy'] = [['powertrain.engine.torque', -1]]
+    }
+    if (sort_query === 'complaints:asc') {
+        query['sortBy'] = [['complaints.count', 1]]
+    }
+    if (sort_query === 'complaints:desc') {
+        query['sortBy'] = [['complaints.count', -1]]
+    }
+    if (sort_query === 'recalls:asc') {
+        query['sortBy'] = [['recalls.numberOfRecalls', 1]]
+    }
+    if (sort_query === 'recalls:desc') {
+        query['sortBy'] = [['recalls.numberOfRecalls', -1]]
+    }
+    if (sort_query === 'year:asc') {
+        query['sortBy'] = [['year', 1]]
+    }
+    if (sort_query === 'year:desc') {
+        query['sortBy'] = [['year', -1]]
+    }
+
     if (_.has (query_params, 'remaining_submodels')) {
         query['remaining_submodels'] = query_params.remaining_submodels
     }
@@ -157,6 +190,7 @@ var parse_car_query = function (query_params, min_price, max_price) {
         query['$or'].push ({$or: [{'prices.usedTmvRetail': {'$lte': max_price}}, {'prices.usedTmvRetail': {'$exists': false}}]})
         query['$or'].push ({$or: [{'prices.usedPrivateParty': {'$lte': max_price}}, {'prices.usedPrivateParty': {'$exists': false}}]})
     }
+
     return query
 }
 
@@ -291,12 +325,13 @@ var submodel_worker = function (max_per_model, submodel_doc, edmunds_query, call
 var fetch_listings = function (db_query, edmunds_query, listings_callback) {
     var query_obj = {},
         sort = {}
-        if (db_query.hasOwnProperty('sortby')) {
-            query_obj = _.omit(db_query, 'sortby')
-            sort = db_query.sortby            
+        if (db_query.hasOwnProperty('sortBy')) {
+            query_obj = _.omit(db_query, 'sortBy')
+            sort = db_query.sortBy            
         } else {
             query_obj = db_query
         }
+        console.dir (sort)
         connect_mongo (function (err, mongoClient) {
             mongoClient.db ('trims').collection ('car_data')
                 .find ( query_obj, 
@@ -314,6 +349,7 @@ var fetch_listings = function (db_query, edmunds_query, listings_callback) {
                             'powertrain.engine.compressorType': 1,
                             'powertrain.engine.cylinder': 1,
                             'powertrain.drivenWheels': 1,
+                            'powertrain.transmission.transmissionType': 1,
                             'tags': 1             
                         }).sort (sort).toArray (
                             function (err, submodels_docs) {
@@ -323,8 +359,8 @@ var fetch_listings = function (db_query, edmunds_query, listings_callback) {
                                 } else {
                                     console.log ('[* fetched ' + submodels_docs.length +' submodels ]\n[* submodels: ]')
                                     this.submodels = _.pluck (submodels_docs, 'submodel')
-                                    if (submodels_docs.length > 100)
-                                        submodels_docs = submodels_docs.slice (0, 100)
+                                    if (submodels_docs.length > 25)
+                                        submodels_docs = submodels_docs.slice (0, 25)
                                     var tasks = []
                                     _.each (submodels_docs, function (submodel_doc) {
                                         var worker = function (callback) {
@@ -332,7 +368,6 @@ var fetch_listings = function (db_query, edmunds_query, listings_callback) {
                                         }.bind (this)
                                         tasks.push (worker)
                                     })
-                                    console.dir (listings_callback)
                                     async.parallelLimit (tasks, 20, listings_callback.bind(this))
                                 }           
                             }
@@ -343,13 +378,14 @@ var fetch_listings = function (db_query, edmunds_query, listings_callback) {
 var construct_query_stats = function (queries, all_submodels) {
     var query = {}
     query.makes = _.uniq (_.pluck (queries, 'make'))
-    query.models = _.uniq (_.pluck (queries, 'model'))
+    query.models = _.uniq (_.pluck (queries, 'submodel'))
     query.bodyTypes = _.uniq (_.pluck (queries, 'bodyType'))
-    query.tags = _.uniq (_.flatten(_.pluck (queries, 'tags')))
+    query.tags = _.filter (_.uniq (_.flatten(_.pluck (queries, 'tags'))), function (tag) {return tag !== null && tag !== undefined})
 
     query.drivenWheels = []
     query.cylinders = []
     query.compressors = []
+    query.transmissionTypes = []
     _.each (_.pluck (queries, 'powertrain'), function (powertrain) {
         if (powertrain.hasOwnProperty ('drivenWheels')) {
             query.drivenWheels.push (powertrain.drivenWheels)
@@ -360,12 +396,16 @@ var construct_query_stats = function (queries, all_submodels) {
         if (powertrain.hasOwnProperty ('engine') && powertrain.engine.hasOwnProperty ('compressorType')) {
             query.compressors.push (powertrain.engine.compressorType)
         }
+        if (powertrain.hasOwnProperty ('transmission') && powertrain.transmission.hasOwnProperty('transmissionType')) {
+            query.transmissionTypes.push (powertrain.transmission.transmissionType)
+        }
     })
     console.log (all_submodels.length, _.pluck (queries, 'submodel').length)
     query.remaining_submodels = _.difference (all_submodels, _.pluck (queries, 'submodel'))
     query.drivenWheels = _.uniq (query.drivenWheels)
     query.cylinders = _.uniq (query.cylinders)
     query.compressors = _.uniq (query.compressors)
+    query.transmissionTypes = _.uniq (query.transmissionTypes)
     return query
 }
 
@@ -401,8 +441,8 @@ var listings_request_callback = function (err, listings) {
                                         }
                                     )
         response_obj['count'] = response_obj['listings'].length
-        response_obj['query'] = construct_query_stats (_.flatten (_.pluck (listings, 'query')), this.submodels)
-
+        response_obj['query'] = this.body
+        response_obj['query'].car = construct_query_stats (_.flatten (_.pluck (listings, 'query')), this.submodels)
         if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'mileage:asc') {
             response_obj['listings'] =  _.sortBy (response_obj['listings'], function (listing) {
                 return listing.mileage
