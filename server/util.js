@@ -405,8 +405,8 @@ var construct_query_stats = function (queries, fetched_submodels) {
             query.transmissionTypes.push (powertrain.transmission.transmissionType)
         }
     })
-    console.log (all_submodels.length, _.pluck (queries, 'submodel').length)
-    query.remaining_submodels = _.difference (all_submodels, _.pluck (queries, 'submodel'))
+    console.log (fetched_submodels.length, _.pluck (queries, 'submodel').length)
+    query.remaining_submodels = _.difference (fetched_submodels, _.pluck (queries, 'submodel'))
     query.drivenWheels = _.uniq (query.drivenWheels)
     query.cylinders = _.uniq (query.cylinders)
     query.compressors = _.uniq (query.compressors)
