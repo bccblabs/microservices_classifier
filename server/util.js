@@ -133,7 +133,7 @@ var parse_car_query = function (query_params, min_price, max_price, sort_query) 
     }
 
     if (_.has (query_params, 'minMpg')) {
-        query['powertrain.mpg.city'] = {'$gte': query_params['minMpg']}
+        query['powertrain.mpg.highway'] = {'$gte': query_params['minMpg']}
     }
 
     // if (_.has (query_params, 'tags') && query_params.tags.length > 0) {
@@ -256,7 +256,7 @@ var listings_request_worker = function (styleIds, edmunds_query, car_doc ,api_ca
                         qs: {
                             access_token: access_token_,
                             fmt: 'json',
-                            view: 'basic',
+                            view: 'full',
                             pagesize: res_per_req
                         }
                 }
@@ -416,6 +416,34 @@ var construct_query_stats = function (queries, all_submodels) {
     return query
 }
 
+
+var has_color = function (listing_colors, type, color_query) {
+    if (color_query === undefined || color_query.length < 1)
+        return true
+
+    if (listing_colors === undefined)
+        return false
+
+    var color_object = _.first (_.filter (listing_colors, function (color) {return color.category === type} ))
+    if (color_object === undefined || !color_object.hasOwnProperty ('genericName'))
+        return false
+
+    var ret = false
+    _.each (color_query, function (color) {
+        if (color_object.genericName.toLowerCase().indexOf (color) > -1)
+            ret = true
+    })
+    return ret
+}
+
+var has_equipment = function (equipments, query_equipments) {
+    if (query_equipments === undefined || query_equipments.length < 1)
+        return true
+
+    if (equipments === undefined)
+        return false
+}
+
 var listings_request_callback = function (err, listings) {
     if (err)
         console.dir (err)
@@ -431,7 +459,6 @@ var listings_request_callback = function (err, listings) {
         if (this.body.hasOwnProperty ('max_price'))
             max_price = this.body.max_price
 
-
         console.log ('[* prefiltered listings count : ' + _.flatten(_.pluck(listings, 'listings')).length + ' ]')
         response_obj['listings'] =  _.filter (
                                         _.map (
@@ -443,7 +470,10 @@ var listings_request_callback = function (err, listings) {
                                             return (listing !== undefined && 
                                                     listing.min_price >= min_price &&
                                                     listing.min_price <= max_price &&
-                                                    listing.mileage <= max_mileage)
+                                                    listing.mileage <= max_mileage &&
+                                                    has_color (listing.colors, 'Interior', this.body.api.int_colors) &&
+                                                    has_color (listing.colors, 'Exterior', this.body.api.ext_colors))
+                                                    // has_equipment (_.union (listing.options, listing.features), this.body.features))
                                         }
                                     )
         response_obj['count'] = response_obj['listings'].length
@@ -495,6 +525,7 @@ var listing_formatter = function (listing) {
     if (listing !== undefined && listing.hasOwnProperty ('prices'))
         listing.min_price = _.filter (_.values (listing.prices), function (price) {return price > 0}).sort()[0]
 
+    var formatted_listing = _.omit (listing, 'equipment')
     return listing
 }
 
