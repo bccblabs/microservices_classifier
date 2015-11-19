@@ -364,12 +364,12 @@ var fetch_listings = function (db_query, edmunds_query, listings_callback) {
                                     console.log (err)                    
                                 } else {
                                     console.log ('[* fetched ' + submodels_docs.length +' submodels ]\n[* submodels: ]')
-                                    this.submodels = _.pluck (submodels_docs.slice (0, 50), 'submodel')
+                                    this.submodels = _.pluck (submodels_docs.slice (0, 30), 'submodel')
                                     this.submodels_docs = submodels_docs
                                     var tasks = []
-                                    _.each (submodels_docs.slice(0, 50), function (submodel_doc) {
+                                    _.each (submodels_docs.slice(0, 30), function (submodel_doc) {
                                         var worker = function (callback) {
-                                            submodel_worker (50, submodel_doc, edmunds_query, callback)
+                                            submodel_worker (30, submodel_doc, edmunds_query, callback)
                                         }.bind (this)
                                         tasks.push (worker)
                                     })
@@ -385,16 +385,16 @@ var construct_query_stats = function (queries, fetched_submodels) {
     query.makes = _.uniq (_.pluck (queries, 'make'))
     query.models = _.uniq (_.pluck (queries, 'model'))
     query.bodyTypes = _.uniq (_.pluck (queries, 'bodyType'))
-    query.year = _.uniq (_.pluck (queries, 'year'))
+    query.years = _.uniq (_.pluck (queries, 'year'))
     query.tags = _.filter (_.uniq (_.flatten(_.pluck (queries, 'tags'))), function (tag) {return tag !== null && tag !== undefined})
 
-    query.drivetrains = []
+    query.drivenWheels = []
     query.cylinders = []
     query.compressors = []
     query.transmissionTypes = []
     _.each (_.pluck (queries, 'powertrain'), function (powertrain) {
         if (powertrain.hasOwnProperty ('drivenWheels')) {
-            query.drivetrains.push (powertrain.drivenWheels)
+            query.drivenWheels.push (powertrain.drivenWheels)
         }
         if (powertrain.hasOwnProperty ('engine') && powertrain.engine.hasOwnProperty ('cylinder')) {
             query.cylinders.push (powertrain.engine.cylinder)
@@ -408,7 +408,7 @@ var construct_query_stats = function (queries, fetched_submodels) {
     })
     console.log (fetched_submodels.length, _.pluck (queries, 'submodel').length)
     query.remaining_submodels = _.difference (fetched_submodels, _.pluck (queries, 'submodel'))
-    query.drivetrains = _.uniq (query.drivenWheels)
+    query.drivenWheels = _.uniq (query.drivenWheels)
     query.cylinders = _.uniq (query.cylinders)
     query.compressors = _.uniq (query.compressors)
     query.transmissionTypes = _.uniq (query.transmissionTypes)
@@ -477,7 +477,11 @@ var listings_request_callback = function (err, listings) {
                                     )
         response_obj['count'] = response_obj['listings'].length
         response_obj['query'] = this.body
-        response_obj['query'].car = construct_query_stats (this.submodels_docs, this.submodels)
+        var next_query = construct_query_stats (this.submodels_docs, this.submodels)
+        next_query.minMpg = this.body.car.minMpg
+        next_query.minHp = this.body.car.minHp
+        next_query.minTq = this.body.car.minTq
+        response_obj['query'].car = next_query
         if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'mileage:asc') {
             response_obj['listings'] =  _.sortBy (response_obj['listings'], function (listing) {
                 return listing.mileage
