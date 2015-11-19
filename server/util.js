@@ -97,6 +97,7 @@ var parse_listings_query = function (params) {
 }
 
 var parse_car_query = function (query_params, min_price, max_price, sort_query) {
+    console.dir (query_params)
     var query = {}
     if (_.has (query_params, 'makes') && query_params.makes.length > 0) {
         query['make'] = {'$in': make_reg_type(query_params.makes)}
@@ -189,7 +190,7 @@ var parse_car_query = function (query_params, min_price, max_price, sort_query) 
 
     if (_.has (query_params, 'remaining_submodels') && query_params.remaining_submodels.length > 0) {
         var last_query = {}
-        last_query['remaining_submodels'] = {'$in': query_params.remaining_submodels}
+        last_query['submodel'] = {'$in': query_params.remaining_submodels}
         if (query.hasOwnProperty ('sortBy'))
             last_query['sortBy'] = query['sortBy']
         if (query.hasOwnProperty ('$or'))
