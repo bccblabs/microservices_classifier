@@ -385,7 +385,7 @@ var construct_query_stats = function (queries, fetched_submodels) {
     query.makes = _.uniq (_.pluck (queries, 'make'))
     // query.models = _.uniq (_.pluck (queries, 'submodel'))
     query.bodyTypes = _.uniq (_.pluck (queries, 'bodyType'))
-    query.tags = _.filter (_.uniq (_.flatten(_.pluck (queries, 'tags'))), function (tag) {return tag !== null && tag !== undefined})
+    // query.tags = _.filter (_.uniq (_.flatten(_.pluck (queries, 'tags'))), function (tag) {return tag !== null && tag !== undefined})
 
     query.drivenWheels = []
     query.cylinders = []
