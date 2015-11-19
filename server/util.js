@@ -367,7 +367,7 @@ var fetch_listings = function (db_query, edmunds_query, listings_callback) {
                                     this.submodels = _.pluck (submodels_docs.slice (0, 25), 'submodel')
                                     this.submodels_docs = submodels_docs
                                     var tasks = []
-                                    _.each (submodels_docs, function (submodel_doc) {
+                                    _.each (submodels_docs.slice(0, 20), function (submodel_doc) {
                                         var worker = function (callback) {
                                             submodel_worker (20, submodel_doc, edmunds_query, callback)
                                         }.bind (this)
