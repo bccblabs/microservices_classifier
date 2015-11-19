@@ -140,9 +140,9 @@ var parse_car_query = function (query_params, min_price, max_price, sort_query) 
         query['powertrain.mpg.highway'] = {'$gte': query_params['minMpg']}
     }
 
-    // if (_.has (query_params, 'tags') && query_params.tags.length > 0) {
-    //     query['tags'] = {'$in': make_reg_type (query_params['tags'])}
-    // }
+    if (_.has (query_params, 'tags') && query_params.tags.length > 0) {
+        query['tags'] = {'$in': make_reg_type (query_params['tags'])}
+    }
 
     if (_.has (query_params, 'drivenWheels') && query_params.drivenWheels.length > 0) {
         query['powertrain.drivenWheels'] = {'$in': query_params['drivenWheels']}
@@ -360,7 +360,7 @@ var fetch_listings = function (db_query, edmunds_query, listings_callback) {
                             'powertrain.engine.cylinder': 1,
                             'powertrain.drivenWheels': 1,
                             'powertrain.transmission.transmissionType': 1,
-                            'tags': 1             
+                            'good_tags': 1             
                         }).sort (sort).toArray (
                             function (err, submodels_docs) {
                                 mongoClient.close()
@@ -390,7 +390,7 @@ var construct_query_stats = function (queries, fetched_submodels) {
     query.models = _.uniq (_.pluck (queries, 'model'))
     query.bodyTypes = _.uniq (_.pluck (queries, 'bodyType'))
     query.years = _.uniq (_.pluck (queries, 'year'))
-    query.tags = _.filter (_.uniq (_.flatten(_.pluck (queries, 'tags'))), function (tag) {return tag !== null && tag !== undefined})
+    query.tags = _.filter (_.uniq (_.flatten(_.pluck (queries, 'good_tags'))), function (tag) {return tag !== null && tag !== undefined})
 
     query.drivenWheels = []
     query.cylinders = []
