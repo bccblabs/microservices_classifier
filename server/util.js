@@ -310,10 +310,10 @@ var listings_request_worker = function (styleIds, edmunds_query, car_doc ,api_ca
 
 }
 
-var submodel_worker = function (max_per_model, submodel_doc, edmunds_query, callback) {
+var submodel_worker = function (max_per_model, submodel_doc, db_query ,edmunds_query, callback) {
     connect_mongo (function (err, mongoClient) {
-        mongoClient.db ('trims').collection ('car_data').distinct ('styleId', 
-                                                                    {'submodel': submodel_doc},
+        db_query.submodel = submodel_doc.submodel
+        mongoClient.db ('trims').collection ('car_data').distinct ('styleId', db_query,
                 function (err, styleIds) {
                     mongoClient.close()
                     if (err) {
@@ -369,7 +369,7 @@ var fetch_listings = function (db_query, edmunds_query, listings_callback) {
                                     var tasks = []
                                     _.each (submodels_docs.slice(0, 30), function (submodel_doc) {
                                         var worker = function (callback) {
-                                            submodel_worker (30, submodel_doc, edmunds_query, callback)
+                                            submodel_worker (30, submodel_doc, db_query, edmunds_query, callback)
                                         }.bind (this)
                                         tasks.push (worker)
                                     })
