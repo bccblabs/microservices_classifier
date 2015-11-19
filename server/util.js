@@ -79,7 +79,10 @@ var write_classifier_result = function (classification_result, _id, callback) {
 var make_reg_type = function (original_field) {
     var reg_exp_arr = []
     _.each (original_field, function (field) {
-        reg_exp_arr.push (new RegExp ("^"+ field,'i'))
+        if (field === 'Turbo')
+            reg_exp_arr.push (new RegExp (field,'i'))
+        else
+            reg_exp_arr.push (new RegExp ("^"+ field,'i'))
     })
     return reg_exp_arr
 }
@@ -250,7 +253,7 @@ var listings_request_worker = function (styleIds, edmunds_query, car_doc ,api_ca
             if (err) {
                 api_callback (null, {'count':0, 'listings': [], remaining_ids: []})
             } else {
-                var res_per_req = 50
+                var res_per_req = 10
                 var request_opts = {
                         method: "GET",
                         followRedirect: true,
@@ -321,7 +324,7 @@ var submodel_worker = function (max_per_model, submodel_doc, db_query ,edmunds_q
                         callback (null, {'count':0, 'listings': [], 'styleIds': [], 'submodels': []})
                     } else {
                         console.log ('[* fetched ' + styleIds.length +' styleIds for ' + submodel_doc.submodel + ' ]')
-                        listings_request_worker (styleIds, edmunds_query, submodel_doc ,callback)
+                        listings_request_worker (styleIds.slice (0,10), edmunds_query, submodel_doc ,callback)
                     }
                 })
     })
@@ -364,10 +367,10 @@ var fetch_listings = function (db_query, edmunds_query, listings_callback) {
                                     console.log (err)                    
                                 } else {
                                     console.log ('[* fetched ' + submodels_docs.length +' submodels ]\n[* submodels: ]')
-                                    this.submodels = _.pluck (submodels_docs.slice (0, 30), 'submodel')
+                                    this.submodels = _.pluck (submodels_docs.slice (0, 50), 'submodel')
                                     this.submodels_docs = submodels_docs
                                     var tasks = []
-                                    _.each (submodels_docs.slice(0, 30), function (submodel_doc) {
+                                    _.each (submodels_docs.slice(0, 50), function (submodel_doc) {
                                         var worker = function (callback) {
                                             submodel_worker (30, submodel_doc, db_query, edmunds_query, callback)
                                         }.bind (this)
