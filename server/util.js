@@ -316,7 +316,8 @@ var listings_request_worker = function (styleIds, edmunds_query, car_doc ,api_ca
 var submodel_worker = function (max_per_model, submodel_doc, db_query ,edmunds_query, callback) {
     connect_mongo (function (err, mongoClient) {
         db_query.submodel = submodel_doc.submodel
-        mongoClient.db ('trims').collection ('car_data').distinct ('styleId', db_query,
+        console.dir (db_query)
+        mongoClient.db ('trims').collection ('car_data').distinct ('styleId', _.omit(db_query, 'sortBy'),
                 function (err, styleIds) {
                     mongoClient.close()
                     if (err) {
