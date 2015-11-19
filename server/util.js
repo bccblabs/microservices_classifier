@@ -380,7 +380,7 @@ var fetch_listings = function (db_query, edmunds_query, listings_callback) {
         })
 }
 
-var construct_query_stats = function (all_queries, fetched_submodels) {
+var construct_query_stats = function (queries, fetched_submodels) {
     var query = {}
     query.makes = _.uniq (_.pluck (queries, 'make'))
     // query.models = _.uniq (_.pluck (queries, 'submodel'))
