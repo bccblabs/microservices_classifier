@@ -181,14 +181,20 @@ var parse_car_query = function (query_params, min_price, max_price, sort_query) 
         query['sortBy'] = [['year', -1]]
     }
 
-    if (_.has (query_params, 'remaining_submodels') && query_params.remaining_submodels.length > 0) {
-        query['remaining_submodels'] = query_params.remaining_submodels
-    }
-
     if (max_price !== undefined || min_price !== undefined) {
         query['$or'] = []
         query['$or'].push ({$or: [{'prices.usedTmvRetail': {'$lte': max_price}}, {'prices.usedTmvRetail': {'$exists': false}}]})
         query['$or'].push ({$or: [{'prices.usedPrivateParty': {'$lte': max_price}}, {'prices.usedPrivateParty': {'$exists': false}}]})
+    }
+
+    if (_.has (query_params, 'remaining_submodels') && query_params.remaining_submodels.length > 0) {
+        var last_query = {}
+        last_query['remaining_submodels'] = query_params.remaining_submodels
+        if (query.hasOwnProperty ('sortBy'))
+            last_query['sortBy'] = query['sortBy']
+        if (query.hasOwnProperty ('$or'))
+            last_query['$or'] = query['$or']
+        return last_query
     }
 
     return query
