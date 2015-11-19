@@ -478,7 +478,7 @@ var listings_request_callback = function (err, listings) {
                                                 has_color (listing.colors, 'Exterior', this.body.api.ext_colors))
                                                 // has_equipment (_.union (listing.options, listing.features), this.body.features))
                                     }
-                                ).slice (0, 100)
+                                ).slice (0, 50)
     response_obj['count'] = response_obj['listings'].length
     response_obj['query'] = this.body
     var next_query = construct_query_stats (this.submodels_docs, this.submodels)
