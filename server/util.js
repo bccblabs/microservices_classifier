@@ -516,6 +516,7 @@ var listings_request_callback = function (err, listings) {
                 return 5000000 - year.year
             })
         }
+        response_obj['listings'] = response_obj['listings'].slice (0, 100)
         this.res.status (201).json (response_obj)
 }
 
