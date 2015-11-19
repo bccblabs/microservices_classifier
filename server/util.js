@@ -144,7 +144,7 @@ var parse_car_query = function (query_params, min_price, max_price, sort_query) 
     //     query['tags'] = {'$in': make_reg_type (query_params['tags'])}
     // }
 
-    if (_.has (query_params, 'drivenWheels')) {
+    if (_.has (query_params, 'drivenWheels') && query_params.drivenWheels.length > 0) {
         query['powertrain.drivenWheels'] = {'$in': query_params['drivenWheels']}
     }
 
