@@ -146,10 +146,10 @@ var parse_car_query = function (query_params, min_price, max_price, sort_query) 
     }
 
     if (sort_query === 'mpg:asc') {
-        query['sortBy'] = [['powertrain.mpg', 1]]
+        query['sortBy'] = [['powertrain.mpg.highway', 1]]
     }
     if (sort_query === 'mpg:desc') {
-        query['sortBy'] = [['powertrain.mpg', -1]]
+        query['sortBy'] = [['powertrain.mpg.highway', -1]]
     }
     if (sort_query === 'horsepower:asc') {
         query['sortBy'] = [['powertrain.engine.horsepower', 1]]
