@@ -189,7 +189,7 @@ var parse_car_query = function (query_params, min_price, max_price, sort_query) 
 
     if (_.has (query_params, 'remaining_submodels') && query_params.remaining_submodels.length > 0) {
         var last_query = {}
-        last_query['remaining_submodels'] = query_params.remaining_submodels
+        last_query['remaining_submodels'] = {'$in': query_params.remaining_submodels}
         if (query.hasOwnProperty ('sortBy'))
             last_query['sortBy'] = query['sortBy']
         if (query.hasOwnProperty ('$or'))
