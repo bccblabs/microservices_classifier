@@ -419,6 +419,7 @@ var construct_query_stats = function (queries, all_submodels) {
 var listings_request_callback = function (err, listings) {
     if (err) {
         this.res.status (500).json (err)
+        return
     } else {
         var response_obj = {},
             max_mileage = 5000000,
@@ -482,6 +483,7 @@ var listings_request_callback = function (err, listings) {
         }
 
         this.res.status (201).json (response_obj)
+        return
     }
 }
 
