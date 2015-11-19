@@ -419,68 +419,67 @@ var construct_query_stats = function (queries, all_submodels) {
 var listings_request_callback = function (err, listings) {
     if (err)
         console.dir (err)
-    var response_obj = {},
-        max_mileage = 5000000,
-        max_price = 5000000,
-        min_price = 0
+        var response_obj = {},
+            max_mileage = 5000000,
+            max_price = 5000000,
+            min_price = 0
 
-    if (this.body.hasOwnProperty ('max_mileage'))
-        max_mileage = this.body.max_mileage
-    if (this.body.hasOwnProperty ('min_price'))
-        min_price = this.body.min_price
-    if (this.body.hasOwnProperty ('max_price'))
-        max_price = this.body.max_price
+        if (this.body.hasOwnProperty ('max_mileage'))
+            max_mileage = this.body.max_mileage
+        if (this.body.hasOwnProperty ('min_price'))
+            min_price = this.body.min_price
+        if (this.body.hasOwnProperty ('max_price'))
+            max_price = this.body.max_price
 
 
-    console.log ('[* prefiltered listings count : ' + _.flatten(_.pluck(listings, 'listings')).length + ' ]')
-    response_obj['listings'] =  _.filter (
-                                    _.map (
-                                        _.flatten(
-                                            _.pluck(listings, 'listings')
-                                        ),
-                                        listing_formatter
-                                    ), function (listing) {
-                                        return (listing !== undefined && 
-                                                listing.min_price >= min_price &&
-                                                listing.min_price <= max_price &&
-                                                listing.mileage <= max_mileage)
-                                    }
-                                )
-    response_obj['count'] = response_obj['listings'].length
-    response_obj['query'] = this.body
-    response_obj['query'].car = construct_query_stats (_.flatten (_.pluck (listings, 'query')), this.submodels)
-    if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'mileage:asc') {
-        response_obj['listings'] =  _.sortBy (response_obj['listings'], function (listing) {
-            return listing.mileage
-        })
-    }
-    if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'mileage:desc') {
-        response_obj['listings'] =  _.sortBy (response_obj['listings'], function (listing) {
-            return 5000000 - listing.mileage
-        })
-    }
-    if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'price:asc') {
-        response_obj['listings'] =  _.sortBy (response_obj['listings'], function (listing) {
-            return listing.min_price
-        })
-    }
-    if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'price:desc') {
-        response_obj['listings'] =  _.sortBy (response_obj['listings'], function (listing) {
-            return 5000000 - listing.min_price
-        })
-    }
-    if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'year:asc') {
-        response_obj['listings'] =  _.sortBy (response_obj['listings'], function (listing) {
-            return year.year
-        })
-    }
-    if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'year:desc') {
-        response_obj['listings'] =  _.sortBy (response_obj['listings'], function (listing) {
-            return 5000000 - year.year
-        })
-    }
-    this.res.status (201).json (response_obj)
-}
+        console.log ('[* prefiltered listings count : ' + _.flatten(_.pluck(listings, 'listings')).length + ' ]')
+        response_obj['listings'] =  _.filter (
+                                        _.map (
+                                            _.flatten(
+                                                _.pluck(listings, 'listings')
+                                            ),
+                                            listing_formatter
+                                        ), function (listing) {
+                                            return (listing !== undefined && 
+                                                    listing.min_price >= min_price &&
+                                                    listing.min_price <= max_price &&
+                                                    listing.mileage <= max_mileage)
+                                        }
+                                    )
+        response_obj['count'] = response_obj['listings'].length
+        response_obj['query'] = this.body
+        response_obj['query'].car = construct_query_stats (_.flatten (_.pluck (listings, 'query')), this.submodels)
+        if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'mileage:asc') {
+            response_obj['listings'] =  _.sortBy (response_obj['listings'], function (listing) {
+                return listing.mileage
+            })
+        }
+        if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'mileage:desc') {
+            response_obj['listings'] =  _.sortBy (response_obj['listings'], function (listing) {
+                return 5000000 - listing.mileage
+            })
+        }
+        if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'price:asc') {
+            response_obj['listings'] =  _.sortBy (response_obj['listings'], function (listing) {
+                return listing.min_price
+            })
+        }
+        if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'price:desc') {
+            response_obj['listings'] =  _.sortBy (response_obj['listings'], function (listing) {
+                return 5000000 - listing.min_price
+            })
+        }
+        if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'year:asc') {
+            response_obj['listings'] =  _.sortBy (response_obj['listings'], function (listing) {
+                return year.year
+            })
+        }
+        if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'year:desc') {
+            response_obj['listings'] =  _.sortBy (response_obj['listings'], function (listing) {
+                return 5000000 - year.year
+            })
+        }
+        this.res.status (201).json (response_obj)
 }
 
 var listing_formatter = function (listing) {
