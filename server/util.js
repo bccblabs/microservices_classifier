@@ -383,17 +383,18 @@ var fetch_listings = function (db_query, edmunds_query, listings_callback) {
 var construct_query_stats = function (queries, fetched_submodels) {
     var query = {}
     query.makes = _.uniq (_.pluck (queries, 'make'))
-    // query.models = _.uniq (_.pluck (queries, 'submodel'))
+    query.models = _.uniq (_.pluck (queries, 'model'))
     query.bodyTypes = _.uniq (_.pluck (queries, 'bodyType'))
-    // query.tags = _.filter (_.uniq (_.flatten(_.pluck (queries, 'tags'))), function (tag) {return tag !== null && tag !== undefined})
+    query.year = _.uniq (_.pluck (queries, 'year'))
+    query.tags = _.filter (_.uniq (_.flatten(_.pluck (queries, 'tags'))), function (tag) {return tag !== null && tag !== undefined})
 
-    query.drivenWheels = []
+    query.drivetrains = []
     query.cylinders = []
     query.compressors = []
     query.transmissionTypes = []
     _.each (_.pluck (queries, 'powertrain'), function (powertrain) {
         if (powertrain.hasOwnProperty ('drivenWheels')) {
-            query.drivenWheels.push (powertrain.drivenWheels)
+            query.drivetrains.push (powertrain.drivenWheels)
         }
         if (powertrain.hasOwnProperty ('engine') && powertrain.engine.hasOwnProperty ('cylinder')) {
             query.cylinders.push (powertrain.engine.cylinder)
@@ -407,7 +408,7 @@ var construct_query_stats = function (queries, fetched_submodels) {
     })
     console.log (fetched_submodels.length, _.pluck (queries, 'submodel').length)
     query.remaining_submodels = _.difference (fetched_submodels, _.pluck (queries, 'submodel'))
-    query.drivenWheels = _.uniq (query.drivenWheels)
+    query.drivetrains = _.uniq (query.drivenWheels)
     query.cylinders = _.uniq (query.cylinders)
     query.compressors = _.uniq (query.compressors)
     query.transmissionTypes = _.uniq (query.transmissionTypes)
