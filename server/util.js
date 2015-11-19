@@ -295,12 +295,10 @@ var listings_request_worker = function (styleIds, edmunds_query, car_doc ,api_ca
                                 return listing                              
                             })
                             response_obj['count'] = response_obj['listings'].length
-                            response_obj['query'] = car_doc
                             console.log ("[* " + response_obj['count'] + "] listings fetched")
                             api_callback (null, response_obj)
                         } catch (exp) {
                             console.error ('[ ERR fetching listings]' + exp)
-                            response_obj['query'] = car_doc
                             response_obj['listings'] = []
                             response_obj['count'] = 0
                             api_callback (null, response_obj)
@@ -366,9 +364,8 @@ var fetch_listings = function (db_query, edmunds_query, listings_callback) {
                                     console.log (err)                    
                                 } else {
                                     console.log ('[* fetched ' + submodels_docs.length +' submodels ]\n[* submodels: ]')
-                                    this.submodels = _.pluck (submodels_docs, 'submodel')
-                                    if (submodels_docs.length > 25)
-                                        submodels_docs = submodels_docs.slice (0, 25)
+                                    this.submodels = _.pluck (submodels_docs.slice (0, 25), 'submodel')
+                                    this.submodels_docs = submodels_docs
                                     var tasks = []
                                     _.each (submodels_docs, function (submodel_doc) {
                                         var worker = function (callback) {
@@ -383,7 +380,7 @@ var fetch_listings = function (db_query, edmunds_query, listings_callback) {
         })
 }
 
-var construct_query_stats = function (queries, all_submodels) {
+var construct_query_stats = function (all_queries, fetched_submodels) {
     var query = {}
     query.makes = _.uniq (_.pluck (queries, 'make'))
     // query.models = _.uniq (_.pluck (queries, 'submodel'))
@@ -479,7 +476,7 @@ var listings_request_callback = function (err, listings) {
                                     )
         response_obj['count'] = response_obj['listings'].length
         response_obj['query'] = this.body
-        response_obj['query'].car = construct_query_stats (_.flatten (_.pluck (listings, 'query')), this.submodels)
+        response_obj['query'].car = construct_query_stats (this.submodels_docs, this.submodels)
         if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'mileage:asc') {
             response_obj['listings'] =  _.sortBy (response_obj['listings'], function (listing) {
                 return listing.mileage
