@@ -508,12 +508,12 @@ var listings_request_callback = function (err, listings) {
     }
     if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'year:asc') {
         response_obj['listings'] =  _.sortBy (response_obj['listings'], function (listing) {
-            return year.year
+            return listing.year.year
         })
     }
     if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'year:desc') {
         response_obj['listings'] =  _.sortBy (response_obj['listings'], function (listing) {
-            return 5000000 - year.year
+            return 5000000 - listing.year.year
         })
     }
     this.res.status (201).json (response_obj)
