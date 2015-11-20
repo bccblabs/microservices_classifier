@@ -58,8 +58,8 @@ async.retry ({times: 10, interval: 1000}, conn_amqp_wrapper, function (err, chan
     } else {
         console.log ("[## rabbitmq connected ##]")
         io.sockets.on ('connection', function (client) {
+            console.log ('client ' + client.id + ' connected')
             client.emit ('register', client.id)
-
             client.on ('clz_data', function (data) {
                 data = JSON.parse (data)
                 var mongo_store_minitask = function (callback) {
