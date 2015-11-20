@@ -1,6 +1,9 @@
 import json, time, requests, pika, os
 import numpy as np
-import caffe
+CAFFE_ROOT = "/home/ubuntu/caffe/"
+import sys
+sys.path.insert (0, CAFFE_ROOT + "python")
+import caffe, numpy as np
 from caffe import Net, SGDSolver
 
 classifier_dir="/home/ubuntu/microservices_classifier/classifier/src/"
