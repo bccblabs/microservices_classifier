@@ -87,6 +87,25 @@ var make_reg_type = function (original_field) {
     return reg_exp_arr
 }
 
+var parse_model = function (original_field) {
+    var reg_exp_field = []
+    _.each (original_field, function (field) {
+        if (field === 'Cooper') {
+            reg_exp_field.push (new RegExp (field + '$'), 'i')
+            reg_exp_field.push (new RegExp (field + 's$'), 'i')
+            reg_exp_field.push (new RegExp (field + 'johncooperworks$'), 'i')
+        }
+        else if (field === 'C AMG' || field === 'E AMG' || field === 'GLA AMG' || field === 'ML AMG' ||
+                field === 'G AMG' || field === 'GL AMG' || field === 'S AMG' || field === 'SL AMG' ||
+                field === 'SLK AMG' || field === 'CLA AMG' || field === 'CLS AMG') {
+            reg_exp_field.push (new RegExp (field.replace (' ', '\\d+'),'i'))
+        } else {
+            reg_exp_field.push (new RegExp (field.replace (/[^a-zA-Z0-9]/g, ''), 'i'))
+        }
+    })
+    return reg_exp_field
+}
+
 var parse_listings_query = function (params) {
     var obj = {}
     _.each (['zipcode', 'pagesize', 'pagenum', 'radius', 'intcolor',
@@ -107,7 +126,7 @@ var parse_car_query = function (query_params, min_price, max_price, sort_query) 
     }
 
     if (_.has (query_params, 'models') && query_params.models.length > 0) {
-        query['submodel'] = {'$in': make_reg_type(query_params.models)}
+        query['submodel'] = {'$in': parse_model(query_params.models)}
     }
 
     if (_.has (query_params, 'bodyTypes') && query_params.bodyTypes.length > 0) {
