@@ -341,7 +341,6 @@ var listings_request_worker = function (styleIds, edmunds_query, car_doc ,api_ca
 var submodel_worker = function (max_per_model, submodel_doc, db_query ,edmunds_query, callback) {
     connect_mongo (function (err, mongoClient) {
         db_query.submodel = submodel_doc.submodel
-        console.dir (db_query)
         mongoClient.db ('trims').collection ('car_data').distinct ('styleId', _.omit(db_query, 'sortBy'),
                 function (err, styleIds) {
                     mongoClient.close()
@@ -365,8 +364,6 @@ var fetch_listings = function (db_query, edmunds_query, listings_callback) {
         } else {
             query_obj = db_query
         }
-        console.dir (db_query)
-        console.dir (sort)
         connect_mongo (function (err, mongoClient) {
             mongoClient.db ('trims').collection ('car_data')
                 .find ( query_obj, 
@@ -435,7 +432,6 @@ var construct_query_stats = function (queries, fetched_submodels) {
             query.transmissionTypes.push (powertrain.transmission.transmissionType)
         }
     })
-    console.log (fetched_submodels.length, _.pluck (queries, 'submodel').length)
     query.remaining_submodels = _.difference (fetched_submodels, _.pluck (queries, 'submodel'))
     query.drivenWheels = _.uniq (query.drivenWheels)
     query.cylinders = _.uniq (query.cylinders)
