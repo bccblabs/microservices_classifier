@@ -390,10 +390,10 @@ var fetch_listings = function (db_query, edmunds_query, listings_callback) {
                                     console.log (err)                    
                                 } else {
                                     console.log ('[* fetched ' + submodels_docs.length +' submodels ]\n[* submodels: ]')
-                                    this.submodels = _.pluck (submodels_docs.slice (0, 50), 'submodel')
+                                    this.submodels = _.pluck (submodels_docs.slice (0, 30), 'submodel')
                                     this.submodels_docs = submodels_docs
                                     var tasks = []
-                                    _.each (submodels_docs.slice(0, 50), function (submodel_doc) {
+                                    _.each (submodels_docs.slice(0, 30), function (submodel_doc) {
                                         var worker = function (callback) {
                                             submodel_worker (30, submodel_doc, db_query, edmunds_query, callback)
                                         }.bind (this)
