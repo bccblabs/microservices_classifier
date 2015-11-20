@@ -55,17 +55,17 @@ def classifier_callback (ch, method, properties, body):
 
 
 
-try:
-    cars_ex = 'cars'
-    binding_key = 'classify'
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host=AMQP_HOST))
-    channel = connection.channel()
-    channel.exchange_declare(exchange=cars_ex, type='topic', durable=True)
-    result = channel.queue_declare(exclusive=True)
-    queue_name = result.method.queue
-    channel.queue_bind (exchange=cars_ex, queue=queue_name, routing_key=binding_key)
-    print (' [*] Waiting for image classifications')
-    channel.basic_consume (classifier_callback, queue = queue_name, no_ack = True)
-    channel.start_consuming()
-except:
-    print (' [err] connecting amqp server')
+# try:
+cars_ex = 'cars'
+binding_key = 'classify'
+connection = pika.BlockingConnection(pika.ConnectionParameters(host=AMQP_HOST))
+channel = connection.channel()
+channel.exchange_declare(exchange=cars_ex, type='topic', durable=True)
+result = channel.queue_declare(exclusive=True)
+queue_name = result.method.queue
+channel.queue_bind (exchange=cars_ex, queue=queue_name, routing_key=binding_key)
+print (' [*] Waiting for image classifications')
+channel.basic_consume (classifier_callback, queue = queue_name, no_ack = True)
+channel.start_consuming()
+# except:
+#     print (' [err] connecting amqp server')
