@@ -24,8 +24,20 @@ hdd_classifier = caffe.Classifier (
 classifiers = [hdd_classifier]
 print '[classifier] labels loaded ' + str (labels) 
 
+def center_crop (img):
+    width =  np.size(img,1)
+    height =  np.size(img,0)
+    new_width = new_height = min (width, height)
+    left = np.ceil((width - new_width)/2.)
+    top = np.ceil((height - new_height)/2.)
+    right = np.floor((width + new_width)/2.)
+    bottom = np.floor((height + new_height)/2.)
+    print left, top, right, bottom
+    cImg = img[top:bottom, left:right]
+    return cImg
+
 def classify (file_path):
-    image = caffe.io.load_image(file_path)
+    image = center_crop (caffe.io.load_image(file_path))
     resized_image = caffe.io.resize_image (image, (256,256,3))
     res = np.zeros (len (labels) * len (classifiers)).reshape (len(labels), len(classifiers))
     for i, x in enumerate (classifiers):
