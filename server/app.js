@@ -97,18 +97,21 @@ async.retry ({times: 10, interval: 1000}, conn_amqp_wrapper, function (err, chan
 })
 
 app.post ('/notify', function (req, res) {
-    util.fetch_listings (   {
-                                'compact_label': req.body.classification_result['top_1'].class_name.replace (/[^a-zA-Z0-9]/g, '').toLowerCase()
-                            }, 
-                            req.body.query, 
-                            function (err, listings) {
-                                if (err) {
-                                    res.status(500).send ({'msg': 'server error'})
-                                } else {
-                                    res.status(201).send ('[app.js] sent listings to client ' + req.body.socket_id + ']')
-                                    client.emit ('listings_results', _.flatten(_.pluck(listings, 'inventories')))
-                                }
-                            })
+    client.emit ('clz_res', req.body.classification_result['top_1'].class_name.replace (/[^a-zA-Z0-9]/g, '').toLowerCase())
+    res.status(201).send ('[app.js] sent listings to client ' + req.body.socket_id + ']')
+
+    // util.fetch_listings (   {
+    //                             'compact_label': req.body.classification_result['top_1'].class_name.replace (/[^a-zA-Z0-9]/g, '').toLowerCase()
+    //                         }, 
+    //                         req.body.query, 
+    //                         function (err, listings) {
+    //                             if (err) {
+    //                                 res.status(500).send ({'msg': 'server error'})
+    //                             } else {
+    //                                 res.status(201).send ('[app.js] sent listings to client ' + req.body.socket_id + ']')
+    //                                 client.emit ('listings_results', _.flatten(_.pluck(listings, 'inventories')))
+    //                             }
+    //                         })
 })
 
 app.get ('/vehicle_info', function (req, res) {

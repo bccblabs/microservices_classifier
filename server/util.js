@@ -6,7 +6,8 @@ var _ = require ('underscore-node'),
     OAuth2 = OAuth.OAuth2
     request = require ('request'),
     MONGO_HOST = process.env['DB_PORT_27017_TCP_ADDR'] || 'localhost',
-    MONGO_PORT = process.env['DB_1_PORT_27017_TCP_PORT'] || '27017'
+    MONGO_PORT = process.env['DB_1_PORT_27017_TCP_PORT'] || '27017',
+    
 
 var connect_mongo = function (callback) {
     var mongo_client = mongo.MongoClient
@@ -135,6 +136,10 @@ var parse_car_query = function (query_params, min_price, max_price, sort_query) 
 
     if (_.has (query_params, 'years') && query_params.years.length > 0) {
         query['year'] = {'$in': query_params['years']}
+    }
+
+    if (_.has (query_params, 'labels') && query_params.labels.length > 0) {
+        query['compact_label'] = {'$in': parse_model (query_params['labels'])}
     }
 
     if (_.has (query_params, 'transmissionTypes') && query_params.transmissionTypes.length > 0) {
