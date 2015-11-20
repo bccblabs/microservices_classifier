@@ -107,7 +107,7 @@ var parse_car_query = function (query_params, min_price, max_price, sort_query) 
     }
 
     if (_.has (query_params, 'models') && query_params.models.length > 0) {
-        query['model'] = {'$in': make_reg_type(query_params.models)}
+        query['submodel'] = {'$in': make_reg_type(query_params.models)}
     }
 
     if (_.has (query_params, 'bodyTypes') && query_params.bodyTypes.length > 0) {
