@@ -6,7 +6,7 @@ var _ = require ('underscore-node'),
     OAuth2 = OAuth.OAuth2,
     request = require ('request'),
     MONGO_HOST = process.env['DB_PORT_27017_TCP_ADDR'] || 'localhost',
-    MONGO_PORT = process.env['DB_1_PORT_27017_TCP_PORT'] || '27017',
+    MONGO_PORT = process.env['DB_1_PORT_27017_TCP_PORT'] || '27017'
 
 
 var connect_mongo = function (callback) {
