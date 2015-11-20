@@ -4,6 +4,7 @@ var app = require ('express')(),
     app.use(bodyParser.urlencoded({limit: '50mb'}));
 
 var server = require ('http').createServer(app).listen(8080),
+    server.timeout = 20000,
     io = require ('socket.io').listen(server),
     util = require ('./util'),
     _ = require ('underscore-node'),
