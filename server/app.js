@@ -97,7 +97,7 @@ async.retry ({times: 10, interval: 1000}, conn_amqp_wrapper, function (err, chan
 })
 
 app.post ('/notify', function (req, res) {
-    console.log (req.body)
+    console.log ("received from classifier: " + req.body)
     client.emit ('clz_res', req.body.classification_result['top_1'].class_name.replace (/[^a-zA-Z0-9]/g, '').toLowerCase())
     res.status(201).send ('[app.js] sent listings to client ' + req.body.socket_id + ']')
 
