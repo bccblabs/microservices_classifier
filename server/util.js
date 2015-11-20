@@ -23,7 +23,7 @@ var connect_mongo = function (callback) {
 
 var store_to_mongo = function (data, callback) {
     connect_mongo (function (err, mongoClient) {
-        mongoClient.db ('hdd')
+        mongoClient.db ('user_tags_cars')
                    .collection ('classifications')
                    .insert (_.omit (data, 'imageData'), function (err, docs) {
                         mongoClient.close()
@@ -37,7 +37,7 @@ var store_to_mongo = function (data, callback) {
 }
 
 var store_to_disk = function (data, callback, temp) {
-	var tmp_file_path = 'hdd_uploads/'
+	var tmp_file_path = ''
         temp.open (tmp_file_path, function (err, info) {
             if (!err) {
                 fs.writeFile (info.path, data.imageData, 'base64', function (err) {
@@ -65,7 +65,7 @@ var store_to_disk = function (data, callback, temp) {
 
 var write_classifier_result = function (classification_result, _id, callback) {
     connect_mongo (function (err, mongoClient) {
-        mongoClient.db ('hdd')
+        mongoClient.db ('user_tags_cars')
                .collection ('classifications')
                .update ({'_id': require('mongodb').ObjectID(_id)},
                         { $set: {'classifications': classification_result} },
