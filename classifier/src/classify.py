@@ -43,7 +43,7 @@ def classify (file_path):
 def classifier_callback (ch, method, properties, body):
     body = json.loads(body)
     result_dict = classify(body['file_path'])
-    url = NOTIFIER_URI + ':' + str (NOTIFIER_PORT) + '/notify'
+    url = 'http://' + NOTIFIER_URI + ':' + str (NOTIFIER_PORT) + '/notify'
     data =  json.dumps({
                         'socket_id': body['socket_id'], 
                         'classification_result': result_dict, 
