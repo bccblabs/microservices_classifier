@@ -132,8 +132,6 @@ var parse_label = function (params) {
                 .replace(/wagon$/, '')
                 .replace(/hatchback$/, '')
                 .replace(/facelift[0-9]{4}/, '')
-    })
-
 }
 
 var parse_car_query = function (query_params, min_price, max_price, sort_query) {
