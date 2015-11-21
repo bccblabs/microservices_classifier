@@ -120,22 +120,18 @@ var parse_listings_query = function (params) {
 }
 
 var parse_label = function (params) {
-    var labels_list = []
-    if (params === undefined)
-        return labels_list
-    labels_list=  _.map (params, function (label) {
-        return label.replace (/[^a-zA-Z0-9]/g, '').toLowerCase()
-                    .replace(/bmw[0-9]series/, 'bmw')
-                    .replace(/mercedesbenz[a-z]{1,3}class/, 'mercedesbenz')
-                    // .replace(/(face.*)/, '')
-        // .replace(/convertible$/, '')
-        // .replace(/sedan$/, '')
-        // .replace(/coupe$/, '')
-        // .replace(/truck$/, '')
-        // .replace(/van$/, '')
-        // .replace(/suv$/, '')
-        // .replace(/wagon$/, '')
-        // .replace(/hatchback$/, '')
+    return label.replace (/[^a-zA-Z0-9]/g, '').toLowerCase()
+                .replace(/bmw[0-9]series/, 'bmw')
+                .replace(/mercedesbenz[a-z]{1,3}class/, 'mercedesbenz')
+                .replace(/convertible$/, '')
+                .replace(/sedan$/, '')
+                .replace(/coupe$/, '')
+                .replace(/truck$/, '')
+                .replace(/van$/, '')
+                .replace(/suv$/, '')
+                .replace(/wagon$/, '')
+                .replace(/hatchback$/, '')
+                .replace(/facelift[0-9]{4}/, '')
     })
 
 }
@@ -160,7 +156,7 @@ var parse_car_query = function (query_params, min_price, max_price, sort_query) 
     }
 
     if (_.has (query_params, 'labels') && query_params.labels.length > 0) {
-        query['compact_label'] = {'$in': parse_model (query_params['labels'])}
+        query['compact_label'] = new RegExp (parse_label)
     }
 
     if (_.has (query_params, 'transmissionTypes') && query_params.transmissionTypes.length > 0) {
