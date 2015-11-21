@@ -124,7 +124,18 @@ var parse_label = function (params) {
     if (params === undefined)
         return labels_list
     labels_list=  _.map (params, function (label) {
-        return label.replace (/[^a-zA-Z0-9]/g, '').toLowerCase().replace(/bmw[0-9]series/, 'bmw').replace(/mercedesbenz[a-z]{1,3}class/, 'mercedesbenz')
+        return label.replace (/[^a-zA-Z0-9]/g, '').toLowerCase()
+                    .replace(/bmw[0-9]series/, 'bmw')
+                    .replace(/mercedesbenz[a-z]{1,3}class/, 'mercedesbenz')
+                    // .replace(/(face.*)/, '')
+        // .replace(/convertible$/, '')
+        // .replace(/sedan$/, '')
+        // .replace(/coupe$/, '')
+        // .replace(/truck$/, '')
+        // .replace(/van$/, '')
+        // .replace(/suv$/, '')
+        // .replace(/wagon$/, '')
+        // .replace(/hatchback$/, '')
     })
 
 }
