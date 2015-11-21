@@ -120,7 +120,7 @@ var parse_listings_query = function (params) {
 }
 
 var parse_label = function (params) {
-    return label.replace (/[^a-zA-Z0-9]/g, '').toLowerCase()
+    return params.replace (/[^a-zA-Z0-9]/g, '').toLowerCase()
                 .replace(/bmw[0-9]series/, 'bmw')
                 .replace(/mercedesbenz[a-z]{1,3}class/, 'mercedesbenz')
                 .replace(/convertible$/, '')
