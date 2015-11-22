@@ -430,13 +430,13 @@ var fetch_listings = function (db_query, edmunds_query, listings_callback) {
                                     this.submodels = _.pluck (submodels_docs.slice (0, 30), 'submodel')
                                     this.submodels_docs = submodels_docs
                                     var tasks = []
-                                    _.each (submodels_docs.slice(0, 10), function (submodel_doc) {
+                                    _.each (submodels_docs.slice(0, 18), function (submodel_doc) {
                                         var worker = function (callback) {
-                                            submodel_worker (10, submodel_doc, db_query, edmunds_query, callback)
+                                            submodel_worker (18, submodel_doc, db_query, edmunds_query, callback)
                                         }.bind (this)
                                         tasks.push (worker)
                                     })
-                                    async.parallelLimit (tasks, 10, listings_callback.bind(this))
+                                    async.parallelLimit (tasks, 18, listings_callback.bind(this))
                                 }           
                             }
                         )
