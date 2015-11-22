@@ -474,7 +474,6 @@ var construct_query_stats = function (queries, fetched_submodels) {
     console.dir (fetched_submodels)
     console.dir (_.pluck (queries, 'submodel'))
     console.dir (query.remaining_submodels)
-    query.
     query.drivenWheels = _.uniq (query.drivenWheels)
     query.cylinders = _.uniq (query.cylinders)
     query.compressors = _.uniq (query.compressors)
