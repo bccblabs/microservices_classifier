@@ -142,7 +142,7 @@ var parse_car_query = function (query_params, min_price, max_price, sort_query) 
     }
 
     if (_.has (query_params, 'models') && query_params.models.length > 0) {
-        query['submodel'] = {'$in': parse_model(query_params.models)}
+        query['model'] = {'$in': parse_model(query_params.models)}
     }
 
     if (_.has (query_params, 'bodyTypes') && query_params.bodyTypes.length > 0) {
@@ -245,6 +245,21 @@ var parse_car_query = function (query_params, min_price, max_price, sort_query) 
             last_query['$or'] = query['$or']
         return last_query
     }
+
+    if (_.has (query_params, 'fetched_submodels') && query_params.remaining_submodels.length > 0) {
+        var last_query = {}
+        last_query['submodel'] = {'$in': query_params.fetched_submodels}
+        if (query.hasOwnProperty ('sortBy'))
+            last_query['sortBy'] = query['sortBy']
+        else
+            last_query['sortBy'] = [['year', -1]]
+
+        if (query.hasOwnProperty ('$or'))
+            last_query['$or'] = query['$or']
+        return last_query
+    }
+
+
 
     return query
 }
@@ -459,7 +474,7 @@ var construct_query_stats = function (queries, fetched_submodels) {
     console.dir (fetched_submodels)
     console.dir (_.pluck (queries, 'submodel'))
     console.dir (query.remaining_submodels)
-
+    query.
     query.drivenWheels = _.uniq (query.drivenWheels)
     query.cylinders = _.uniq (query.cylinders)
     query.compressors = _.uniq (query.compressors)
