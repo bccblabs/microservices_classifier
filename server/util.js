@@ -458,26 +458,23 @@ var construct_query_stats = function (queries, fetched_submodels) {
     _.each (_.pluck (queries, 'powertrain'), function (powertrain) {
         if (powertrain.hasOwnProperty ('drivenWheels')) {
             query.drivenWheels.push (powertrain.drivenWheels)
+            query.drivenWheels = _.uniq (query.drivenWheels)
         }
         if (powertrain.hasOwnProperty ('engine') && powertrain.engine.hasOwnProperty ('cylinder')) {
             query.cylinders.push (powertrain.engine.cylinder)
+            query.cylinders = _.uniq (query.cylinders)
         }
         if (powertrain.hasOwnProperty ('engine') && powertrain.engine.hasOwnProperty ('compressorType')) {
             query.compressors.push (powertrain.engine.compressorType)
+            query.compressors = _.uniq (query.compressors)
         }
         if (powertrain.hasOwnProperty ('transmission') && powertrain.transmission.hasOwnProperty('transmissionType')) {
             query.transmissionTypes.push (powertrain.transmission.transmissionType)
+            query.transmissionTypes = _.uniq (query.transmissionTypes)
         }
     })
     query.remaining_submodels = _.difference (fetched_submodels, _.pluck (queries, 'submodel'))
-
-    console.dir (fetched_submodels)
-    console.dir (_.pluck (queries, 'submodel'))
-    console.dir (query.remaining_submodels)
-    query.drivenWheels = _.uniq (query.drivenWheels)
-    query.cylinders = _.uniq (query.cylinders)
-    query.compressors = _.uniq (query.compressors)
-    query.transmissionTypes = _.uniq (query.transmissionTypes)
+    query.fetched_submodels = fetched_submodels
     return query
 }
 
