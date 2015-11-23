@@ -61,6 +61,7 @@ async.retry ({times: 10, interval: 1000}, conn_amqp_wrapper, function (err, chan
             console.log ('client ' + client.id + ' connected')
             client.emit ('register', client.id)
             client.on ('clz_data', function (data) {
+                console.dir ("[* app] receiving data from client " + client.id)
                 data = JSON.parse (data)
                 var mongo_store_minitask = function (callback) {
                     util.store_to_mongo (data, callback)
