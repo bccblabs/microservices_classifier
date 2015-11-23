@@ -297,11 +297,29 @@ var fetch_edmunds_listings = function (request_opts, styleId, callback) {
         } else {
             try {
                 var data = JSON.parse (body)
+                data.styleId = styleId
                 callback (null, data)
             } catch (e) {
                 callback (err, null)
             }
         }
+    })
+}
+
+var update_listing_stats = function (listing_stats, callback) {
+    connect_mongo (function (err, mongoClient) {
+        if (err)
+            console.error (err)
+        console.dir (listing_stats)
+        mongoClient.db ('trims').collection ('car_data').update (
+            {'styleId': listing_stats.styleId},
+            {'$set': {'listings_stats': _.omit (listing_stats, 'styleId')}},
+            function (err, res) {
+                if (err)
+                    console.dir (err)
+                mongoClient.close()
+                callback (null)
+            })
     })
 }
 
@@ -335,36 +353,28 @@ var listings_request_worker = function (styleIds, edmunds_query, car_doc ,api_ca
                 async.parallelLimit (listing_tasks, 10, function (err, results) {
                     if (err) {
                         console.log (err)
-                        api_callback (null, {'count':0, 'listings': [], remaining_ids: []})
+                        api_callback (null, {})
                     } else {
-                        var response_obj = {}
                         try {
-                            response_obj['listings'] =  _.map (_.flatten(_.pluck(results, 'inventories')), function (listing) {
-                                listing.submodel = car_doc.submodel
-                                if (car_doc.hasOwnProperty ('powertrain') && 
-                                    car_doc.powertrain.hasOwnProperty('engine') &&
-                                    car_doc.powertrain.engine.hasOwnProperty('horsepower'))
-                                    listing.horsepower = car_doc.powertrain.engine.horsepower
-                                if (car_doc.hasOwnProperty ('powertrain') && 
-                                    car_doc.powertrain.hasOwnProperty('engine') &&
-                                    car_doc.powertrain.engine.hasOwnProperty('torque'))
-                                    listing.torque = car_doc.powertrain.engine.torque
-                                if (car_doc.hasOwnProperty ('mpg') && car_doc.mpg.hasOwnProperty('city'))
-                                    listing.citympg = car_doc.powertrain.mpg.city
-                                if (car_doc.hasOwnProperty ('complaints') && car_doc.complaints.hasOwnProperty('count'))
-                                    listing.complaints_cnt = car_doc.complaints.count
-                                if (car_doc.hasOwnProperty ('recalls') && car_doc.recalls.hasOwnProperty('numberOfRecalls'))
-                                    listing.recalls_cnt = car_doc.recalls.numberOfRecalls
-                                return listing                              
+                            var tasks = []
+                            var callback_stats = 
+                            _.each (results, function (style_id_res) {
+                                var res = _.omit (style_id_res, 'inventories', 'links')
+                                res.zipcode = edmunds_query.zipcode
+                                res.radius = edmunds_query.radius
+                                var update_stats_task = function (update_callback) {
+                                    update_listing_stats (res, update_callback)
+                                }
+                                tasks.push (async.ensureAsync(update_stats_task))
                             })
-                            response_obj['count'] = response_obj['listings'].length
-                            console.log ("[* " + response_obj['count'] + "] listings fetched")
-                            api_callback (null, response_obj)
+                            async.parallelLimit (tasks, 5, function (err, res) {
+                                if (err)
+                                    console.error (err)
+                                api_callback (null, {})
+                            })
                         } catch (exp) {
                             console.error ('[ ERR fetching listings]' + exp)
-                            response_obj['listings'] = []
-                            response_obj['count'] = 0
-                            api_callback (null, response_obj)
+                            api_callback (null, {})
                         }
                     }
                 })
@@ -376,7 +386,6 @@ var listings_request_worker = function (styleIds, edmunds_query, car_doc ,api_ca
 var submodel_worker = function (max_per_model, submodel_doc, db_query ,edmunds_query, callback) {
     connect_mongo (function (err, mongoClient) {
         db_query.submodel = submodel_doc.submodel
-        db_query['listings_stats.inventoriesCount'] = {'$gte': 1}
         mongoClient.db ('trims').collection ('car_data').distinct ('styleId', _.omit(db_query, 'sortBy'),
                 function (err, styleIds) {
                     mongoClient.close()
@@ -385,7 +394,7 @@ var submodel_worker = function (max_per_model, submodel_doc, db_query ,edmunds_q
                         callback (null, {'count':0, 'listings': [], 'styleIds': [], 'submodels': []})
                     } else {
                         console.log ('[* fetched ' + styleIds.length +' styleIds for ' + submodel_doc.submodel + ' ]')
-                        listings_request_worker (styleIds.slice (0,15), edmunds_query, submodel_doc ,callback)
+                        listings_request_worker (styleIds.slice (0,1000000), edmunds_query, submodel_doc ,callback)
                     }
                 })
     })
@@ -400,8 +409,8 @@ var fetch_listings = function (db_query, edmunds_query, listings_callback) {
         } else {
             query_obj = db_query
         }
-        query_obj['listings_stats.inventoriesCount'] = {'$gte': 1}
-        console.dir (query_obj)
+
+        console.dir (db_query)
         connect_mongo (function (err, mongoClient) {
             mongoClient.db ('trims').collection ('car_data')
                 .find ( query_obj, 
@@ -431,13 +440,13 @@ var fetch_listings = function (db_query, edmunds_query, listings_callback) {
                                     this.submodels = _.pluck (submodels_docs.slice (0, 30), 'submodel')
                                     this.submodels_docs = submodels_docs
                                     var tasks = []
-                                    _.each (submodels_docs.slice(0, 10), function (submodel_doc) {
+                                    _.each (submodels_docs.slice(0, 18), function (submodel_doc) {
                                         var worker = function (callback) {
-                                            submodel_worker (10, submodel_doc, query_obj, edmunds_query, callback)
+                                            submodel_worker (18, submodel_doc, db_query, edmunds_query, callback)
                                         }.bind (this)
                                         tasks.push (worker)
                                     })
-                                    async.parallelLimit (tasks, 10, listings_callback.bind(this))
+                                    async.parallelLimit (tasks, 18, listings_callback.bind(this))
                                 }           
                             }
                         )
@@ -538,7 +547,7 @@ var listings_request_callback = function (err, listings) {
                                                 has_color (listing.colors, 'Exterior', this.body.api.ext_colors))
                                                 // has_equipment (_.union (listing.options, listing.features), this.body.features))
                                     }
-                                )
+                                ).slice (0, 30)
     response_obj['count'] = response_obj['listings'].length
     response_obj['query'] = this.body
     var next_query = construct_query_stats (this.submodels_docs, this.submodels)
@@ -601,6 +610,7 @@ exports.store_to_mongo = module.exports.store_to_mongo = store_to_mongo
 exports.store_to_disk = module.exports.store_to_disk = store_to_disk
 exports.write_classifier_result = module.exports.write_classifier_result = write_classifier_result
 exports.fetch_listings = module.exports.fetch_listings = fetch_listings
+exports.submodel_worker = module.exports.submodel_worker = submodel_worker
 exports.parse_listings_query = module.exports.parse_listings_query = parse_listings_query
 exports.parse_car_query = module.parse_car_query = parse_car_query
 exports.listings_request_worker = module.listings_request_worker = listings_request_worker
