@@ -180,7 +180,7 @@ var parse_car_query = function (query_params, min_price, max_price, sort_query) 
     }
 
     if (_.has (query_params, 'tags') && query_params.tags.length > 0) {
-        query['tags'] = {'$in': _.map (query_params.tags, function (tag) { return new RegExp(tag.replace (/[^a-zA-Z0-9]/g, '').toLowerCase())})}
+        query['tags'] = {'$in': _.map (query_params.tags, function (tag) { return new RegExp(tag.toLowerCase())})}
     }
 
     if (_.has (query_params, 'drivenWheels') && query_params.drivenWheels.length > 0) {
