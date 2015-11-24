@@ -184,7 +184,7 @@ var parse_car_query = function (query_params, min_price, max_price, sort_query) 
     }
 
     if (_.has (query_params, 'drivenWheels') && query_params.drivenWheels.length > 0) {
-        query['powertrain.drivenWheels'] = {'$in': query_params['drivenWheels']}
+        query['powertrain.drivenWheels'] = {'$in': make_reg_type (query_params['drivenWheels'])}
     }
 
     if (sort_query === 'mpg:asc') {
@@ -592,8 +592,14 @@ var listing_formatter = function (listing) {
     if (listing !== undefined && listing.hasOwnProperty ('prices'))
         listing.min_price = _.filter (_.values (listing.prices), function (price) {return price > 0}).sort()[0]
 
-    var formatted_listing = _.omit (listing, 'equipment')
+    if (listing.hasOwnProperty ('equipment') && listing.equipment.length > 0) {
+        listing.equipment = _.filter (listing.equipment, function (equip) {
+            return (equip.hasOwnProperty ('equipmentType') && equip.equipmentType !== 'TRANSMISSION' && equip.equipmentType !== 'ENGINE')
+        })
+    }
     return listing
+    // var formatted_listing = _.omit (listing, 'equipment')
+    // return formatted_listing
 }
 
 exports.connect_mongo = module.exports.connect_mongo = connect_mongo
