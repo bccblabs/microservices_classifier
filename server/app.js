@@ -103,7 +103,34 @@ app.post ('/notify', function (req, res) {
     console.log ("classified label : " + req.body.classification_result['top_1'].class_name.replace (/[^a-zA-Z0-9]/g, '').toLowerCase())
     var client = io.sockets.connected[req.body.socket_id]
 
-    client.emit ('clz_res', req.body.classification_result['top_1'].class_name.replace (/[^a-zA-Z0-9]/g, '').toLowerCase())
+    // client.emit ('clz_res', req.body.classification_result['top_1'].class_name.replace (/[^a-zA-Z0-9]/g, '').toLowerCase())
+    console.log (JSON.stringify (res.body, null, 2))
+    var request_opts = {
+        'url': 'localhost:8080/listings',
+        'method': 'POST',
+        'body': {
+            'api': {
+                'zipcode': 92612,
+                'pagenum': 1,
+                'pagesize': 20,
+                'radius': 100,
+            },
+            'car': {
+                'compact_label': _.pick (req.body.classification_result.top_5.slice (0,3), 'class_name')
+            }
+        }
+    }
+    request ( request_opts, function (error, response, body) {
+        if (error || response.statusCode != 200) {
+            console.error (error)
+            client.emit ('error', JSON.stringify (error))
+            res.status (500).json (error)            
+        } else {
+            console.dir (body)
+            client.emit ('listings', body)
+            res.status (201).json ({'message': 'listings emitted'})
+        }
+    })
     res.status(201).send ('[app.js] sent listings to client ' + req.body.socket_id + ']')
 })
 
