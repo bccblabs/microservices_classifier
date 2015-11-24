@@ -154,7 +154,7 @@ var parse_car_query = function (query_params, min_price, max_price, sort_query) 
     }
 
     if (_.has (query_params, 'labels') && query_params.labels.length > 0) {
-        query['compact_label'] = {'$in': _.map (query_params.labels, function (label) {return new RegExp(parse_label (label)}), 'i')}
+        query['compact_label'] = {'$in': _.map (query_params.labels, function (label) {return new RegExp(parse_label (label), 'i') })}
     }
 
     if (_.has (query_params, 'transmissionTypes') && query_params.transmissionTypes.length > 0) {
