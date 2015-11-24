@@ -308,7 +308,7 @@ var listings_request_worker = function (styleIds, edmunds_query, car_doc ,api_ca
             if (err) {
                 api_callback (null, {'count':0, 'listings': [], remaining_ids: []})
             } else {
-                var res_per_req = 10
+                var res_per_req = 5
                 var request_opts = {
                         method: "GET",
                         followRedirect: true,

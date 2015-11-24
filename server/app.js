@@ -116,7 +116,7 @@ app.post ('/notify', function (req, res) {
                 'radius': 100,
             },
             'car': {
-                'labels': _.pluck (req.body.classification_result.top_5.slice (0,2), 'class_name')
+                'labels': _.pluck (req.body.classification_result.top_5.slice (0,3), 'class_name')
             }
         }
     }
