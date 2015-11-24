@@ -468,6 +468,7 @@ var construct_query_stats = function (queries) {
     query.compressors = _.uniq (query.compressors)
     query.transmissionTypes = _.uniq (query.transmissionTypes)
     query.drivenWheels = _.uniq (query.drivenWheels)
+    console.dir (query)
     return query
 }
 
