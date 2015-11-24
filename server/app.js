@@ -133,7 +133,6 @@ app.post ('/notify', function (req, res) {
             res.status (201).json ({'message': 'listings emitted'})
         }
     })
-    res.status(201).send ('[app.js] sent listings to client ' + req.body.socket_id + ']')
 })
 
 app.get ('/vehicle_info', function (req, res) {
