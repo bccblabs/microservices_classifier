@@ -450,7 +450,11 @@ var construct_query_stats = function (queries, fetched_submodels) {
     query.models = _.uniq (_.pluck (queries, 'model'))
     query.bodyTypes = _.uniq (_.pluck (queries, 'bodyType'))
     query.years = _.uniq (_.pluck (queries, 'year'))
-    query.tags = _.filter (_.uniq (_.flatten(_.pluck (queries, 'good_tags'))), function (tag) {return tag !== null && tag !== undefined})
+    query.tags = _.filter (_.uniq (_.flatten(_.pluck (queries, 'good_tags'))), 
+        function (tag) {
+            return tag !== null && tag !== undefined && tag.indexOf ('usedTmvRetail') < 0 && tag.indexOf ('baseMSRP') < 0
+        }
+    )
 
     query.drivenWheels = []
     query.cylinders = []
