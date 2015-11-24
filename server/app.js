@@ -105,7 +105,7 @@ app.post ('/notify', function (req, res) {
     var client = io.sockets.connected[req.body.socket_id]
 
     console.log (JSON.stringify (req.body, null, 2))
-    console.log (_.pick (req.body.classification_result.top_5.slice (0,3), 'class_name'))
+    console.log (_.pluck (req.body.classification_result.top_5.slice (0,3), 'class_name'))
     var request_opts = {
         'method': 'POST',
         'url': 'http://localhost:8080/listings',
