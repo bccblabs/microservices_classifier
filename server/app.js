@@ -128,7 +128,7 @@ app.post ('/notify', function (req, res) {
             client.emit ('listings_error', JSON.stringify (err))
             res.status (500).json (err)            
         } else {
-            console.dir (body, response)
+            console.log (JSON.stringify (body, null, 2))
             client.emit ('listings', body)
             res.status (201).json ({'message': 'listings emitted'})
         }
