@@ -104,9 +104,9 @@ app.post ('/notify', function (req, res) {
     console.log ("classified label : " + req.body.classification_result['top_1'].class_name.replace (/[^a-zA-Z0-9]/g, '').toLowerCase())
     var client = io.sockets.connected[req.body.socket_id]
 
-    console.log (JSON.stringify (res.body, null, 2))
+    console.log (JSON.stringify (req.body, null, 2))
     var request_opts = {
-        'url': 'localhost:8080/listings',
+        'url': 'http://localhost:8080/listings',
         'headers': {'content-type': 'application/json'},
         'json': true,
         'body': {
