@@ -428,16 +428,16 @@ var fetch_listings = function (db_query, edmunds_query, listings_callback) {
                                     console.log (err)                    
                                 } else {
                                     console.log ('[* fetched ' + submodels_docs.length +' submodels ]\n[* submodels: ]')
-                                    this.submodels = _.pluck (submodels_docs.slice (0, 30), 'submodel')
+                                    this.submodels = _.pluck (submodels_docs.slice (0, 5), 'submodel')
                                     this.submodels_docs = submodels_docs
                                     var tasks = []
-                                    _.each (submodels_docs.slice(0, 10), function (submodel_doc) {
+                                    _.each (submodels_docs.slice(0, 5), function (submodel_doc) {
                                         var worker = function (callback) {
-                                            submodel_worker (10, submodel_doc, query_obj, edmunds_query, callback)
+                                            submodel_worker (5, submodel_doc, query_obj, edmunds_query, callback)
                                         }.bind (this)
                                         tasks.push (worker)
                                     })
-                                    async.parallelLimit (tasks, 10, listings_callback.bind(this))
+                                    async.parallelLimit (tasks, 5, listings_callback.bind(this))
                                 }           
                             }
                         )

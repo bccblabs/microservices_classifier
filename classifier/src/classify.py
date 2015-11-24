@@ -28,6 +28,7 @@ def center_crop (img):
     width =  np.size(img,1)
     height =  np.size(img,0)
     new_width = new_height = min (width, height)
+    new_height = new_width/1.5
     left = np.ceil((width - new_width)/2.)
     top = np.ceil((height - new_height)/2.)
     right = np.floor((width + new_width)/2.)
