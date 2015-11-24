@@ -118,7 +118,7 @@ app.post ('/notify', function (req, res) {
                 'radius': 100,
             },
             'car': {
-                'compact_label': _.pick (req.body.classification_result.top_5.slice (0,3), 'class_name')
+                'labels': _.pick (req.body.classification_result.top_5.slice (0,3), 'class_name')
             }
         }
     }
@@ -128,7 +128,6 @@ app.post ('/notify', function (req, res) {
             client.emit ('listings_error', JSON.stringify (err))
             res.status (500).json (err)            
         } else {
-            console.log (JSON.stringify (body, null, 2))
             client.emit ('listings', JSON.stringify (body))
             res.status (201).json ({'message': 'listings emitted'})
         }
