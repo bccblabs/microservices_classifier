@@ -180,7 +180,7 @@ var parse_car_query = function (query_params, min_price, max_price, sort_query) 
     }
 
     if (_.has (query_params, 'tags') && query_params.tags.length > 0) {
-        query['tags'] = {'$in': make_reg_type (query_params['tags'])}
+        query['tags'] = {'$in': _.map (query_params.tags, function (tag) { return new RegExp(tag.replace (/[^a-zA-Z0-9]/g, '').toLowerCase())})}
     }
 
     if (_.has (query_params, 'drivenWheels') && query_params.drivenWheels.length > 0) {
@@ -233,27 +233,13 @@ var parse_car_query = function (query_params, min_price, max_price, sort_query) 
         query['$or'].push ({$or: [{'prices.usedPrivateParty': {'$lte': max_price}}, {'prices.usedPrivateParty': {'$exists': false}}]})
     }
 
-    if (_.has (query_params, 'remaining_submodels') && query_params.remaining_submodels.length > 0) {
+    if (_.has (query_params, 'remaining_ids') && query_params.remaining_ids.length > 0) {
         var last_query = {}
-        last_query['submodel'] = {'$in': query_params.remaining_submodels}
+        last_query['styleId'] = {'$in': query_params.remaining_ids}
         if (query.hasOwnProperty ('sortBy'))
             last_query['sortBy'] = query['sortBy']
         else
             last_query['sortBy'] = [['year', -1]]
-
-        if (query.hasOwnProperty ('$or'))
-            last_query['$or'] = query['$or']
-        return last_query
-    }
-
-    if (_.has (query_params, 'fetched_submodels') && query_params.remaining_submodels.length > 0) {
-        var last_query = {}
-        last_query['submodel'] = {'$in': query_params.fetched_submodels}
-        if (query.hasOwnProperty ('sortBy'))
-            last_query['sortBy'] = query['sortBy']
-        else
-            last_query['sortBy'] = [['year', -1]]
-
         if (query.hasOwnProperty ('$or'))
             last_query['$or'] = query['$or']
         return last_query
@@ -306,8 +292,7 @@ var fetch_edmunds_listings = function (request_opts, styleId, callback) {
 }
 
 var listings_request_worker = function (styleIds, edmunds_query, car_doc ,api_callback) {
-        var listing_tasks = [],
-            remaining_style_ids = []
+        var listing_tasks = []
         
         async.retry (3, get_token, function (err, access_token_) {
             if (err) {
@@ -373,23 +358,6 @@ var listings_request_worker = function (styleIds, edmunds_query, car_doc ,api_ca
 
 }
 
-var submodel_worker = function (max_per_model, submodel_doc, db_query ,edmunds_query, callback) {
-    connect_mongo (function (err, mongoClient) {
-        db_query.submodel = submodel_doc.submodel
-        db_query['listings_stats.inventoriesCount'] = {'$gte': 1}
-        mongoClient.db ('trims').collection ('car_data').distinct ('styleId', _.omit(db_query, 'sortBy'),
-                function (err, styleIds) {
-                    mongoClient.close()
-                    if (err) {
-                        console.error ('[* ERR ' + submodel +']: ' + err)
-                        callback (null, {'count':0, 'listings': [], 'styleIds': [], 'submodels': []})
-                    } else {
-                        console.log ('[* fetched ' + styleIds.length +' styleIds for ' + submodel_doc.submodel + ' ]')
-                        listings_request_worker (styleIds.slice (0,15), edmunds_query, submodel_doc ,callback)
-                    }
-                })
-    })
-}
 
 var fetch_listings = function (db_query, edmunds_query, listings_callback) {
     var query_obj = {},
@@ -420,7 +388,8 @@ var fetch_listings = function (db_query, edmunds_query, listings_callback) {
                             'powertrain.engine.cylinder': 1,
                             'powertrain.drivenWheels': 1,
                             'powertrain.transmission.transmissionType': 1,
-                            'good_tags': 1             
+                            'good_tags': 1,
+                            'styleId': 1            
                         }).sort (sort).toArray (
                             function (err, submodels_docs) {
                                 mongoClient.close()
@@ -428,23 +397,34 @@ var fetch_listings = function (db_query, edmunds_query, listings_callback) {
                                     console.log (err)                    
                                 } else {
                                     console.log ('[* fetched ' + submodels_docs.length +' submodels ]\n[* submodels: ]')
-                                    this.submodels = _.pluck (submodels_docs.slice (0, 5), 'submodel')
-                                    this.submodels_docs = submodels_docs
-                                    var tasks = []
-                                    _.each (submodels_docs.slice(0, 5), function (submodel_doc) {
+                                    this.submodels = _.pluck (submodels_docs.slice (0, 20), 'submodel')
+                                    var fetch_ids = {},
+                                        fetch_docs = {},
+                                        tasks = []
+
+                                    _.each (submodels_docs.slice (0, 20), function (doc) {
+                                        if (!fetch_ids.hasOwnProperty (doc.submodel))
+                                            fetch_ids[doc.submodel] = []
+                                        fetch_ids[doc.submodel].push (doc.styleId)
+                                        fetch_docs[doc.submodel] = doc
+                                    })
+                                    _.each (_.keys (fetch_ids), function (submodel_key) {
+                                        console.log (submodel_key, fetch_docs[submodel_key])
                                         var worker = function (callback) {
-                                            submodel_worker (5, submodel_doc, query_obj, edmunds_query, callback)
-                                        }.bind (this)
+                                            listings_request_worker (fetch_ids[submodel_key], edmunds_query, fetch_docs[submodel_key], callback)
+                                        }
                                         tasks.push (worker)
                                     })
-                                    async.parallelLimit (tasks, 5, listings_callback.bind(this))
+                                    this.remaining_style_ids = _.difference (_.pluck (submodels_docs, 'styleId'), _.flatten (_.values (fetch_ids)))
+                                    console.log (_.pluck (submodels_docs, 'styleId').length, _.values(fetch_ids).length, this.remaining_style_ids.length)
+                                    async.parallelLimit (tasks, 20, listings_callback.bind(this))
                                 }           
                             }
                         )
         })
 }
 
-var construct_query_stats = function (queries, fetched_submodels) {
+var construct_query_stats = function (queries) {
     var query = {}
     query.makes = _.uniq (_.pluck (queries, 'make'))
     query.models = _.uniq (_.pluck (queries, 'model'))
@@ -478,8 +458,6 @@ var construct_query_stats = function (queries, fetched_submodels) {
     query.compressors = _.uniq (query.compressors)
     query.transmissionTypes = _.uniq (query.transmissionTypes)
     query.drivenWheels = _.uniq (query.drivenWheels)
-    query.remaining_submodels = _.difference (fetched_submodels, _.pluck (queries, 'submodel'))
-    query.fetched_submodels = fetched_submodels
     return query
 }
 
@@ -545,7 +523,8 @@ var listings_request_callback = function (err, listings) {
                                 )
     response_obj['count'] = response_obj['listings'].length
     response_obj['query'] = this.body
-    var next_query = construct_query_stats (this.submodels_docs, this.submodels)
+    var next_query = construct_query_stats (this.submodels_docs)
+    next_query.remaining_ids = this.remaining_style_ids
     next_query.minMpg = this.body.car.minMpg
     next_query.minHp = this.body.car.minHp
     next_query.minTq = this.body.car.minTq
@@ -602,8 +581,6 @@ var listing_formatter = function (listing) {
         })
     }
     return listing
-    // var formatted_listing = _.omit (listing, 'equipment')
-    // return formatted_listing
 }
 
 exports.connect_mongo = module.exports.connect_mongo = connect_mongo

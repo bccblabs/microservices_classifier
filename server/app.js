@@ -11,8 +11,6 @@ var server = require ('http').createServer(app).listen(8080),
     temp = require ('temp'),
     request = require ('request')
 
-server.timeout = 20000
-
 var conn_amqp_wrapper = function (callback, results) {
     var channel = "",
         car_exchange = 'cars',
