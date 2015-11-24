@@ -129,7 +129,7 @@ app.post ('/notify', function (req, res) {
             res.status (500).json (err)            
         } else {
             console.log (JSON.stringify (body, null, 2))
-            client.emit ('listings', body)
+            client.emit ('listings', JSON.stringify (body))
             res.status (201).json ({'message': 'listings emitted'})
         }
     })
