@@ -108,7 +108,7 @@ app.post ('/notify', function (req, res) {
     var request_opts = {
         'url': 'localhost:8080/listings',
         'headers': {'content-type': 'application/json'},
-        'json': true
+        'json': true,
         'body': {
             'api': {
                 'zipcode': 92612,
