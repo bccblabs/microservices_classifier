@@ -396,8 +396,8 @@ var fetch_listings = function (db_query, edmunds_query, listings_callback) {
                                 if (err) {
                                     console.log (err)                    
                                 } else {
+                                    this.submodels_docs = submodels_docs
                                     console.log ('[* fetched ' + submodels_docs.length +' submodels ]\n[* submodels: ]')
-                                    this.submodels = _.pluck (submodels_docs.slice (0, 20), 'submodel')
                                     var fetch_ids = {},
                                         fetch_docs = {},
                                         tasks = []
