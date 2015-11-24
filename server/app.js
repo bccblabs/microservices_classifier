@@ -8,7 +8,8 @@ var server = require ('http').createServer(app).listen(8080),
     util = require ('./util'),
     _ = require ('underscore-node'),
     async = require ('async'),
-    temp = require ('temp')
+    temp = require ('temp'),
+    request = require ('request')
 
 server.timeout = 20000
 
