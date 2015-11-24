@@ -233,9 +233,9 @@ var parse_car_query = function (query_params, min_price, max_price, sort_query) 
     if (sort_query === 'year:desc') {
         query['sortBy'] = [['year', -1]]
     }
-    if (sort_query === undefined) {
-        query['sortBy'] = [['year', -1]]
-    }
+    // if (sort_query === undefined) {
+    //     query['sortBy'] = [['powertrain.engine.horsepower', -1]]
+    // }
 
     if (max_price !== undefined || min_price !== undefined) {
         query['$or'] = []
