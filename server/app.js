@@ -123,7 +123,7 @@ app.post ('/notify', function (req, res) {
         }
     }
     request( request_opts, function (err, response, body) {
-        if (err || response.statusCode != 200) {
+        if (err || response.statusCode != 201) {
             console.error (err)
             client.emit ('listings_error', JSON.stringify (err))
             res.status (500).json (err)            
