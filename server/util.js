@@ -402,7 +402,7 @@ var fetch_listings = function (db_query, edmunds_query, listings_callback) {
                                         fetch_docs = {},
                                         tasks = []
 
-                                    _.each (submodels_docs.slice (0, 20), function (doc) {
+                                    _.each (submodels_docs.slice (0, 5), function (doc) {
                                         if (!fetch_ids.hasOwnProperty (doc.submodel))
                                             fetch_ids[doc.submodel] = []
                                         fetch_ids[doc.submodel].push (doc.styleId)
@@ -417,7 +417,7 @@ var fetch_listings = function (db_query, edmunds_query, listings_callback) {
                                     })
                                     this.remaining_style_ids = _.difference (_.pluck (submodels_docs, 'styleId'), _.flatten (_.values (fetch_ids)))
                                     console.log (_.pluck (submodels_docs, 'styleId').length, _.values(fetch_ids).length, this.remaining_style_ids.length)
-                                    async.parallelLimit (tasks, 20, listings_callback.bind(this))
+                                    async.parallelLimit (tasks, 5, listings_callback.bind(this))
                                 }           
                             }
                         )
