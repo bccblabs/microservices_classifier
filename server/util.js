@@ -161,7 +161,7 @@ var parse_car_query = function (query_params, min_price, max_price, sort_query) 
         query['compact_label'] = {'$in': _.map (query_params.labels, function (label) {
             if (label.indexOf ('bmw_bmw_3_series_e9') != -1)
                 return new RegExp ('bmwbmwe90')
-            if (labels.indexOf ('bmw_bmw_5_series_f07') != -1)
+            if (label.indexOf ('bmw_bmw_5_series_f07') != -1)
                 return new RegExp ('bmwbmwf10f11f07sedan')
             return new RegExp(parse_label (label), 'i') 
         })}
