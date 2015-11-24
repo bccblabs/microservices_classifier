@@ -141,6 +141,10 @@ var parse_car_query = function (query_params, min_price, max_price, sort_query) 
         query['make'] = {'$in': make_reg_type(query_params.makes)}
     }
 
+    if (_.has (query_params, 'main_models') && query_params.main_models.length > 0) {
+        query['model'] = {'$in': parse_model(query_params.main_models)}
+    }
+
     if (_.has (query_params, 'models') && query_params.models.length > 0) {
         query['submodel'] = {'$in': parse_model(query_params.models)}
     }
@@ -427,7 +431,7 @@ var fetch_listings = function (db_query, edmunds_query, listings_callback) {
 var construct_query_stats = function (queries) {
     var query = {}
     query.makes = _.uniq (_.pluck (queries, 'make'))
-    query.models = _.uniq (_.pluck (queries, 'model'))
+    query.main_models = _.uniq (_.pluck (queries, 'model'))
     query.bodyTypes = _.uniq (_.pluck (queries, 'bodyType'))
     query.years = _.uniq (_.pluck (queries, 'year'))
     query.tags = _.filter (_.uniq (_.flatten(_.pluck (queries, 'good_tags'))), 
