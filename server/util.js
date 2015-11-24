@@ -308,7 +308,6 @@ var listings_request_worker = function (styleIds, edmunds_query, car_doc ,api_ca
             if (err) {
                 api_callback (null, {'count':0, 'listings': [], remaining_ids: []})
             } else {
-                var res_per_req = 5
                 var request_opts = {
                         method: "GET",
                         followRedirect: true,
@@ -316,7 +315,7 @@ var listings_request_worker = function (styleIds, edmunds_query, car_doc ,api_ca
                             access_token: access_token_,
                             fmt: 'json',
                             view: 'full',
-                            pagesize: res_per_req
+                            pagesize: edmunds_query.pagesize
                         }
                 }
                 request_opts.qs = _.extend (request_opts.qs, edmunds_query)

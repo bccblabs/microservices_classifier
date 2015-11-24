@@ -100,7 +100,17 @@ app.post ('/notify', function (req, res) {
     console.log ("received from classifier: " + req.body)
     console.log ('client id:' + req.body.socket_id)
     console.log ("classified label : " + req.body.classification_result['top_1'].class_name.replace (/[^a-zA-Z0-9]/g, '').toLowerCase())
-    var client = io.sockets.connected[req.body.socket_id]
+    var client = io.sockets.connected[req.body.socket_id],
+        top_n = 1,
+        pagesize = 20
+    if (req.body.classification_result.top_1.prob < 0.7) {
+        top_n = 3
+        pagesize = 10        
+    }
+    if (req.body.classification_result.top_1.prob < 0.5) {
+        top_n = 5
+        pagesize = 5        
+    }
 
     console.log (JSON.stringify (req.body, null, 2))
     var request_opts = {
@@ -112,11 +122,11 @@ app.post ('/notify', function (req, res) {
             'api': {
                 'zipcode': 92612,
                 'pagenum': 1,
-                'pagesize': 20,
+                'pagesize': pagesize,
                 'radius': 100,
             },
             'car': {
-                'labels': _.pluck (req.body.classification_result.top_5.slice (0,3), 'class_name')
+                'labels': _.pluck (req.body.classification_result.top_5.slice (0, top_n), 'class_name')
             }
         }
     }
