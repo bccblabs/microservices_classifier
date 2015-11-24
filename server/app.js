@@ -106,6 +106,7 @@ app.post ('/notify', function (req, res) {
 
     console.log (JSON.stringify (req.body, null, 2))
     var request_opts = {
+        'method': 'POST',
         'url': 'http://localhost:8080/listings',
         'headers': {'content-type': 'application/json'},
         'json': true,
@@ -121,11 +122,11 @@ app.post ('/notify', function (req, res) {
             }
         }
     }
-    request( request_opts, function (error, response, body) {
-        if (error || response.statusCode != 200) {
-            console.error (error)
-            client.emit ('error', JSON.stringify (error))
-            res.status (500).json (error)            
+    request( request_opts, function (err, response, body) {
+        if (err || response.statusCode != 200) {
+            console.error (err)
+            client.emit ('listings_error', JSON.stringify (err))
+            res.status (500).json (err)            
         } else {
             console.dir (body, response)
             client.emit ('listings', body)
