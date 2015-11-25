@@ -190,7 +190,25 @@ var parse_car_query = function (query_params, min_price, max_price, sort_query) 
     }
 
     if (_.has (query_params, 'tags') && query_params.tags.length > 0) {
-        // query['tags'] = {'$in': _.map (query_params.tags, function (tag) { return new RegExp(tag.toLowerCase())})}
+        _.each (query_params.tags, function (tag) {
+            if (tag.toLowerCase() === 'has incentives')
+                query['incentives.count'] = {'$gte': 1}
+            if (tag.toLowerCase() === 'no recalls')
+                query['recalls.numberOfRecalls'] = {'$eq': 0}
+            if (tag.toLowerCase() === 'no major recalls') {
+                if (!query.hasOwnProperty ('$and'))
+                    query['$and'] = []
+                query['$and'].push ({'$or': [{'recalls.major_recall': {'$eq': false}}, {'recalls.numberOfRecalls': 0}]})
+            }
+            if (tag.toLowerCase() === 'no complaints')
+                query['complaints.count'] = {'$eq': 0}
+            if (tag.toLowerCase() === 'no major complaints') {
+                if (!query.hasOwnProperty ('$and'))
+                    query['$and'] = []
+                query['$and'].push ({'$or': [{'complaints.major_complaint': {'$eq': false}}, {'complaints.count': 0}]})
+            }
+
+        })
     }
 
     if (_.has (query_params, 'drivenWheels') && query_params.drivenWheels.length > 0) {
