@@ -25,6 +25,7 @@ classifiers = [hdd_classifier]
 print '[classifier] labels loaded ' + str (labels) 
 
 def center_crop (img):
+    img = np.rot90 (img, 3)
     width =  np.size(img,1)
     height =  np.size(img,0)
     new_width = new_height = min (width, height)
