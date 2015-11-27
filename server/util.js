@@ -44,7 +44,7 @@ var store_to_disk = function (data, callback, temp) {
                     if (err) {
                         callback (err)
                     } else {
-                        console.log ("file written")
+                        console.log ("[* classifier task] file written")
                         fs.close (info.fd, function (err) {
                             if (err) {
                                 client.emit ('err', 'cannot store to server')
@@ -71,7 +71,7 @@ var write_classifier_result = function (classification_result, _id, callback) {
                         { $set: {'classifications': classification_result} },
                         function (err, result) {
                             mongoClient.close()
-                            console.log ('[util] result in db')
+                            console.log ('[* classifier task] result in db')
                             callback (err, result)
                         })
     })
@@ -396,6 +396,7 @@ var fetch_listings = function (db_query, edmunds_query, listings_callback) {
             query_obj = db_query
         }
         query_obj['listings_stats.inventoriesCount'] = {'$gte': 1}
+        console.log ('[* server] styleIds query:')
         console.dir (query_obj)
         connect_mongo (function (err, mongoClient) {
             mongoClient.db ('trims').collection ('car_data')
@@ -436,7 +437,7 @@ var fetch_listings = function (db_query, edmunds_query, listings_callback) {
                                         fetch_docs[doc.submodel] = doc
                                     })
                                     _.each (_.keys (fetch_ids), function (submodel_key) {
-                                        console.log (submodel_key, fetch_docs[submodel_key])
+                                        // console.log (submodel_key, fetch_docs[submodel_key])
                                         var worker = function (callback) {
                                             listings_request_worker (fetch_ids[submodel_key], edmunds_query, fetch_docs[submodel_key], callback)
                                         }

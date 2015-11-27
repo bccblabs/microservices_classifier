@@ -58,7 +58,6 @@ async.retry ({times: 10, interval: 1000}, conn_amqp_wrapper, function (err, chan
         console.log ("[## rabbitmq connected ##]")
         io.sockets.on ('connection', function (client) {
             console.log ('client ' + client.id + ' connected')
-            client.emit ('register', client.id)
             client.on ('clz_data', function (data) {
                 console.dir ("[* app] receiving data from client " + client.id)
                 data = JSON.parse (data)
@@ -160,6 +159,7 @@ app.get ('/vehicle_info', function (req, res) {
 app.post ('/listings', function (req, res) {
     var listings_query = util.parse_listings_query (req.body.api),
         cars_query = util.parse_car_query (req.body.car, req.body.min_price, req.body.max_price, req.body.sortBy)
+    console.log ('[* server] app query:')
     console.dir (res.body)
     this.res = res
     this.body = req.body
