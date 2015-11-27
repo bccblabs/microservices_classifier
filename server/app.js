@@ -102,12 +102,8 @@ app.post ('/notify', function (req, res) {
     var client = io.sockets.connected[req.body.socket_id],
         top_n = 1,
         pagesize = 20
-    if (req.body.classification_result.top_1.prob < 0.7) {
+    if (req.body.classification_result.top_1.prob < 0.2) {
         top_n = 3
-        pagesize = 10        
-    }
-    if (req.body.classification_result.top_1.prob < 0.5) {
-        top_n = 5
         pagesize = 5        
     }
 
