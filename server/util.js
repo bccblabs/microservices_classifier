@@ -576,6 +576,7 @@ var listings_request_callback = function (err, listings) {
     next_query.minHp = this.body.car.minHp
     next_query.minTq = this.body.car.minTq
     response_obj['query'].car = next_query
+    console.dir (next_query)
     if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'mileage:asc') {
         response_obj['listings'] =  _.sortBy (response_obj['listings'], function (listing) {
             return listing.mileage
@@ -666,12 +667,13 @@ var construct_dealer_query_stats = function (fetched_listings) {
             response_obj.query.compressors.push (engine.compressorType)
             response_obj.query.fuelTypes.push (engine.type)
             response_obj.query.conditions.push (listing.type)
+            var formatted_listing = listing_formatter (listing)
 
-            listing.hp = engine.horsepower
-            listing.torque = engine.torque
-            listing.citympg = listing.mpg.city
-            listing.highway = listing.mpg.highway
-            return listing
+            formatted_listing.hp = engine.horsepower
+            formatted_listing.torque = engine.torque
+            formatted_listing.citympg = listing.mpg.city
+            formatted_listing.highway = listing.mpg.highway
+            return formatted_listing
         })
         _.each (_.keys (response_obj.query), function (key) {
             response_obj.query [key] = _.filter(_.uniq (response_obj.query[key]), function (val) {return val !== null && val !== undefined})
