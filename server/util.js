@@ -657,22 +657,42 @@ var construct_dealer_query_stats = function (fetched_listings) {
                 return equipment.equipmentType === 'TRANSMISSION'
             })
 
-            response_obj.query.years.push (listing.year.year)
-            response_obj.query.makes.push (listing.make.name.toLowerCase())
-            response_obj.query.models.push (listing.model.name.toLowerCase())
-            response_obj.query.drivenWheels.push (listing.drivetrain.toLowerCase())
-            response_obj.query.bodyTypes.push (listing.style.submodel.body.toLowerCase())
-            response_obj.query.transmissionTypes.push (transmission.transmissionType.toLowerCase())
-            response_obj.query.cylinders.push (engine.cylinder)
-            response_obj.query.compressors.push (engine.compressorType)
-            response_obj.query.fuelTypes.push (engine.type)
-            response_obj.query.conditions.push (listing.type)
+            if (listing.hasOwnProperty ('year') && listing.year.hasOwnProperty('year'))
+                response_obj.query.years.push (listing.year.year)
+
+            if (listing.hasOwnProperty ('make') && listing.make.hasOwnProperty('name'))
+                response_obj.query.makes.push (listing.make.name.toLowerCase())
+            if (listing.hasOwnProperty ('model') && listing.model.hasOwnProperty('name'))
+                response_obj.query.models.push (listing.model.name.toLowerCase())
+            if (listing.hasOwnProperty ('drivetrain'))
+                response_obj.query.drivenWheels.push (listing.drivetrain.toLowerCase())
+            if (listing.hasOwnProperty ('style') && listing.hasOwnProperty('submodel') &&
+                listing.hasOwnProperty ('body')) {
+                response_obj.query.bodyTypes.push (listing.style.submodel.body.toLowerCase())
+            }
+
+            if (listing.hasOwnProperty ('type'))
+                response_obj.query.conditions.push (listing.type)
+            if (transmission !== undefined && transmission !== null && transmission.hasOwnProperty ('transmissionType'))
+                response_obj.query.transmissionTypes.push (transmission.transmissionType.toLowerCase())
+            if (engine !== undefined && engine !== null) {
+                if (engine.hasOwnProperty ('cylinder'))                
+                    response_obj.query.cylinders.push (engine.cylinder)
+                if (engine.hasOwnProperty ('compressorType'))
+                    response_obj.query.compressors.push (engine.compressorType)
+                if (engine.hasOwnProperty ('type'))
+                    response_obj.query.fuelTypes.push (engine.type)
+            }
             var formatted_listing = listing_formatter (listing)
 
             formatted_listing.hp = engine.horsepower
             formatted_listing.torque = engine.torque
-            formatted_listing.citympg = listing.mpg.city
-            formatted_listing.highway = listing.mpg.highway
+            if (listing.hasOwnProperty ('mpg')) {
+                if (listing.mpg.hasOwnProperty ('city'))
+                    formatted_listing.citympg = listing.mpg.city
+                if (listing.mpg.hasOwnProperty ('highway'))
+                    formatted_listing.highway = listing.mpg.highway
+            }
             return formatted_listing
         })
         _.each (_.keys (response_obj.query), function (key) {
