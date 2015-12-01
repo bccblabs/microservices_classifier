@@ -301,6 +301,27 @@ var get_token = function (callback, results) {
                                     });
 }
 
+var fetch_franchise_listings = function (request_opts, franchise_id ,callback) {
+    request_opts.url = 'https://api.edmunds.com/api/inventory/v2/franchises/' + franchise_id
+    request (request_opts, function (err, res, body) {
+        if (err) {
+            callback (err, null)
+        } else if (res.statusCode != 200) {
+            callback ({status: res.statusCode}, null)
+        } else {
+            try {
+                var data = JSON.parse (body)
+                console.dir ("[franchise inventories count] " + data.inventoriesCount)
+                callback (null, data)
+            } catch (e) {
+                console.log ("[exception caught ]" + e)
+                callback (err, null)
+            }
+        }
+    })
+
+}
+
 var fetch_edmunds_listings = function (request_opts, styleId, callback) {
     request_opts.url = 'https://api.edmunds.com/api/inventory/v2/styles/' + styleId
     request (request_opts, function (err, res, body) {
@@ -382,9 +403,7 @@ var listings_request_worker = function (styleIds, edmunds_query, car_doc ,api_ca
                 })
             }
         })
-
 }
-
 
 var fetch_listings = function (db_query, edmunds_query, listings_callback) {
     var query_obj = {},
@@ -489,7 +508,6 @@ var construct_query_stats = function (queries) {
     console.dir (query)
     return query
 }
-
 
 var has_color = function (listing_colors, type, color_query) {
     if (color_query === undefined || color_query.length < 1)
@@ -612,6 +630,92 @@ var listing_formatter = function (listing) {
     return listing
 }
 
+var construct_dealer_query_stats = function (fetched_listings) {
+    var response_obj = {}
+
+    response_obj.query = {
+        "years": [],
+        "makes": [],
+        "models": [],
+        "drivenWheels": [],
+        "bodyTypes": [],
+        "transmissionTypes": [],
+        "compressors": [],
+        "cylinders": [],
+        "fuelTypes": [],
+        "conditions": [],
+    }
+
+    if (fetched_listings !== null && fetched_listings !== undefined) {
+        var listings = fetched_listings.inventories
+        response_obj.listings = _.map (listings, function (listing) {
+            var engine = _.find (listing.equipment, function (equipment) {
+                return equipment.equipmentType === 'ENGINE'
+            })
+            var transmission = _.find (listing.equipment, function (equipment) {
+                return equipment.equipmentType === 'TRANSMISSION'
+            })
+
+            response_obj.query.years.push (listing.year.year)
+            response_obj.query.makes.push (listing.make.name.toLowerCase())
+            response_obj.query.models.push (listing.model.name.toLowerCase())
+            response_obj.query.drivenWheels.push (listing.drivetrain.toLowerCase())
+            response_obj.query.bodyTypes.push (listing.style.submodel.body.toLowerCase())
+            response_obj.query.transmissionTypes.push (transmission.transmissionType.toLowerCase())
+            response_obj.query.cylinders.push (engine.cylinder)
+            response_obj.query.compressors.push (engine.compressorType)
+            response_obj.query.fuelTypes.push (engine.type)
+            response_obj.query.conditions.push (listing.type)
+
+            listing.hp = engine.horsepower
+            listing.torque = engine.torque
+            listing.citympg = listing.mpg.city
+            listing.highway = listing.mpg.highway
+            return listing
+        })
+        _.each (_.keys (response_obj.query), function (key) {
+            response_obj.query [key] = _.filter(_.uniq (response_obj.query[key]), function (val) {return val !== null && val !== undefined})
+        })
+    }
+    return response_obj        
+
+}
+
+var franchise_listings_callback = function (err, listings) {
+    var cars_query = this.body.cars
+    if (err)
+        console.error ("[error returned from tasks * franchise query]" + err)
+    var response_obj = construct_dealer_query_stats (listings)  
+    this.res.status (201).json (response_obj)
+}
+
+var fetch_listings_by_franchise_id = function (user_query, callback) {
+    var cars_query = user_query.cars,
+        api_query = user_query.api
+
+        async.retry (3, get_token, function (err, access_token_) {
+            if (err) {
+                callback (null, {'count':0, 'listings': [], remaining_ids: []})
+            } else {
+                var request_opts = {
+                        method: "GET",
+                        followRedirect: true,
+                        qs: {
+                            access_token: access_token_,
+                            fmt: 'json',
+                            view: 'full',
+                            pagenum: api_query.pagenum,
+                            pagesize: api_query.pagesize,
+                        }
+                }
+                if (api_query.condition !== undefined)
+                    request_opts.qs.condition = api_query.condition
+                fetch_franchise_listings (request_opts, api_query.franchiseId, callback)
+            }   
+        })
+}
+
+
 exports.connect_mongo = module.exports.connect_mongo = connect_mongo
 exports.store_to_mongo = module.exports.store_to_mongo = store_to_mongo
 exports.store_to_disk = module.exports.store_to_disk = store_to_disk
@@ -621,3 +725,6 @@ exports.parse_listings_query = module.exports.parse_listings_query = parse_listi
 exports.parse_car_query = module.parse_car_query = parse_car_query
 exports.listings_request_worker = module.listings_request_worker = listings_request_worker
 exports.listings_request_callback = module.listings_request_callback = listings_request_callback
+exports.fetch_listings_by_franchise_id = module.fetch_listings_by_franchise_id = fetch_listings_by_franchise_id
+exports.franchise_listings_callback = module.franchise_listings_callback = franchise_listings_callback
+

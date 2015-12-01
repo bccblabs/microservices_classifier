@@ -161,3 +161,10 @@ app.post ('/listings', function (req, res) {
     this.body = req.body
     util.fetch_listings (cars_query, listings_query, util.listings_request_callback.bind (this))
 })
+
+
+app.post ('/dealerListings', function (req, res) {
+    this.res = res
+    this.body = req.body
+    util.fetch_listings_by_franchise_id (req.body, util.franchise_listings_callback.bind (this))
+})
