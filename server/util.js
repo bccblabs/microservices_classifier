@@ -326,15 +326,16 @@ var fetch_edmunds_listings = function (request_opts, styleId, callback) {
     request_opts.url = 'https://api.edmunds.com/api/inventory/v2/styles/' + styleId
     request (request_opts, function (err, res, body) {
         if (err) {
-            callback (err, null)
+            console.error (err)
+            callback (null, {'count':0,'inventories': []})
         } else if (res.statusCode != 200) {
-            callback ({status: res.statusCode}, null)
+            callback (null, {'count':0,'inventories': []})
         } else {
             try {
                 var data = JSON.parse (body)
                 callback (null, data)
             } catch (e) {
-                callback (err, null)
+                callback (null, {'count':0,'inventories': []})
             }
         }
     })
@@ -366,7 +367,7 @@ var listings_request_worker = function (styleIds, edmunds_query, car_doc ,api_ca
                 })
 
                 async.parallelLimit (listing_tasks, 10, function (err, results) {
-                    if (err || !results.hasOwnProperty ('inventories')) {
+                    if (err) {
                         console.log (err)
                         api_callback (null, {'count':0, 'listings': [], remaining_ids: []})
                     } else {
