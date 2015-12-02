@@ -56,6 +56,19 @@ def classify (file_path):
     result_dict['top_1'] = result_dict['top_5'][0]
     return result_dict
 
+def post_result (url, data, headers):
+    status = -1
+    try:
+        r = requests.post (url, data=data, headers=headers)
+        status = r.status_code
+        retry = 3
+        while status != 201 and retry > 0:
+            time.sleep (0.5)
+            r = requests.post (url, data=data, headers=headers)
+            status = r.status_code
+            retry = retry - 1
+    except:
+        print '[classifier] post no good with status %d returned' % status
 
 def classifier_callback (ch, method, properties, body):
     body = json.loads(body)
@@ -68,7 +81,8 @@ def classifier_callback (ch, method, properties, body):
             })
     print str(result_dict)
     headers = {'Content-type': 'application/json', 'Accept': 'text/plain'} 
-    r = requests.post (url, data=data, headers=headers)
+    post_result (url, data, headers)
+    # r = requests.post (url, data=data, headers=headers)
 
 
 
