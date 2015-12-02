@@ -366,7 +366,7 @@ var listings_request_worker = function (styleIds, edmunds_query, car_doc ,api_ca
                 })
 
                 async.parallelLimit (listing_tasks, 10, function (err, results) {
-                    if (err) {
+                    if (err || !results.hasOwnProperty ('inventories')) {
                         console.log (err)
                         api_callback (null, {'count':0, 'listings': [], remaining_ids: []})
                     } else {
