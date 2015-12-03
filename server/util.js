@@ -643,7 +643,7 @@ var construct_dealer_query_stats = function (fetched_listings) {
         "car": {
             "years": [],
             "makes": [],
-            "models": [],
+            "main_models": [],
             "drivenWheels": [],
             "bodyTypes": [],
             "transmissionTypes": [],
@@ -667,15 +667,13 @@ var construct_dealer_query_stats = function (fetched_listings) {
 
             if (listing.hasOwnProperty ('year') && listing.year.hasOwnProperty('year'))
                 response_obj.query.car.years.push (listing.year.year)
-
             if (listing.hasOwnProperty ('make') && listing.make.hasOwnProperty('name'))
                 response_obj.query.car.makes.push (listing.make.name.toLowerCase())
             if (listing.hasOwnProperty ('model') && listing.model.hasOwnProperty('name'))
-                response_obj.query.car.models.push (listing.model.name.toLowerCase())
+                response_obj.query.car.main_models.push (listing.model.name.toLowerCase())
             if (listing.hasOwnProperty ('drivetrain'))
                 response_obj.query.car.drivenWheels.push (listing.drivetrain.toLowerCase())
-            if (listing.hasOwnProperty ('style') && listing.hasOwnProperty('submodel') &&
-                listing.hasOwnProperty ('body')) {
+            if (listing.hasOwnProperty ('style') && listing.hasOwnProperty('submodel') && listing.hasOwnProperty ('body')) {
                 response_obj.query.car.bodyTypes.push (listing.style.submodel.body.toLowerCase())
             }
             if (listing.hasOwnProperty ('type'))
@@ -708,6 +706,7 @@ var construct_dealer_query_stats = function (fetched_listings) {
         })
 
         console.dir (this.body)
+
         if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'mileage:asc') {
             response_obj['listings'] =  _.sortBy (response_obj['listings'], function (listing) {
                 return listing.mileage
@@ -739,8 +738,7 @@ var construct_dealer_query_stats = function (fetched_listings) {
             })
         }
 
-
-       if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'torque:desc') {
+        if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'torque:desc') {
             response_obj['listings'] =  _.sortBy (response_obj['listings'], function (listing) {
                 return -1 * listing.torque
             })
@@ -760,7 +758,6 @@ var construct_dealer_query_stats = function (fetched_listings) {
                 return -1 * listing.highway
             })
         }
-
         if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'hp:asc') {
             response_obj['listings'] =  _.sortBy (response_obj['listings'], function (listing) {
                 return listing.hp
@@ -769,6 +766,20 @@ var construct_dealer_query_stats = function (fetched_listings) {
         if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'hp:desc') {
             response_obj['listings'] =  _.sortBy (response_obj['listings'], function (listing) {
                 return -1 * listing.hp
+            })
+        }
+
+        if (this.body.hasOwnProperty ('car')) {
+            response_obj['listings'] = _.filter (response_obj['listings'], function (listing) {
+                if (this.body.car.hasOwnProperty ('makes') && this.body.car.makes.indexOf (listing.make.name) <0 )
+                    return false
+                if (this.body.car.hasOwnProperty ('main_models') && this.body.car.main_models.indexOf (listing.model.name.toLowerCase()) <0 )
+                    return false
+                if (this.body.car.hasOwnProperty ('drivenWheels') && this.body.car.makes.indexOf (listing.drivetrain.toLowerCase()) <0 )
+                    return false
+                if (this.body.car.hasOwnProperty ('bodyTypes') && this.body.car.main_models.indexOf (listing.style.submodel.body.toLowerCase()) <0 )
+                    return false                
+                return true
             })
         }
 
