@@ -775,9 +775,9 @@ var construct_dealer_query_stats = function (fetched_listings) {
                     return false
                 if (this.body.car.hasOwnProperty ('main_models') && this.body.car.main_models.indexOf (listing.model.name.toLowerCase()) <0 )
                     return false
-                if (this.body.car.hasOwnProperty ('drivenWheels') && this.body.car.makes.indexOf (listing.drivetrain.toLowerCase()) <0 )
+                if (this.body.car.hasOwnProperty ('drivenWheels') && this.body.car.drivenWheels.indexOf (listing.drivetrain.toLowerCase()) <0 )
                     return false
-                if (this.body.car.hasOwnProperty ('bodyTypes') && this.body.car.main_models.indexOf (listing.style.submodel.body.toLowerCase()) <0 )
+                if (this.body.car.hasOwnProperty ('bodyTypes') && this.body.car.bodyTypes.indexOf (listing.style.submodel.body.toLowerCase()) <0 )
                     return false                
                 return true
             })
