@@ -192,8 +192,8 @@ app.post ('/classifyCar', function (req, res) {
                                     else {
                                         var top_n = 1,
                                             pagesize = 20
-                                        console.dir (clz_body)
-                                        if (clz_body.top_1.prob < 0.3) {
+                                        var clz = JSON.parse (clz_body)
+                                        if (clz.top_1.prob < 0.3) {
                                             top_n = 3
                                             pagesize = 5        
                                         }
@@ -211,18 +211,18 @@ app.post ('/classifyCar', function (req, res) {
                                                     'radius': 100,
                                                 },
                                                 'car': {
-                                                    'labels': _.pluck (clz_body.top_5.slice (0, top_n), 'class_name')
+                                                    'labels': _.pluck (clz.top_5.slice (0, top_n), 'class_name')
                                                 }
                                             }
                                         }
-                                        request( listings_opts, function (err, response, body) {
+                                        request( listings_opts, function (err, response, listings_body) {
                                             if (err || response.statusCode != 201) {
                                                 console.error (err)
                                                 client.emit ('listings_error', JSON.stringify (err))
                                                 res.status (500).json (err)            
                                             } else {
-                                                console.log (JSON.stringify (body, null, 2))
-                                                res.status (201).json (body)
+                                                console.log (JSON.stringify (listings_body, null, 2))
+                                                res.status (201).json (listings_body)
                                             }
                                         })
                                     }
