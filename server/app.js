@@ -9,7 +9,8 @@ var server = require ('http').createServer(app).listen(8080),
     _ = require ('underscore-node'),
     async = require ('async'),
     temp = require ('temp'),
-    request = require ('request')
+    request = require ('request'),
+    fs = require ('fs')
 
 var conn_amqp_wrapper = function (callback, results) {
     var channel = "",
