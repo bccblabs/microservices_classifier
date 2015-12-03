@@ -112,8 +112,13 @@ app.post ('/classifyCar', function (req, res) {
                                         var top_n = 1,
                                             pagesize = 20
                                         var clz = JSON.parse (clz_body)
-                                        if (clz.top_1.prob < 0.3) {
+                                        console.log (JSON.stringify (clz_body, null, 2))
+                                        if (clz.top_1.prob < 0.5) {
                                             top_n = 3
+                                            pagesize = 10        
+                                        }
+                                        if (clz.top_1.prob < 0.3) {
+                                            top_n = 5
                                             pagesize = 5        
                                         }
 
@@ -137,7 +142,6 @@ app.post ('/classifyCar', function (req, res) {
                                         request( listings_opts, function (err, response, listings_body) {
                                             if (err || response.statusCode != 201) {
                                                 console.error (err)
-                                                client.emit ('listings_error', JSON.stringify (err))
                                                 res.status (500).json (err)            
                                             } else {
                                                 res.status (201).json (listings_body)
