@@ -771,7 +771,7 @@ var construct_dealer_query_stats = function (fetched_listings) {
 
         if (this.body.hasOwnProperty ('car')) {
             response_obj['listings'] = _.filter (response_obj['listings'], function (listing) {
-                if (this.body.car.hasOwnProperty ('makes') && this.body.car.makes.indexOf (listing.make.name) <0 )
+                if (this.body.car.hasOwnProperty ('makes') && this.body.car.makes.indexOf (listing.make.name.toLowerCase()) <0 )
                     return false
                 if (this.body.car.hasOwnProperty ('main_models') && this.body.car.main_models.indexOf (listing.model.name.toLowerCase()) <0 )
                     return false
