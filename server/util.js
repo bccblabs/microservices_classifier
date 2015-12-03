@@ -580,6 +580,7 @@ var listings_request_callback = function (err, listings) {
     next_query.minHp = this.body.car.minHp
     next_query.minTq = this.body.car.minTq
     response_obj['query'].car = next_query
+
     console.dir (next_query)
     if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'mileage:asc') {
         response_obj['listings'] =  _.sortBy (response_obj['listings'], function (listing) {
@@ -588,7 +589,7 @@ var listings_request_callback = function (err, listings) {
     }
     if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'mileage:desc') {
         response_obj['listings'] =  _.sortBy (response_obj['listings'], function (listing) {
-            return 5000000 - listing.mileage
+            return -1 * listing.mileage
         })
     }
     if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'price:asc') {
@@ -598,7 +599,7 @@ var listings_request_callback = function (err, listings) {
     }
     if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'price:desc') {
         response_obj['listings'] =  _.sortBy (response_obj['listings'], function (listing) {
-            return 5000000 - listing.min_price
+            return -1 * listing.min_price
         })
     }
     if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'year:asc') {
@@ -608,7 +609,7 @@ var listings_request_callback = function (err, listings) {
     }
     if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'year:desc') {
         response_obj['listings'] =  _.sortBy (response_obj['listings'], function (listing) {
-            return 5000000 - listing.year.year
+            return -1 * listing.year.year
         })
     }
     this.res.status (201).json (response_obj)
@@ -639,16 +640,18 @@ var construct_dealer_query_stats = function (fetched_listings) {
     var response_obj = {}
 
     response_obj.query = {
-        "years": [],
-        "makes": [],
-        "models": [],
-        "drivenWheels": [],
-        "bodyTypes": [],
-        "transmissionTypes": [],
-        "compressors": [],
-        "cylinders": [],
-        "fuelTypes": [],
-        "conditions": [],
+        "car": {
+            "years": [],
+            "makes": [],
+            "models": [],
+            "drivenWheels": [],
+            "bodyTypes": [],
+            "transmissionTypes": [],
+            "compressors": [],
+            "cylinders": [],
+            "fuelTypes": [],
+            "conditions": [],
+        }
     }
 
     if (fetched_listings !== null && fetched_listings !== undefined) {
@@ -662,46 +665,112 @@ var construct_dealer_query_stats = function (fetched_listings) {
             })
 
             if (listing.hasOwnProperty ('year') && listing.year.hasOwnProperty('year'))
-                response_obj.query.years.push (listing.year.year)
+                response_obj.query.car.years.push (listing.year.year)
 
             if (listing.hasOwnProperty ('make') && listing.make.hasOwnProperty('name'))
-                response_obj.query.makes.push (listing.make.name.toLowerCase())
+                response_obj.query.car.makes.push (listing.make.name.toLowerCase())
             if (listing.hasOwnProperty ('model') && listing.model.hasOwnProperty('name'))
-                response_obj.query.models.push (listing.model.name.toLowerCase())
+                response_obj.query.car.models.push (listing.model.name.toLowerCase())
             if (listing.hasOwnProperty ('drivetrain'))
-                response_obj.query.drivenWheels.push (listing.drivetrain.toLowerCase())
+                response_obj.query.car.drivenWheels.push (listing.drivetrain.toLowerCase())
             if (listing.hasOwnProperty ('style') && listing.hasOwnProperty('submodel') &&
                 listing.hasOwnProperty ('body')) {
-                response_obj.query.bodyTypes.push (listing.style.submodel.body.toLowerCase())
+                response_obj.query.car.bodyTypes.push (listing.style.submodel.body.toLowerCase())
             }
-
             if (listing.hasOwnProperty ('type'))
-                response_obj.query.conditions.push (listing.type)
+                response_obj.query.car.conditions.push (listing.type)
             if (transmission !== undefined && transmission !== null && transmission.hasOwnProperty ('transmissionType'))
-                response_obj.query.transmissionTypes.push (transmission.transmissionType.toLowerCase())
+                response_obj.query.car.transmissionTypes.push (transmission.transmissionType.toLowerCase())
             if (engine !== undefined && engine !== null) {
                 if (engine.hasOwnProperty ('cylinder'))                
-                    response_obj.query.cylinders.push (engine.cylinder)
-                if (engine.hasOwnProperty ('compressorType'))
-                    response_obj.query.compressors.push (engine.compressorType)
+                    response_obj.query.car.cylinders.push (engine.cylinder)
+                if (engine.hasOwnProperty ('compressorType')) {
+                    if (engine.compressorType === 'NA')
+                        response_obj.query.car.compressors.push ('Naturally Aspirated')
+                    else
+                        response_obj.query.car.compressors.push (engine.compressorType)
+                }
                 if (engine.hasOwnProperty ('type'))
-                    response_obj.query.fuelTypes.push (engine.type)
+                    response_obj.query.car.fuelTypes.push (engine.type)
             }
             var formatted_listing = listing_formatter (listing)
 
             formatted_listing.hp = engine.horsepower
             formatted_listing.torque = engine.torque
-            if (listing.hasOwnProperty ('mpg')) {
-                if (listing.mpg.hasOwnProperty ('city'))
-                    formatted_listing.citympg = listing.mpg.city
-                if (listing.mpg.hasOwnProperty ('highway'))
-                    formatted_listing.highway = listing.mpg.highway
-            }
+
+            if (listing.hasOwnProperty ('mpg') && listing.mpg.hasOwnProperty ('highway'))
+                    formatted_listing.highway = parseInt (listing.mpg.highway)
             return formatted_listing
         })
-        _.each (_.keys (response_obj.query), function (key) {
-            response_obj.query [key] = _.filter(_.uniq (response_obj.query[key]), function (val) {return val !== null && val !== undefined})
+        _.each (_.keys (response_obj.query.car), function (key) {
+            response_obj.query.car [key] = _.filter(_.uniq (response_obj.query.car[key]), function (val) {return val !== null && val !== undefined})
         })
+
+        console.dir (this.body)
+        if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'mileage:asc') {
+            response_obj['listings'] =  _.sortBy (response_obj['listings'], function (listing) {
+                return listing.mileage
+            })
+        }
+        if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'mileage:desc') {
+            response_obj['listings'] =  _.sortBy (response_obj['listings'], function (listing) {
+                return -1 * listing.mileage
+            })
+        }
+        if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'price:asc') {
+            response_obj['listings'] =  _.sortBy (response_obj['listings'], function (listing) {
+                return listing.min_price
+            })
+        }
+        if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'price:desc') {
+            response_obj['listings'] =  _.sortBy (response_obj['listings'], function (listing) {
+                return -1 * listing.min_price
+            })
+        }
+        if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'year:asc') {
+            response_obj['listings'] =  _.sortBy (response_obj['listings'], function (listing) {
+                return listing.year.year
+            })
+        }
+        if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'year:desc') {
+            response_obj['listings'] =  _.sortBy (response_obj['listings'], function (listing) {
+                return -1 * listing.year.year
+            })
+        }
+
+
+       if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'torque:desc') {
+            response_obj['listings'] =  _.sortBy (response_obj['listings'], function (listing) {
+                return -1 * listing.torque
+            })
+        }
+        if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'torque:asc') {
+            response_obj['listings'] =  _.sortBy (response_obj['listings'], function (listing) {
+                return listing.torque
+            })
+        }
+        if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'mpg:desc') {
+            response_obj['listings'] =  _.sortBy (response_obj['listings'], function (listing) {
+                return -1 * listing.highway
+            })
+        }
+        if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'mpg:asc') {
+            response_obj['listings'] =  _.sortBy (response_obj['listings'], function (listing) {
+                return -1 * listing.highway
+            })
+        }
+
+        if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'hp:asc') {
+            response_obj['listings'] =  _.sortBy (response_obj['listings'], function (listing) {
+                return listing.hp
+            })
+        }
+        if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'hp:desc') {
+            response_obj['listings'] =  _.sortBy (response_obj['listings'], function (listing) {
+                return -1 * listing.hp
+            })
+        }
+
     }
     return response_obj        
 
