@@ -120,8 +120,13 @@ var parse_listings_query = function (params) {
 }
 
 var parse_label = function (params) {
-if (params.indexOf ('bmw_bmw_6_series_f13') > -1)
-    return 'bmwbmwf06f12f13'
+    if (params.indexOf ('bmw_bmw_6_series_f13') > -1)
+        return 'bmwbmwf06f12f13'
+
+    if (params.indexOf ('chrysler_town_country_v_minivan') > -1)
+        return 'chryslertowncountrygenerationvminivan'
+    if (params.indexOf ('chrysler_town_country_iv_minivan') > -1)
+        return 'chryslertowncountrygenerationivminivan'
 
     return params.replace (/[^a-zA-Z0-9]/g, '').toLowerCase()
                 .replace(/bmw[0-9]series/, 'bmw')
