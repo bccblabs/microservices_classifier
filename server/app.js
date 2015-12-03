@@ -183,7 +183,7 @@ app.post ('/classifyCar', function (req, res) {
                                     method: "GET",
                                     followRedirect: true,
                                     qs: {
-                                        image_url: (info.path).replace ('/tmp/', '')
+                                        image_path: (info.path).replace ('/tmp/', '')
                                     }
                                 }
                                 request (request_opts, function (err, clz_res, clz_body) {
