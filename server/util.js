@@ -651,7 +651,8 @@ var construct_dealer_query_stats = function (fetched_listings) {
             "cylinders": [],
             "fuelTypes": [],
             "conditions": [],
-        }
+        },
+        "api": this.body.api
     }
 
     if (fetched_listings !== null && fetched_listings !== undefined) {
