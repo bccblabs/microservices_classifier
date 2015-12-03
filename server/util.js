@@ -120,9 +120,8 @@ var parse_listings_query = function (params) {
 }
 
 var parse_label = function (params) {
-if (params === 'bmw_bmw_6_series_f13_coupe')
-    return 'bmwbmwf13'
-
+if (params.indexOf ('bmw_bmw_6_series_f13') > -1)
+    return 'bmwbmwf06f12f13'
 
     return params.replace (/[^a-zA-Z0-9]/g, '').toLowerCase()
                 .replace(/bmw[0-9]series/, 'bmw')
