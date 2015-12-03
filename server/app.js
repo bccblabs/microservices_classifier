@@ -193,7 +193,7 @@ app.post ('/classifyCar', function (req, res) {
                                         var top_n = 1,
                                             pagesize = 20
                                         console.dir (clz_body)
-                                        if (clz_body.classification_result.top_1.prob < 0.3) {
+                                        if (clz_body.top_1.prob < 0.3) {
                                             top_n = 3
                                             pagesize = 5        
                                         }
@@ -211,7 +211,7 @@ app.post ('/classifyCar', function (req, res) {
                                                     'radius': 100,
                                                 },
                                                 'car': {
-                                                    'labels': _.pluck (clz_body.classification_result.top_5.slice (0, top_n), 'class_name')
+                                                    'labels': _.pluck (clz_body.top_5.slice (0, top_n), 'class_name')
                                                 }
                                             }
                                         }

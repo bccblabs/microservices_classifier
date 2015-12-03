@@ -55,13 +55,13 @@ def classify():
         avg_probs = np.average (res, axis=1)
         top_k_idx = avg_probs.argsort()[-1:-6:-1]
         class_res = {}
-        class_res['top_3'] = []
+        class_res['top_5'] = []
         for x in top_k_idx.tolist():
             res_dict = {}
             res_dict["class_name"] = labels.tolist()[x][0]
             res_dict["prob"] = avg_probs.tolist()[x]
-            class_res['top_3'].append (res_dict)
-        class_res['top_1'] = class_res['top_3'][0]
+            class_res['top_5'].append (res_dict)
+        class_res['top_1'] = class_res['top_5'][0]
         app.logger.debug ("[classifier] classification result saved." + json.dumps (class_res))
         response = Response (response = json.dumps (class_res), status=200, mimetype="application/json")
         return response
