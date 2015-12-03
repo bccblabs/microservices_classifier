@@ -179,7 +179,7 @@ app.post ('/classifyCar', function (req, res) {
                             } else {
                                 console.log ("[* store task] file written")
                                 var request_opts = {
-                                    url: 'localhost:5000/classify',
+                                    url: 'http://0.0.0.0:5000/classify',
                                     method: "GET",
                                     followRedirect: true,
                                     qs: {
