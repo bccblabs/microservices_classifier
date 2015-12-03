@@ -5,7 +5,7 @@ import caffe, numpy as np
 
 from flask import Flask, request, Response, jsonify
 from StringIO import StringIO
-import urllib, requests, traceback, os
+import urllib, requests, traceback, os, json
 
 IMAGE_ROOT = "/tmp/"
 classifier_dir="/home/ubuntu/microservices_classifier/classifier/src/"
@@ -62,8 +62,8 @@ def classify():
             res_dict["prob"] = avg_probs.tolist()[x]
             class_res['top_3'].append (res_dict)
         class_res['top_1'] = class_res['top_3'][0]
-        app.logger.debug ("[classifier] classification result saved." + str(class_res.to_json()))
-        response = Response (response = class_res.to_json(), status=200, mimetype="application/json")
+        app.logger.debug ("[classifier] classification result saved." + json.dumps (class_res))
+        response = Response (response = json.dumps (class_res), status=200, mimetype="application/json")
         return response
     except:
         exc_type, exc_value, exc_traceback = sys.exc_info()
