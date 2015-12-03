@@ -221,7 +221,6 @@ app.post ('/classifyCar', function (req, res) {
                                                 client.emit ('listings_error', JSON.stringify (err))
                                                 res.status (500).json (err)            
                                             } else {
-                                                console.log (JSON.stringify (listings_body, null, 2))
                                                 res.status (201).json (listings_body)
                                             }
                                         })
