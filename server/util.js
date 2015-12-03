@@ -758,17 +758,16 @@ var construct_dealer_query_stats = function (fetched_listings) {
                 return -1 * listing.highway
             })
         }
-        if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'hp:asc') {
+        if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'horsepower:asc') {
             response_obj['listings'] =  _.sortBy (response_obj['listings'], function (listing) {
                 return listing.hp
             })
         }
-        if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'hp:desc') {
+        if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'horsepower:desc') {
             response_obj['listings'] =  _.sortBy (response_obj['listings'], function (listing) {
                 return -1 * listing.hp
             })
         }
-
         if (this.body.hasOwnProperty ('car')) {
             response_obj['listings'] = _.filter (response_obj['listings'], function (listing) {
                 if (this.body.car.hasOwnProperty ('makes') && this.body.car.makes.length > 1 && this.body.car.makes.indexOf (listing.make.name.toLowerCase()) <0 )
