@@ -192,6 +192,7 @@ app.post ('/classifyCar', function (req, res) {
                                     else {
                                         var top_n = 1,
                                             pagesize = 20
+                                        console.dir (clz_body)
                                         if (clz_body.classification_result.top_1.prob < 0.3) {
                                             top_n = 3
                                             pagesize = 5        
