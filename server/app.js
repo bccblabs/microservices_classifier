@@ -189,8 +189,40 @@ app.post ('/classifyCar', function (req, res) {
                                     if (err)
                                         res.status (500).json (clz_body)
                                     else {
-                                        res.status (201).json (clz_body)
-                                        console.log (JSON.stringify (clz_body, null, 2))
+                                        var top_n = 1,
+                                            pagesize = 20
+                                        if (clz_body.classification_result.top_1.prob < 0.3) {
+                                            top_n = 3
+                                            pagesize = 5        
+                                        }
+
+                                        var listings_opts = {
+                                            'method': 'POST',
+                                            'url': 'http://localhost:8080/listings',
+                                            'headers': {'content-type': 'application/json'},
+                                            'json': true,
+                                            'body': {
+                                                'api': {
+                                                    'zipcode': 92612,
+                                                    'pagenum': 1,
+                                                    'pagesize': pagesize,
+                                                    'radius': 100,
+                                                },
+                                                'car': {
+                                                    'labels': _.pluck (clz_body.classification_result.top_5.slice (0, top_n), 'class_name')
+                                                }
+                                            }
+                                        }
+                                        request( listings_opts, function (err, response, body) {
+                                            if (err || response.statusCode != 201) {
+                                                console.error (err)
+                                                client.emit ('listings_error', JSON.stringify (err))
+                                                res.status (500).json (err)            
+                                            } else {
+                                                console.log (JSON.stringify (body, null, 2))
+                                                res.status (201).json (body)
+                                            }
+                                        })
                                     }
                                 })
                             }
