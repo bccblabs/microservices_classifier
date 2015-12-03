@@ -14,14 +14,14 @@ caffe.set_mode_gpu()
 caffe.set_device(0)
 print NOTIFIER_URI
 labels = np.loadtxt(classifier_dir + "labels.txt", str, delimiter="\t")
-hdd_classifier = caffe.Classifier (
+cars_classifier = caffe.Classifier (
                 classifier_dir + "deploy.prototxt",
                 classifier_dir + "cars_525.caffemodel",
                 channel_swap = (2,1,0),
                 raw_scale = 255,
                 image_dims = (256, 256)
 )
-classifiers = [hdd_classifier]
+classifiers = [cars_classifier]
 print '[classifier] labels loaded ' + str (labels) 
 
 def center_crop (img):

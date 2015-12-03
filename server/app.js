@@ -163,6 +163,46 @@ app.post ('/listings', function (req, res) {
 })
 
 
+app.post ('/classifyCar', function (req, res) {
+    var tmp_file_path = '',
+        data = req.body
+        temp.open (tmp_file_path, function (err, info) {
+            if (!err) {
+                fs.writeFile (info.path, data.imageData, 'base64', function (err) {
+                    if (err) {
+                        callback (err)
+                    } else {
+                        fs.close (info.fd, function (err) {
+                            if (err) {
+                                console.error (err)
+                            } else {
+                                console.log ("[* store task] file written")
+                                var request_opts = {
+                                    url: 'localhost:5000/classify'
+                                    method: "GET",
+                                    followRedirect: true,
+                                    qs: {
+                                        image_url: info.path
+                                    }
+                                }
+                                request (request_opts, function (err, clz_res, clz_body) {
+                                    if (err)
+                                        res.status (500).json (clz_body)
+                                    else {
+                                        res.status (201).json (clz_body)
+                                        console.log (JSON.stringify (clz_body, null, 2))
+                                    }
+                                })
+                            }
+                        })
+                    }
+                })
+            } else {
+                callback (err)
+            }
+        })                
+})
+
 app.post ('/dealerListings', function (req, res) {
     this.res = res
     this.body = req.body
