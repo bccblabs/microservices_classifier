@@ -51,7 +51,7 @@ def classify():
     	print image_path
         app.logger.debug ("[classifier] image loaded to " + image_path)
 
-        image = center_crop (caffe.io.load_image(image_path))
+        image = center_crop (caffe.io.load_image(IMAGE_ROOT + image_path))
         resized_image = caffe.io.resize_image (image, (256,256,3))
         res = np.zeros (num_outs * len (classifiers)).reshape (num_outs, len(classifiers))
         for i, x in enumerate (classifiers):
