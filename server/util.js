@@ -8,6 +8,14 @@ var _ = require ('underscore-node'),
     MONGO_HOST = process.env['DB_PORT_27017_TCP_ADDR'] || 'localhost',
     MONGO_PORT = process.env['DB_1_PORT_27017_TCP_PORT'] || '27017'
 
+Array.prototype.pushUnique = function (item){
+    if(this.indexOf(item) == -1) {
+        this.push(item);
+        return true;
+    }
+    return false;
+}
+
 
 var connect_mongo = function (callback) {
     var mongo_client = mongo.MongoClient
@@ -412,6 +420,118 @@ var listings_request_worker = function (styleIds, edmunds_query, car_doc ,api_ca
                 })
             }
         })
+}
+
+var narrow_search = function (db_query, callback) {
+    connect_mongo (function (err, mongoClient) {
+        mongoClient.db ('trims').collection ('car_data')
+        .find ( db_query,
+        {
+            'submodel': 1,
+            'make': 1,
+            'model': 1,
+            'bodyType': 1,
+            'year': 1,
+            'compact_label' : 1,
+            'powertrain.engine.compressorType': 1,
+            'powertrain.engine.cylinder': 1,
+            'powertrain.engine.horsepower': 1,
+            'powertrain.engine.torque': 1,
+            'powertrain.mpg.highway': 1,
+            'powertrain.drivenWheels': 1,
+            'powertrain.transmission.transmissionType': 1,
+
+        })
+        .toArray (function (err, docs) {
+            callback (err, docs)
+        })
+    })
+}
+
+var narrow_search_callback = function (err, docs) {
+    if (err) {
+        this.res.status(500).json ({})
+    } else {
+        this.body.submodelCount = docs.length
+        var hps = [],
+            tqs = [],
+            mpgs = []
+        console.log ("[* narrow search ]: docs count = " + docs.length)
+        _.each (docs, function (doc) {
+            if (doc.hasOwnProperty ('make')) {
+                if (this.body.car.makes === undefined)
+                    this.body.car.makes = []
+                this.body.car.makes.pushUnique (doc.make)
+            }
+            if (doc.hasOwnProperty ('model')) {
+                if (this.body.car.models === undefined)
+                    this.body.car.models = []
+                this.body.car.models.pushUnique (doc.model.replace (new RegExp('_', 'g'), ' '))
+            }
+            if (doc.hasOwnProperty ('year')) {
+                if (this.body.car.years === undefined)
+                    this.body.car.years = []
+                this.body.car.years.pushUnique (doc.year)
+            }
+            if (doc.hasOwnProperty ('make') && doc.hasOwnProperty ('model')
+                && doc.hasOwnProperty ('year') && doc.hasOwnProperty ('compact_label')) {
+                if (this.body.model_years === undefined)
+                    this.body.model_years = {}
+                if (!this.body.model_years.hasOwnProperty (doc.make))
+                    this.body.model_years[doc.make] = {}
+                if (!this.body.model_years[doc.make].hasOwnProperty ([doc.model]))
+                    this.body.model_years[doc.make][doc.model] = {}
+
+                var gen_name = doc.compact_label.replace (new RegExp (doc.model.replace (/[^a-zA-Z0-9]/g, ''), 'g'), '')
+                                                .replace (new RegExp (doc.make.replace (/[^a-zA-Z0-9]/g, ''), 'g'), '')
+                                                .replace (new RegExp (doc.bodyType.replace (/[^a-zA-Z0-9]/g, ''), 'g'), '')
+
+
+                if (!this.body.model_years[doc.make][doc.model].hasOwnProperty (gen_name))
+                    this.body.model_years[doc.make][doc.model][gen_name] = []
+                this.body.model_years[doc.make][doc.model][gen_name].pushUnique (doc.year)
+            }
+            if (doc.hasOwnProperty ('bodyType')) {
+                if (this.body.car.bodyTypes === undefined)
+                    this.body.car.bodyTypes = []
+                this.body.car.bodyTypes.pushUnique (doc.bodyType)
+            }
+            if (doc.hasOwnProperty ('powertrain') && doc.powertrain.hasOwnProperty ('transmission') 
+                && doc.powertrain.transmission.hasOwnProperty ('transmissionType')) {
+                if (this.body.car.transmissionTypes === undefined)
+                    this.body.car.transmissionTypes = []
+                this.body.car.transmissionTypes.pushUnique (doc.powertrain.transmission.transmissionType)
+            }
+            if (doc.hasOwnProperty ('powertrain') && doc.powertrain.hasOwnProperty ('engine') && doc.powertrain.engine.hasOwnProperty ('cylinder')) {
+                if (this.body.car.cylinders === undefined)
+                    this.body.car.cylinders = []
+                this.body.car.cylinders.pushUnique (doc.powertrain.engine.cylinder)
+            }
+            if (doc.hasOwnProperty ('powertrain') && doc.powertrain.hasOwnProperty ('engine') && doc.powertrain.engine.hasOwnProperty ('compressorType')) { 
+                if (this.body.car.compressors === undefined)
+                    this.body.car.compressors = []
+                this.body.car.compressors.pushUnique (doc.powertrain.engine.compressorType)
+            }
+            if (doc.hasOwnProperty ('powertrain') && doc.powertrain.hasOwnProperty ('engine') && doc.powertrain.engine.hasOwnProperty ('horsepower')) { 
+                hps.pushUnique (doc.powertrain.engine.horsepower)
+            }
+            if (doc.hasOwnProperty ('powertrain') && doc.powertrain.hasOwnProperty ('engine') && doc.powertrain.engine.hasOwnProperty ('torque')) { 
+                tqs.pushUnique (doc.powertrain.engine.torque)
+            }
+            if (doc.hasOwnProperty ('powertrain') && doc.powertrain.hasOwnProperty ('mpg') && doc.powertrain.mpg.hasOwnProperty ('highway')) { 
+                mpgs.pushUnique (doc.powertrain.mpg.highway)
+            }
+            if (doc.hasOwnProperty ('powertrain') && doc.powertrain.hasOwnProperty ('drivenWheels')) { 
+                if (this.body.car.drivetrains === undefined)
+                    this.body.car.drivetrains = []
+                this.body.car.drivetrains.pushUnique (doc.powertrain.drivenWheels)
+            }
+            this.body.car.minMpg = _.min (mpgs)
+            this.body.car.minHp = _.min (hps)
+            this.body.car.minTq = _.min (tqs)
+        })
+        this.res.status(200).json (this.body)
+    }
 }
 
 var fetch_listings = function (db_query, edmunds_query, listings_callback) {
@@ -838,4 +958,6 @@ exports.listings_request_worker = module.listings_request_worker = listings_requ
 exports.listings_request_callback = module.listings_request_callback = listings_request_callback
 exports.fetch_listings_by_franchise_id = module.fetch_listings_by_franchise_id = fetch_listings_by_franchise_id
 exports.franchise_listings_callback = module.franchise_listings_callback = franchise_listings_callback
+exports.narrow_search = module.exports.narrow_search = narrow_search
+exports.narrow_search_callback = module.exports.narrow_search_callback = narrow_search_callback
 

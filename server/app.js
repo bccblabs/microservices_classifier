@@ -83,6 +83,17 @@ app.post ('/listings', function (req, res) {
 })
 
 
+app.post ('/narrowSearch', function (req, res) {
+    var listings_query = util.parse_listings_query (req.body.api),
+        cars_query = util.parse_car_query (req.body.car, req.body.min_price, req.body.max_price, req.body.sortBy)
+    console.log ('[* server] app query:')
+    console.dir (JSON.stringify(req.body))
+    this.body = req.body
+    this.res = res
+    util.narrow_search (cars_query, util.narrow_search_callback.bind (this))
+})
+
+
 app.post ('/classifyCar', function (req, res) {
     var tmp_file_path = '',
         data = req.body
@@ -164,3 +175,8 @@ app.post ('/dealerListings', function (req, res) {
     this.body = req.body
     util.fetch_listings_by_franchise_id (req.body, util.franchise_listings_callback.bind (this))
 })
+
+
+
+
+
