@@ -177,6 +177,9 @@ app.post ('/dealerListings', function (req, res) {
 })
 
 
+app.post ('/lead', function (req, res) {
+    res.status (201).json ({'message': 'request created'});
+})
 
 
 
