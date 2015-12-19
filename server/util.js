@@ -192,15 +192,15 @@ var parse_car_query = function (query_params, min_price, max_price, sort_query) 
     if (_.has (query_params, 'cylinders') && query_params.cylinders.length > 0) {
         query['powertrain.engine.cylinder'] = {'$in': query_params['cylinders']}
     }
-    if (_.has (query_params, 'minHp')) {
+    if (_.has (query_params, 'minHp') && query_params['minHp'] > 0) {
         query['powertrain.engine.horsepower'] = {'$gte': query_params['minHp']}
     }
 
-    if (_.has (query_params, 'minTq')) {
+    if (_.has (query_params, 'minTq') && query_params['minTq']  > 0) {
         query['powertrain.engine.torque'] = {'$gte': query_params['minTq']}
     }
 
-    if (_.has (query_params, 'minMpg')) {
+    if (_.has (query_params, 'minMpg') && query_params['minMpg'] > 0) {
         query['powertrain.mpg.highway'] = {'$gte': query_params['minMpg']}
     }
 
@@ -275,7 +275,7 @@ var parse_car_query = function (query_params, min_price, max_price, sort_query) 
         query['$or'].push ({$or: [{'prices.usedTmvRetail': {'$lte': max_price}}, {'prices.usedTmvRetail': {'$exists': false}}]})
         query['$or'].push ({$or: [{'prices.usedPrivateParty': {'$lte': max_price}}, {'prices.usedPrivateParty': {'$exists': false}}]})
     }
-    console.log ("query", query)
+    console.dir  (query)
 
     if (_.has (query_params, 'remaining_ids') && query_params.remaining_ids.length > 0) {
         var last_query = {}
@@ -286,7 +286,7 @@ var parse_car_query = function (query_params, min_price, max_price, sort_query) 
             last_query['sortBy'] = [['year', -1]]
         if (query.hasOwnProperty ('$or'))
             last_query['$or'] = query['$or']
-        console.log ("last query", last_query)
+        console.dir (ast_query)
         return last_query
     }
 
