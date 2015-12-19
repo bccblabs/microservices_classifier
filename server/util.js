@@ -1046,7 +1046,7 @@ var fetch_submodels = function (mongoclient, db_query, callback) {
                         else if (highway.length > 0)
                             hwy_str =  _.first (highway) + " Highway"
                         model_obj.mpgDesc = city_str + hwy_str
-
+                        model_obj.styleIds = _.pluck (docs, 'styleId')
                         callback (null, model_obj)
                     }
         })
