@@ -985,7 +985,6 @@ var fetch_submodels = function (mongoclient, db_query, callback) {
 
                         _.each (docs, function (doc) {
                             if (doc !== undefined) {
-                                console.dir (doc)
                             if (doc.hasOwnProperty ('powertrain') && doc.powertrain !== undefined) {
                                 if (doc.powertrain.hasOwnProperty ('engine') && doc.powertrain.engine !== undefined) {
                                     if (doc.powertrain.engine.hasOwnProperty ('horsepower'))
