@@ -181,5 +181,13 @@ app.post ('/lead', function (req, res) {
     res.status (201).json ({'message': 'request created'});
 })
 
+app.post ('/makes', function (req, res) {
+    var listings_query = util.parse_listings_query (req.body.api),
+        cars_query = util.parse_car_query (req.body.car, req.body.min_price, req.body.max_price, req.body.sortBy)
+    this.cars_query = cars_query
+    this.res = res
+    util.fetch_makes (cars_query, util.fetch_makes_callback.bind (this))
+})
+
 
 

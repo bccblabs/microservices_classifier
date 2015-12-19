@@ -335,7 +335,6 @@ var fetch_franchise_listings = function (request_opts, franchise_id ,callback) {
             }
         }
     })
-
 }
 
 var fetch_edmunds_listings = function (request_opts, styleId, callback) {
@@ -946,6 +945,212 @@ var fetch_listings_by_franchise_id = function (user_query, callback) {
         })
 }
 
+var fetch_submodels = function (mongoclient, db_query, callback) {
+    var query_obj = {},
+        sort = {}
+        if (db_query.hasOwnProperty('sortBy')) {
+            query_obj = _.omit(db_query, 'sortBy')
+            sort = db_query.sortBy            
+        } else {
+            query_obj = db_query
+        }
+    if (mongoclient === undefined)
+        callback ({'error': 'mongo client undefined'})
+    else {
+        mongoclient.db ('trims').collection ('car_data').find (query_obj, 
+                        {
+                            'powertrain.engine.horsepower':1 ,
+                            'powertrain.engine.torque':1,
+                            'powertrain.mpg': 1,
+                            'images': 1,
+                            'model': 1,
+                            'year': 1,
+                            'compact_label': 1,
+                            'make': 1,
+                            'styleId': 1
+                        }
+
+                ).sort (sort).toArray (function (err, docs) {
+                    if (err) {
+                        console.error (err)
+                        callback (err)
+                    } else {
+                        var model = [],
+                            years = [],
+                            hps = [],
+                            tqs = [],
+                            city = [],
+                            highway = [],
+                            imageUrl = []
+
+                        _.each (docs, function (doc) {
+                            if (doc !== undefined) {
+                                console.dir (doc)
+                            if (doc.hasOwnProperty ('powertrain') && doc.powertrain !== undefined) {
+                                if (doc.powertrain.hasOwnProperty ('engine') && doc.powertrain.engine !== undefined) {
+                                    if (doc.powertrain.engine.hasOwnProperty ('horsepower'))
+                                        hps.pushUnique (doc.powertrain.engine.horsepower)
+                                    if (doc.powertrain.engine.hasOwnProperty ('torque'))
+                                        tqs.pushUnique (doc.powertrain.engine.torque)
+                                }
+                                if (doc.powertrain.hasOwnProperty ('mpg') && doc.powertrain.mpg !== undefined) {
+                                    if (doc.powertrain.mpg.hasOwnProperty ('city'))
+                                        city.pushUnique (doc.powertrain.mpg.city)                                
+                                    if (doc.powertrain.mpg.hasOwnProperty ('highway'))
+                                        highway.pushUnique (doc.powertrain.mpg.highway)
+                                }
+                            }
+
+                            if (doc.hasOwnProperty ('year'))
+                                years.push (doc.year)
+                            if (doc.hasOwnProperty ('model'))
+                                model.push (doc.model)
+                            if (doc.hasOwnProperty ('images'))
+                                imageUrl.push (_.first (doc.images))
+
+                            }
+                        })
+
+                        var model_obj = {},
+                            hp_str = "",
+                            tq_str = "",
+                            city_str = "",
+                            hwy_str = ""
+
+                        model_obj.model = _.first (model).replace (/_/g, " ")
+                        model_obj.imageUrl = _.first (imageUrl)
+
+
+                        if (_.uniq (years).length > 1)
+                            model_obj.yearDesc = _.min (years) + " - " + _.max (years)
+                        else
+                            model_obj.yearDesc = _.first (years)
+
+                        if (_.uniq (hps).length > 1)
+                            hp_str = _.min (hps) + " - " + _.max (hps) + " hp "
+                        else
+                            hp_str = _.first (hps) + " hp "
+                        if (_.uniq (tqs).length > 1)
+                            tq_str = _.min (tqs) + " - " + _.max (tqs) + " lb/ft"
+                        else 
+                            tq_str = _.first (tqs) + " lb/ft"
+                        model_obj.powerDesc = hp_str + tq_str
+
+                        if (_.uniq (city).length > 1)
+                            city_str = _.min (city) + " - " + _.max (city) + " City /"
+                        else
+                            city_str = _.first (city) + " City / "
+
+                        if (_.uniq (highway).length > 1)
+                            hwy_str = _.min (highway) + " - " + _.max (highway) + " Highway"
+                        else 
+                            hwy_str =  _.first (highway) + " Highway"
+                        model_obj.mpgDesc = city_str + hwy_str
+
+                        callback (null, model_obj)
+                    }
+        })
+    }
+}
+
+var fetch_generations = function (mongoclient, cars_query, callback) {
+    var query_obj = {}
+    if (cars_query.hasOwnProperty('sortBy')) {
+        query_obj = _.omit(cars_query, 'sortBy')
+    }
+    if (mongoclient === undefined)
+        callback ({'error': 'mongo client undefined'})
+    else {
+        mongoclient.db ('trims').collection ('car_data').distinct ( 'compact_label',
+            query_obj,
+            function (err, labels) {
+                if (err) {
+                    console.error ("fetch_generations", err)
+                    callback (err)
+                } else {
+                    var task_array = []
+                    _.each (labels, function (label) {
+                        var fetch_submodels_worker = function (submodel_callback) {
+                            var query = query_obj
+                            query['compact_label'] = label
+                            fetch_submodels (mongoclient, query, submodel_callback)
+                        }
+                        task_array.push (async.ensureAsync(fetch_submodels_worker))
+                    })
+                    async.parallel (task_array, function (err, res) {
+                        if (err) {
+                            console.error (err)
+                            callback (err)
+                        }
+                        else {
+                            callback (null, {'models': res, 'make': query_obj.make, 'numModels': res.length})
+                        }
+                    })
+                }
+            })
+    }
+}
+
+var fetch_makes = function (cars_query, callback) {
+    var query_obj = {}
+    if (cars_query.hasOwnProperty('sortBy')) {
+        query_obj = _.omit(cars_query, 'sortBy')
+    }
+    connect_mongo (function (err, mongoClient) {
+        if (err) {
+            console.error ("fetch_makes", err)
+            callback (err)
+        } else {
+            mongoClient.db ('trims')
+            .collection ('car_data')
+            .distinct ( 
+            'make',
+            query_obj,
+            function (err, docs) {
+                if (err) {
+                    console.error (err)
+                    callback (err)
+                } else {
+                    callback (null, docs)
+                }
+            })
+        }
+    })
+}
+
+var fetch_makes_callback = function (err, docs) {
+    if (err) {
+        console.error (err)
+        this.res.status(500).json (err)
+    } else {
+        connect_mongo (function (err, mongoclient) {
+            if (err) {
+                console.error (err)
+                this.res.status (500).json (err)
+
+            } else {
+                var task_array = []
+                _.each (docs, function (make_string) {
+                    var fetch_generations_worker = function (callback) {
+                        var new_query_object = this.cars_query
+                        new_query_object['make'] = make_string
+                        fetch_generations (mongoclient, new_query_object, callback)            
+                    }
+                    task_array.push (async.ensureAsync(fetch_generations_worker))
+                })
+                async.parallel (task_array, function (err, res) {
+                    if (err) {
+                        console.error (err)
+                        this.res.status (500).json (err)
+                    } else {
+                        this.res.status (201).json ({'makes': res, 'makesCount': res.length})
+                    }
+                })
+
+            }
+        })
+    }
+}
 
 exports.connect_mongo = module.exports.connect_mongo = connect_mongo
 exports.store_to_mongo = module.exports.store_to_mongo = store_to_mongo
@@ -960,4 +1165,5 @@ exports.fetch_listings_by_franchise_id = module.fetch_listings_by_franchise_id =
 exports.franchise_listings_callback = module.franchise_listings_callback = franchise_listings_callback
 exports.narrow_search = module.exports.narrow_search = narrow_search
 exports.narrow_search_callback = module.exports.narrow_search_callback = narrow_search_callback
-
+exports.fetch_makes = module.exports.fetch_makes = fetch_makes
+exports.fetch_makes_callback = module.exports.fetch_makes_callback = fetch_makes_callback
