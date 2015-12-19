@@ -1028,22 +1028,22 @@ var fetch_submodels = function (mongoclient, db_query, callback) {
 
                         if (_.uniq (hps).length > 1)
                             hp_str = _.min (hps) + " - " + _.max (hps) + " hp "
-                        else
+                        else if (hps.length > 0)
                             hp_str = _.first (hps) + " hp "
                         if (_.uniq (tqs).length > 1)
                             tq_str = _.min (tqs) + " - " + _.max (tqs) + " lb/ft"
-                        else 
+                        else if (tqs.length > 0)
                             tq_str = _.first (tqs) + " lb/ft"
                         model_obj.powerDesc = hp_str + tq_str
 
                         if (_.uniq (city).length > 1)
                             city_str = _.min (city) + " - " + _.max (city) + " City /"
-                        else
+                        else if (city.length > 0)
                             city_str = _.first (city) + " City / "
 
                         if (_.uniq (highway).length > 1)
                             hwy_str = _.min (highway) + " - " + _.max (highway) + " Highway"
-                        else 
+                        else if (highway.length > 0)
                             hwy_str =  _.first (highway) + " Highway"
                         model_obj.mpgDesc = city_str + hwy_str
 
