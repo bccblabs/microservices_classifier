@@ -1083,7 +1083,13 @@ var fetch_generations = function (mongoclient, cars_query, callback) {
                             callback (err)
                         }
                         else {
-                            callback (null, {'models': res, 'make': query_obj.make, 'numModels': res.length})
+                            callback (null, {
+                                    'models': res, 
+                                    'make': query_obj.make, 
+                                    'numModels': res.length,
+                                    'imageUrl': _.first (_.pluck (_.flatten (res),'imageUrl'))
+                                }
+                            )
                         }
                     })
                 }
