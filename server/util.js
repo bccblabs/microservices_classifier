@@ -151,7 +151,6 @@ var parse_label = function (params) {
 }
 
 var parse_car_query = function (query_params, min_price, max_price, sort_query) {
-    console.dir (query_params)
     var query = {}
     if (_.has (query_params, 'makes') && query_params.makes.length > 0) {
         query['make'] = {'$in': make_reg_type(query_params.makes)}
@@ -276,6 +275,7 @@ var parse_car_query = function (query_params, min_price, max_price, sort_query) 
         query['$or'].push ({$or: [{'prices.usedTmvRetail': {'$lte': max_price}}, {'prices.usedTmvRetail': {'$exists': false}}]})
         query['$or'].push ({$or: [{'prices.usedPrivateParty': {'$lte': max_price}}, {'prices.usedPrivateParty': {'$exists': false}}]})
     }
+    console.dir ("query", query)
 
     if (_.has (query_params, 'remaining_ids') && query_params.remaining_ids.length > 0) {
         var last_query = {}
@@ -286,9 +286,9 @@ var parse_car_query = function (query_params, min_price, max_price, sort_query) 
             last_query['sortBy'] = [['year', -1]]
         if (query.hasOwnProperty ('$or'))
             last_query['$or'] = query['$or']
+        console.dir ("last query", last_query)
         return last_query
     }
-
 
 
     return query
