@@ -1148,6 +1148,7 @@ var fetch_makes_callback = function (err, docs) {
                         console.error (err)
                         this.res.status (500).json (err)
                     } else {
+                        console.log (" [makes request] returned")
                         this.res.status (201).json ({'makes': res, 'makesCount': res.length})
                     }
                 })
