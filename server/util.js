@@ -166,6 +166,7 @@ var parse_car_query = function (query_params, min_price, max_price, sort_query) 
 
     if (_.has (query_params, 'bodyTypes') && query_params.bodyTypes.length > 0) {
         query['bodyType'] = {'$in': make_reg_type (query_params.bodyTypes)}
+        console.log (query)
     }
 
     if (_.has (query_params, 'years') && query_params.years.length > 0) {
@@ -275,7 +276,6 @@ var parse_car_query = function (query_params, min_price, max_price, sort_query) 
         query['$or'].push ({$or: [{'prices.usedTmvRetail': {'$lte': max_price}}, {'prices.usedTmvRetail': {'$exists': false}}]})
         query['$or'].push ({$or: [{'prices.usedPrivateParty': {'$lte': max_price}}, {'prices.usedPrivateParty': {'$exists': false}}]})
     }
-    console.log(JSON.stringify(query, 2, null))
 
     if (_.has (query_params, 'remaining_ids') && query_params.remaining_ids.length > 0) {
         var last_query = {}
@@ -286,11 +286,12 @@ var parse_car_query = function (query_params, min_price, max_price, sort_query) 
             last_query['sortBy'] = [['year', -1]]
         if (query.hasOwnProperty ('$or'))
             last_query['$or'] = query['$or']
-    console.log(JSON.stringify(last_query, 2, null))
+        console.log (last_query)
         return last_query
     }
 
 
+    console.log(query)
     return query
 }
 
@@ -954,6 +955,7 @@ var fetch_submodels = function (mongoclient, db_query, callback) {
         } else {
             query_obj = db_query
         }
+        query_obj = _.omit (query_obj, 'make')
     if (mongoclient === undefined)
         callback ({'error': 'mongo client undefined'})
     else {
@@ -981,7 +983,8 @@ var fetch_submodels = function (mongoclient, db_query, callback) {
                             tqs = [],
                             city = [],
                             highway = [],
-                            imageUrl = []
+                            imageUrl = [],
+                            make = []
 
                         _.each (docs, function (doc) {
                             if (doc !== undefined) {
@@ -1004,6 +1007,8 @@ var fetch_submodels = function (mongoclient, db_query, callback) {
                                 years.push (doc.year)
                             if (doc.hasOwnProperty ('model'))
                                 model.push (doc.model)
+                            if (doc.hasOwnProperty ('make'))
+                                make.push (doc.make)
                             if (doc.hasOwnProperty ('images'))
                                 imageUrl.push (_.first (doc.images))
 
@@ -1017,6 +1022,7 @@ var fetch_submodels = function (mongoclient, db_query, callback) {
                             hwy_str = ""
 
                         model_obj.model = _.first (model).replace (/_/g, " ")
+                        model_obj.make = _.first (make)
                         model_obj.imageUrl = _.first (imageUrl)
 
 
@@ -1029,6 +1035,7 @@ var fetch_submodels = function (mongoclient, db_query, callback) {
                             hp_str = _.min (hps) + " - " + _.max (hps) + " hp "
                         else if (hps.length > 0)
                             hp_str = _.first (hps) + " hp "
+
                         if (_.uniq (tqs).length > 1)
                             tq_str = _.min (tqs) + " - " + _.max (tqs) + " lb/ft"
                         else if (tqs.length > 0)
@@ -1056,11 +1063,14 @@ var fetch_generations = function (mongoclient, cars_query, callback) {
     var query_obj = {}
     if (cars_query.hasOwnProperty('sortBy')) {
         query_obj = _.omit(cars_query, 'sortBy')
+    } else {
+        query_obj = cars_query
     }
     if (mongoclient === undefined)
         callback ({'error': 'mongo client undefined'})
     else {
-        mongoclient.db ('trims').collection ('car_data').distinct ( 'compact_label',
+        mongoclient.db ('trims').collection ('car_data').distinct ( 
+            'compact_label',
             query_obj,
             function (err, labels) {
                 if (err) {
@@ -1076,7 +1086,7 @@ var fetch_generations = function (mongoclient, cars_query, callback) {
                         }
                         task_array.push (async.ensureAsync(fetch_submodels_worker))
                     })
-                    async.parallel (task_array, function (err, res) {
+                    async.series (task_array, function (err, res) {
                         if (err) {
                             console.error (err)
                             callback (err)
@@ -1084,7 +1094,7 @@ var fetch_generations = function (mongoclient, cars_query, callback) {
                         else {
                             callback (null, {
                                     'models': res, 
-                                    'make': query_obj.make, 
+                                    'make':  _.first (_.pluck (_.flatten (res),'make')),
                                     'numModels': res.length,
                                     'imageUrl': _.first (_.pluck (_.flatten (res),'imageUrl'))
                                 }
@@ -1149,7 +1159,8 @@ var fetch_makes_callback = function (err, docs) {
                         this.res.status (500).json (err)
                     } else {
                         console.log (" [makes request] returned")
-                        this.res.status (201).json ({'makes': res, 'makesCount': res.length})
+                        var makes_result = _.filter (res, function (make_doc) { return make_doc.numModels > 0})
+                        this.res.status (201).json ({'makes': makes_result, 'makesCount': makes_result.length})
                     }
                 })
 
