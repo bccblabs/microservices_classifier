@@ -1005,4 +1005,5 @@ exports.narrow_search = module.exports.narrow_search = narrow_search
 exports.narrow_search_callback = module.exports.narrow_search_callback = narrow_search_callback
 exports.fetch_makes = module.exports.fetch_makes = fetch_makes
 exports.fetch_listings = module.exports.fetch_listings = fetch_listings
+exports.fetch_listings_by_franchise_id = module.exports.fetch_listings_by_franchise_id = fetch_listings_by_franchise_id
 exports.fetch_makes_callback = module.exports.fetch_makes_callback = fetch_makes_callback
