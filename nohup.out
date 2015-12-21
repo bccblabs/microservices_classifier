@@ -1760,3 +1760,97 @@
 2015-12-20T22:27:01.869-0800 [conn763] end connection 127.0.0.1:54731 (19 connections now open)
 2015-12-20T22:27:01.869-0800 [conn762] end connection 127.0.0.1:54730 (18 connections now open)
 2015-12-20T22:27:01.869-0800 [conn761] end connection 127.0.0.1:54729 (18 connections now open)
+2015-12-20T22:28:54.576-0800 [clientcursormon] mem (MB) res:576 virt:27194
+2015-12-20T22:28:54.576-0800 [clientcursormon]  mapped (incl journal view):24602
+2015-12-20T22:28:54.576-0800 [clientcursormon]  connections:1
+2015-12-20T22:33:54.783-0800 [clientcursormon] mem (MB) res:576 virt:27194
+2015-12-20T22:33:54.784-0800 [clientcursormon]  mapped (incl journal view):24602
+2015-12-20T22:33:54.784-0800 [clientcursormon]  connections:1
+2015-12-20T22:38:55.069-0800 [clientcursormon] mem (MB) res:576 virt:27194
+2015-12-20T22:38:55.069-0800 [clientcursormon]  mapped (incl journal view):24602
+2015-12-20T22:38:55.069-0800 [clientcursormon]  connections:1
+2015-12-20T22:43:55.313-0800 [clientcursormon] mem (MB) res:576 virt:27194
+2015-12-20T22:43:55.314-0800 [clientcursormon]  mapped (incl journal view):24602
+2015-12-20T22:43:55.314-0800 [clientcursormon]  connections:1
+2015-12-20T22:48:55.571-0800 [clientcursormon] mem (MB) res:576 virt:27194
+2015-12-20T22:48:55.571-0800 [clientcursormon]  mapped (incl journal view):24602
+2015-12-20T22:48:55.571-0800 [clientcursormon]  connections:1
+2015-12-20T22:53:55.794-0800 [clientcursormon] mem (MB) res:576 virt:27194
+2015-12-20T22:53:55.794-0800 [clientcursormon]  mapped (incl journal view):24602
+2015-12-20T22:53:55.794-0800 [clientcursormon]  connections:1
+2015-12-20T22:58:56.076-0800 [clientcursormon] mem (MB) res:576 virt:27194
+2015-12-20T22:58:56.076-0800 [clientcursormon]  mapped (incl journal view):24602
+2015-12-20T22:58:56.076-0800 [clientcursormon]  connections:1
+2015-12-20T23:03:56.334-0800 [clientcursormon] mem (MB) res:576 virt:27194
+2015-12-20T23:03:56.334-0800 [clientcursormon]  mapped (incl journal view):24602
+2015-12-20T23:03:56.334-0800 [clientcursormon]  connections:1
+2015-12-20T23:08:56.612-0800 [clientcursormon] mem (MB) res:576 virt:27194
+2015-12-20T23:08:56.613-0800 [clientcursormon]  mapped (incl journal view):24602
+2015-12-20T23:08:56.613-0800 [clientcursormon]  connections:1
+2015-12-20T23:13:56.862-0800 [clientcursormon] mem (MB) res:576 virt:27194
+2015-12-20T23:13:56.862-0800 [clientcursormon]  mapped (incl journal view):24602
+2015-12-20T23:13:56.862-0800 [clientcursormon]  connections:1
+2015-12-20T23:18:57.115-0800 [clientcursormon] mem (MB) res:576 virt:27194
+2015-12-20T23:18:57.116-0800 [clientcursormon]  mapped (incl journal view):24602
+2015-12-20T23:18:57.116-0800 [clientcursormon]  connections:1
+2015-12-20T23:23:57.374-0800 [clientcursormon] mem (MB) res:576 virt:27194
+2015-12-20T23:23:57.375-0800 [clientcursormon]  mapped (incl journal view):24602
+2015-12-20T23:23:57.375-0800 [clientcursormon]  connections:1
+2015-12-20T23:28:57.658-0800 [clientcursormon] mem (MB) res:576 virt:27194
+2015-12-20T23:28:57.658-0800 [clientcursormon]  mapped (incl journal view):24602
+2015-12-20T23:28:57.659-0800 [clientcursormon]  connections:1
+2015-12-20T23:33:57.944-0800 [clientcursormon] mem (MB) res:576 virt:27194
+2015-12-20T23:33:57.944-0800 [clientcursormon]  mapped (incl journal view):24602
+2015-12-20T23:33:57.944-0800 [clientcursormon]  connections:1
+2015-12-20T23:38:58.233-0800 [clientcursormon] mem (MB) res:576 virt:27194
+2015-12-20T23:38:58.233-0800 [clientcursormon]  mapped (incl journal view):24602
+2015-12-20T23:38:58.233-0800 [clientcursormon]  connections:1
+2015-12-20T23:43:58.508-0800 [clientcursormon] mem (MB) res:576 virt:27194
+2015-12-20T23:43:58.509-0800 [clientcursormon]  mapped (incl journal view):24602
+2015-12-20T23:43:58.509-0800 [clientcursormon]  connections:1
+2015-12-20T23:48:58.751-0800 [clientcursormon] mem (MB) res:576 virt:27194
+2015-12-20T23:48:58.751-0800 [clientcursormon]  mapped (incl journal view):24602
+2015-12-20T23:48:58.751-0800 [clientcursormon]  connections:1
+2015-12-20T23:53:59.017-0800 [clientcursormon] mem (MB) res:576 virt:27194
+2015-12-20T23:53:59.017-0800 [clientcursormon]  mapped (incl journal view):24602
+2015-12-20T23:53:59.017-0800 [clientcursormon]  connections:1
+2015-12-20T23:58:59.273-0800 [clientcursormon] mem (MB) res:576 virt:27194
+2015-12-20T23:58:59.273-0800 [clientcursormon]  mapped (incl journal view):24602
+2015-12-20T23:58:59.273-0800 [clientcursormon]  connections:1
+2015-12-21T00:03:59.545-0800 [clientcursormon] mem (MB) res:576 virt:27194
+2015-12-21T00:03:59.545-0800 [clientcursormon]  mapped (incl journal view):24602
+2015-12-21T00:03:59.545-0800 [clientcursormon]  connections:1
+2015-12-21T00:08:59.839-0800 [clientcursormon] mem (MB) res:576 virt:27194
+2015-12-21T00:08:59.839-0800 [clientcursormon]  mapped (incl journal view):24602
+2015-12-21T00:08:59.840-0800 [clientcursormon]  connections:1
+2015-12-21T00:14:00.096-0800 [clientcursormon] mem (MB) res:576 virt:27194
+2015-12-21T00:14:00.096-0800 [clientcursormon]  mapped (incl journal view):24602
+2015-12-21T00:14:00.096-0800 [clientcursormon]  connections:1
+2015-12-21T00:19:00.330-0800 [clientcursormon] mem (MB) res:576 virt:27194
+2015-12-21T00:19:00.330-0800 [clientcursormon]  mapped (incl journal view):24602
+2015-12-21T00:19:00.330-0800 [clientcursormon]  connections:1
+2015-12-21T00:24:00.585-0800 [clientcursormon] mem (MB) res:576 virt:27194
+2015-12-21T00:24:00.585-0800 [clientcursormon]  mapped (incl journal view):24602
+2015-12-21T00:24:00.585-0800 [clientcursormon]  connections:1
+2015-12-21T00:29:00.850-0800 [clientcursormon] mem (MB) res:576 virt:27194
+2015-12-21T00:29:00.850-0800 [clientcursormon]  mapped (incl journal view):24602
+2015-12-21T00:29:00.851-0800 [clientcursormon]  connections:1
+2015-12-21T00:34:01.123-0800 [clientcursormon] mem (MB) res:576 virt:27194
+2015-12-21T00:34:01.123-0800 [clientcursormon]  mapped (incl journal view):24602
+2015-12-21T00:34:01.123-0800 [clientcursormon]  connections:1
+2015-12-21T00:39:01.373-0800 [clientcursormon] mem (MB) res:576 virt:27194
+2015-12-21T00:39:01.373-0800 [clientcursormon]  mapped (incl journal view):24602
+2015-12-21T00:39:01.373-0800 [clientcursormon]  connections:1
+2015-12-21T00:44:01.606-0800 [clientcursormon] mem (MB) res:576 virt:27194
+2015-12-21T00:44:01.606-0800 [clientcursormon]  mapped (incl journal view):24602
+2015-12-21T00:44:01.606-0800 [clientcursormon]  connections:1
+2015-12-21T00:49:01.889-0800 [clientcursormon] mem (MB) res:576 virt:27194
+2015-12-21T00:49:01.889-0800 [clientcursormon]  mapped (incl journal view):24602
+2015-12-21T00:49:01.889-0800 [clientcursormon]  connections:1
+2015-12-21T00:54:02.126-0800 [clientcursormon] mem (MB) res:573 virt:27194
+2015-12-21T00:54:02.130-0800 [clientcursormon]  mapped (incl journal view):24602
+2015-12-21T00:54:02.130-0800 [clientcursormon]  connections:1
+2015-12-21T00:59:02.354-0800 [clientcursormon] mem (MB) res:561 virt:27194
+2015-12-21T00:59:02.358-0800 [clientcursormon]  mapped (incl journal view):24602
+2015-12-21T00:59:02.358-0800 [clientcursormon]  connections:1
+2015-12-21T01:03:16.709-0800 [conn710] end connection 127.0.0.1:54640 (0 connections now open)
