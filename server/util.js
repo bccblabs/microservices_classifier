@@ -2,11 +2,11 @@ var _ = require ('underscore-node'),
     fs = require ('fs'),
 	mongo = require ('mongodb'),
     async = require ('async'),
-    OAuth = require ('oauth'),
-    OAuth2 = OAuth.OAuth2,
     request = require ('request'),
     MONGO_HOST = process.env['DB_PORT_27017_TCP_ADDR'] || 'localhost',
-    MONGO_PORT = process.env['DB_1_PORT_27017_TCP_PORT'] || '27017'
+    MONGO_PORT = process.env['DB_1_PORT_27017_TCP_PORT'] || '27017',
+    parser = require ('./parser.js'),
+    api = require ('./api')
 
 Array.prototype.pushUnique = function (item){
     if(this.indexOf(item) == -1) {
@@ -85,282 +85,12 @@ var write_classifier_result = function (classification_result, _id, callback) {
     })
 }
 
-var make_reg_type = function (original_field) {
-    var reg_exp_arr = []
-    _.each (original_field, function (field) {
-        if (field === 'Turbo')
-            reg_exp_arr.push (new RegExp (field,'i'))
-        else
-            reg_exp_arr.push (new RegExp ("^"+ field,'i'))
-    })
-    return reg_exp_arr
-}
 
-var parse_model = function (original_field) {
-    var reg_exp_field = []
-    _.each (original_field, function (field) {
-        if (field === 'Cooper') {
-            reg_exp_field.push (new RegExp (field + '$'), 'i')
-            reg_exp_field.push (new RegExp (field + 's$'), 'i')
-            reg_exp_field.push (new RegExp (field + 'johncooperworks$'), 'i')
-        }
-        else if (field === 'C AMG' || field === 'E AMG' || field === 'GLA AMG' || field === 'ML AMG' ||
-                field === 'G AMG' || field === 'GL AMG' || field === 'S AMG' || field === 'SL AMG' ||
-                field === 'SLK AMG' || field === 'CLA AMG' || field === 'CLS AMG') {
-            reg_exp_field.push (new RegExp (field.replace (' ', '\\d+'),'i'))
-        } else {
-            reg_exp_field.push (new RegExp (field.replace (/[^a-zA-Z0-9]/g, ''), 'i'))
-        }
-    })
-    return reg_exp_field
-}
-
-var parse_listings_query = function (params) {
-    var obj = {}
-    _.each (['zipcode', 'pagesize', 'pagenum', 'radius', 'intcolor',
-            'extcolor', 'msrpmin', 'msrpmax', 'lpmin', 'lpmax', 'type', 'sortby'], 
-            function (key) {
-                if (params.hasOwnProperty (key)) {
-                    obj[key] = params[key]
-                }
-    })
-    return obj
-}
-
-var parse_label = function (params) {
-    if (params.indexOf ('bmw_bmw_6_series_f13') > -1)
-        return 'bmwbmwf06f12f13'
-
-    if (params.indexOf ('chrysler_town_country_v_minivan') > -1)
-        return 'chryslertowncountrygenerationvminivan'
-    if (params.indexOf ('chrysler_town_country_iv_minivan') > -1)
-        return 'chryslertowncountrygenerationivminivan'
-
-    return params.replace (/[^a-zA-Z0-9]/g, '').toLowerCase()
-                .replace(/bmw[0-9]series/, 'bmw')
-                .replace(/mercedesbenz[a-z]{1,3}class/, 'mercedesbenz')
-                .replace(/convertible$/, '')
-                .replace(/sedan$/, '')
-                .replace(/coupe$/, '')
-                .replace(/truck$/, '')
-                .replace(/van$/, '')
-                .replace(/suv$/, '')
-                .replace(/wagon$/, '')
-                .replace(/hatchback$/, '')
-                .replace(/facelift[0-9]{4}/, '')
-}
-
-var parse_car_query = function (query_params, min_price, max_price, sort_query) {
-    var query = {}
-    if (_.has (query_params, 'makes') && query_params.makes.length > 0) {
-        query['make'] = {'$in': make_reg_type(query_params.makes)}
-    }
-
-    if (_.has (query_params, 'main_models') && query_params.main_models.length > 0) {
-        query['model'] = {'$in': query_params.main_models}
-    }
-
-    if (_.has (query_params, 'models') && query_params.models.length > 0) {
-        query['submodel'] = {'$in': parse_model(query_params.models)}
-    }
-
-    if (_.has (query_params, 'bodyTypes') && query_params.bodyTypes.length > 0) {
-        query['bodyType'] = {'$in': make_reg_type (query_params.bodyTypes)}
-        console.log (query)
-    }
-
-    if (_.has (query_params, 'years') && query_params.years.length > 0) {
-        query['year'] = {'$in': query_params['years']}
-    }
-
-    if (_.has (query_params, 'labels') && query_params.labels.length > 0) {
-        query['compact_label'] = {'$in': _.map (query_params.labels, function (label) {
-            if (label.indexOf ('bmw_bmw_3_series_e9') != -1)
-                return new RegExp ('bmwbmwe90')
-            if (label.indexOf ('bmw_bmw_5_series_f07') != -1)
-                return new RegExp ('bmwbmwf10f11f07sedan')
-            return new RegExp(parse_label (label), 'i') 
-        })}
-    }
-
-    if (_.has (query_params, 'transmissionTypes') && query_params.transmissionTypes.length > 0) {
-        query['powertrain.transmission.transmissionType'] = {'$in': make_reg_type(query_params.transmissionTypes)}
-    }
-
-    if (_.has (query_params, 'compressors') && query_params.compressors.length > 0) {
-        query['powertrain.engine.compressorType'] = {'$in': make_reg_type(query_params.compressors)}
-    }
-    if (_.has (query_params, 'cylinders') && query_params.cylinders.length > 0) {
-        query['powertrain.engine.cylinder'] = {'$in': query_params['cylinders']}
-    }
-    if (_.has (query_params, 'minHp') && query_params['minHp'] > 0) {
-        query['powertrain.engine.horsepower'] = {'$gte': query_params['minHp']}
-    }
-
-    if (_.has (query_params, 'minTq') && query_params['minTq']  > 0) {
-        query['powertrain.engine.torque'] = {'$gte': query_params['minTq']}
-    }
-
-    if (_.has (query_params, 'minMpg') && query_params['minMpg'] > 0) {
-        query['powertrain.mpg.highway'] = {'$gte': query_params['minMpg']}
-    }
-
-    if (_.has (query_params, 'tags') && query_params.tags.length > 0) {
-        _.each (query_params.tags, function (tag) {
-            if (tag.toLowerCase() === 'has incentives')
-                query['incentives.count'] = {'$gte': 1}
-            if (tag.toLowerCase() === 'no recalls')
-                query['recalls.numberOfRecalls'] = {'$eq': 0}
-            if (tag.toLowerCase() === 'no major recalls') {
-                if (!query.hasOwnProperty ('$and'))
-                    query['$and'] = []
-                query['$and'].push ({'$or': [{'recalls.major_recall': {'$eq': false}}, {'recalls.numberOfRecalls': 0}]})
-            }
-            if (tag.toLowerCase() === 'no complaints')
-                query['complaints.count'] = {'$eq': 0}
-            if (tag.toLowerCase() === 'no major complaints') {
-                if (!query.hasOwnProperty ('$and'))
-                    query['$and'] = []
-                query['$and'].push ({'$or': [{'complaints.major_complaint': {'$eq': false}}, {'complaints.count': 0}]})
-            }
-
-        })
-    }
-
-    if (_.has (query_params, 'drivenWheels') && query_params.drivenWheels.length > 0) {
-        query['powertrain.drivenWheels'] = {'$in': make_reg_type (query_params['drivenWheels'])}
-    }
-
-    if (sort_query === 'mpg:asc') {
-        query['sortBy'] = [['powertrain.mpg.highway', 1]]
-    }
-    if (sort_query === 'mpg:desc') {
-        query['sortBy'] = [['powertrain.mpg.highway', -1]]
-    }
-    if (sort_query === 'horsepower:asc') {
-        query['sortBy'] = [['powertrain.engine.horsepower', 1]]
-    }
-    if (sort_query === 'horsepower:desc') {
-        query['sortBy'] = [['powertrain.engine.horsepower', -1]]
-    }
-    if (sort_query === 'torque:asc') {
-        query['sortBy'] = [['powertrain.engine.torque', 1]]
-    }
-    if (sort_query === 'torque:desc') {
-        query['sortBy'] = [['powertrain.engine.torque', -1]]
-    }
-    if (sort_query === 'complaints:asc') {
-        query['sortBy'] = [['complaints.count', 1]]
-    }
-    if (sort_query === 'complaints:desc') {
-        query['sortBy'] = [['complaints.count', -1]]
-    }
-    if (sort_query === 'recalls:asc') {
-        query['sortBy'] = [['recalls.numberOfRecalls', 1]]
-    }
-    if (sort_query === 'recalls:desc') {
-        query['sortBy'] = [['recalls.numberOfRecalls', -1]]
-    }
-    if (sort_query === 'year:asc') {
-        query['sortBy'] = [['year', 1]]
-    }
-    if (sort_query === 'year:desc') {
-        query['sortBy'] = [['year', -1]]
-    }
-    // if (sort_query === undefined) {
-    //     query['sortBy'] = [['powertrain.engine.horsepower', -1]]
-    // }
-
-    if (max_price !== undefined || min_price !== undefined) {
-        query['$or'] = []
-        query['$or'].push ({$or: [{'prices.usedTmvRetail': {'$lte': max_price}}, {'prices.usedTmvRetail': {'$exists': false}}]})
-        query['$or'].push ({$or: [{'prices.usedPrivateParty': {'$lte': max_price}}, {'prices.usedPrivateParty': {'$exists': false}}]})
-    }
-
-    if (_.has (query_params, 'remaining_ids') && query_params.remaining_ids.length > 0) {
-        var last_query = {}
-        last_query['styleId'] = {'$in': query_params.remaining_ids}
-        if (query.hasOwnProperty ('sortBy'))
-            last_query['sortBy'] = query['sortBy']
-        else
-            last_query['sortBy'] = [['year', -1]]
-        if (query.hasOwnProperty ('$or'))
-            last_query['$or'] = query['$or']
-        console.log (last_query)
-        return last_query
-    }
-
-
-    console.log(query)
-    return query
-}
-
-var get_token = function (callback, results) {  
-        var edmunds_client_key="d442cka8a6mvgfnjcdt5fbns",
-            edmunds_client_secret="tVsB2tChr7wXqk47ZZMQneKq",
-            OAuth2 = require ('oauth').OAuth2,
-            oauth2 = new OAuth2 (   
-                                    edmunds_client_key, 
-                                    edmunds_client_secret,
-                                    'https://api.edmunds.com/inventory/token',
-                                    null, 'oauth/token', null
-                                )
-
-        oauth2.getOAuthAccessToken ('', 
-                                    {'grant_type': 'client_credentials'}, 
-                                    function (err, access_token, refresh_token, results) {
-                                    if (err) {
-                                        console.log (err)
-                                        callback (err, null)
-                                    } else {
-                                        callback (null, access_token)
-                                    }
-                                    });
-}
-
-var fetch_franchise_listings = function (request_opts, franchise_id ,callback) {
-    request_opts.url = 'https://api.edmunds.com/api/inventory/v2/franchises/' + franchise_id
-    request (request_opts, function (err, res, body) {
-        if (err) {
-            callback (err, null)
-        } else if (res.statusCode != 200) {
-            callback ({status: res.statusCode}, null)
-        } else {
-            try {
-                var data = JSON.parse (body)
-                console.dir ("[franchise inventories count] " + data.inventoriesCount)
-                callback (null, data)
-            } catch (e) {
-                console.log ("[exception caught ]" + e)
-                callback (err, null)
-            }
-        }
-    })
-}
-
-var fetch_edmunds_listings = function (request_opts, styleId, callback) {
-    request_opts.url = 'https://api.edmunds.com/api/inventory/v2/styles/' + styleId
-    request (request_opts, function (err, res, body) {
-        if (err) {
-            console.error (err)
-            callback (null, {'count':0,'inventories': []})
-        } else if (res.statusCode != 200) {
-            callback (null, {'count':0,'inventories': []})
-        } else {
-            try {
-                var data = JSON.parse (body)
-                callback (null, data)
-            } catch (e) {
-                callback (null, {'count':0,'inventories': []})
-            }
-        }
-    })
-}
-
+/* on listings returned, add powertrain and recalls info to listings doc */
 var listings_request_worker = function (styleIds, edmunds_query, car_doc ,api_callback) {
         var listing_tasks = []
         
-        async.retry (3, get_token, function (err, access_token_) {
+        async.retry (3, api.get_token, function (err, access_token_) {
             if (err) {
                 api_callback (null, {'count':0, 'listings': [], remaining_ids: []})
             } else {
@@ -377,7 +107,7 @@ var listings_request_worker = function (styleIds, edmunds_query, car_doc ,api_ca
                 request_opts.qs = _.extend (request_opts.qs, edmunds_query)
                 _.each (styleIds, function (styleId) {
                     var listing_worker = function (callback) {
-                        fetch_edmunds_listings (request_opts, styleId, callback)
+                        api.fetch_edmunds_listings (request_opts, styleId, callback)
                     }.bind (this)
                     listing_tasks.push (listing_worker)
                 })
@@ -544,8 +274,6 @@ var fetch_listings = function (db_query, edmunds_query, listings_callback) {
             query_obj = db_query
         }
         query_obj['listings_stats.inventoriesCount'] = {'$gte': 1}
-        console.log ('[* server] styleIds query:')
-        console.dir (query_obj)
         connect_mongo (function (err, mongoClient) {
             mongoClient.db ('trims').collection ('car_data')
                 .find ( query_obj, 
@@ -924,7 +652,7 @@ var fetch_listings_by_franchise_id = function (user_query, callback) {
     var cars_query = user_query.cars,
         api_query = user_query.api
 
-        async.retry (3, get_token, function (err, access_token_) {
+        async.retry (3, api.get_token, function (err, access_token_) {
             if (err) {
                 callback (null, {'count':0, 'listings': [], remaining_ids: []})
             } else {
@@ -941,7 +669,7 @@ var fetch_listings_by_franchise_id = function (user_query, callback) {
                 }
                 if (api_query.condition !== undefined)
                     request_opts.qs.condition = api_query.condition
-                fetch_franchise_listings (request_opts, api_query.franchiseId, callback)
+                api.fetch_franchise_listings (request_opts, api_query.franchiseId, callback)
             }   
         })
 }
@@ -969,7 +697,15 @@ var fetch_submodels = function (mongoclient, db_query, callback) {
                             'year': 1,
                             'compact_label': 1,
                             'make': 1,
-                            'styleId': 1
+                            'styleId': 1,
+                            'powertrain.engine.compressorType': 1,
+                            'powertrain.engine.cylinder': 1,
+                            'powertrain.drivenWheels': 1,
+                            'powertrain.transmission.transmissionType': 1,
+                            'recalls.numberOfRecalls' : 1,
+                            'complaints.count': 1,
+                            'incentives.count': 1,
+                            'bodyType': 1,
                         }
 
                 ).sort (sort).toArray (function (err, docs) {
@@ -986,14 +722,36 @@ var fetch_submodels = function (mongoclient, db_query, callback) {
                             imageUrl = [],
                             make = []
 
+                        var model_info = {
+                            'cylinders': [],
+                            'compressors': [],
+                            'transmissionTypes': [],
+                            'drivenWheels': [],
+                            'recallsCount': [],
+                            'complaintsCount': [],
+                            'incentivesCount': [],
+                            'bodyTypes': []
+                        },
+                        model_obj = {},
+                        hp_str = "",
+                        tq_str = "",
+                        city_str = "",
+                        hwy_str = ""
+
                         _.each (docs, function (doc) {
                             if (doc !== undefined) {
                             if (doc.hasOwnProperty ('powertrain') && doc.powertrain !== undefined) {
+                                if (doc.powertrain.hasOwnProperty ('drivenWheels'))
+                                    model_info.drivenWheels.pushUnique (doc.powertrain.drivenWheels)
                                 if (doc.powertrain.hasOwnProperty ('engine') && doc.powertrain.engine !== undefined) {
                                     if (doc.powertrain.engine.hasOwnProperty ('horsepower'))
                                         hps.pushUnique (doc.powertrain.engine.horsepower)
                                     if (doc.powertrain.engine.hasOwnProperty ('torque'))
                                         tqs.pushUnique (doc.powertrain.engine.torque)
+                                    if (doc.powertrain.engine.hasOwnProperty ('compressorType'))
+                                        model_info.compressors.pushUnique (doc.powertrain.engine.compressorType)
+                                    if (doc.powertrain.engine.hasOwnProperty ('cylinder'))
+                                        model_info.cylinders.pushUnique (doc.powertrain.engine.cylinder)
                                 }
                                 if (doc.powertrain.hasOwnProperty ('mpg') && doc.powertrain.mpg !== undefined) {
                                     if (doc.powertrain.mpg.hasOwnProperty ('city'))
@@ -1001,59 +759,69 @@ var fetch_submodels = function (mongoclient, db_query, callback) {
                                     if (doc.powertrain.mpg.hasOwnProperty ('highway'))
                                         highway.pushUnique (doc.powertrain.mpg.highway)
                                 }
+                                if (doc.powertrain.hasOwnProperty ('transmission') && doc.powertrain.transmission !== undefined && doc.powertrain.transmission.hasOwnProperty ('transmissionType')) 
+                                    model_info.transmissionTypes.pushUnique (doc.powertrain.transmission.transmissionType)
                             }
+                            if (doc.hasOwnProperty ('recalls') && doc.recalls !== undefined && doc.recalls.hasOwnProperty ('numberOfRecalls'))
+                                model_info.recallsCount.pushUnique (doc.recalls.numberOfRecalls)
+                            if (doc.hasOwnProperty ('complaints') && doc.complaints !== undefined && doc.complaints.hasOwnProperty ('count'))
+                                model_info.complaintsCount.pushUnique (doc.complaints.count)
+                            if (doc.hasOwnProperty ('incentives') && doc.incentives !== undefined && doc.incentives.hasOwnProperty ('count'))
+                                model_info.incentivesCount.pushUnique (doc.incentives.count)
 
                             if (doc.hasOwnProperty ('year'))
-                                years.push (doc.year)
+                                years.pushUnique (doc.year)
                             if (doc.hasOwnProperty ('model'))
-                                model.push (doc.model)
+                                model.pushUnique (doc.model)
                             if (doc.hasOwnProperty ('make'))
-                                make.push (doc.make)
+                                make.pushUnique (doc.make)
                             if (doc.hasOwnProperty ('images'))
-                                imageUrl.push (_.first (doc.images))
-
+                                imageUrl.pushUnique (_.first (doc.images))
+                            if (doc.hasOwnProperty ('bodyType'))
+                                model_info.bodyTypes.pushUnique (doc.bodyType)
                             }
                         })
+                        model_info.hps = hps
+                        model_info.tqs = tqs
+                        model_info.city = city
+                        model_info.highway = highway
+                        model_info.years = years
+ 
+                        {
+                            model_obj.model = _.first (model).replace (/_/g, " ")
+                            model_obj.make = _.first (make)
+                            model_obj.imageUrl = _.first (imageUrl)
 
-                        var model_obj = {},
-                            hp_str = "",
-                            tq_str = "",
-                            city_str = "",
-                            hwy_str = ""
 
-                        model_obj.model = _.first (model).replace (/_/g, " ")
-                        model_obj.make = _.first (make)
-                        model_obj.imageUrl = _.first (imageUrl)
+                            if (_.uniq (years).length > 1)
+                                model_obj.yearDesc = _.min (years) + " - " + _.max (years)
+                            else
+                                model_obj.yearDesc = _.first (years)
 
+                            if (_.uniq (hps).length > 1)
+                                hp_str = _.min (hps) + " - " + _.max (hps) + " hp "
+                            else if (hps.length > 0)
+                                hp_str = _.first (hps) + " hp "
 
-                        if (_.uniq (years).length > 1)
-                            model_obj.yearDesc = _.min (years) + " - " + _.max (years)
-                        else
-                            model_obj.yearDesc = _.first (years)
+                            if (_.uniq (tqs).length > 1)
+                                tq_str = _.min (tqs) + " - " + _.max (tqs) + " lb/ft"
+                            else if (tqs.length > 0)
+                                tq_str = _.first (tqs) + " lb/ft"
+                            model_obj.powerDesc = hp_str + tq_str
 
-                        if (_.uniq (hps).length > 1)
-                            hp_str = _.min (hps) + " - " + _.max (hps) + " hp "
-                        else if (hps.length > 0)
-                            hp_str = _.first (hps) + " hp "
+                            if (_.uniq (city).length > 1)
+                                city_str = _.min (city) + " - " + _.max (city) + " City /"
+                            else if (city.length > 0)
+                                city_str = _.first (city) + " City / "
 
-                        if (_.uniq (tqs).length > 1)
-                            tq_str = _.min (tqs) + " - " + _.max (tqs) + " lb/ft"
-                        else if (tqs.length > 0)
-                            tq_str = _.first (tqs) + " lb/ft"
-                        model_obj.powerDesc = hp_str + tq_str
-
-                        if (_.uniq (city).length > 1)
-                            city_str = _.min (city) + " - " + _.max (city) + " City /"
-                        else if (city.length > 0)
-                            city_str = _.first (city) + " City / "
-
-                        if (_.uniq (highway).length > 1)
-                            hwy_str = _.min (highway) + " - " + _.max (highway) + " Highway"
-                        else if (highway.length > 0)
-                            hwy_str =  _.first (highway) + " Highway"
-                        model_obj.mpgDesc = city_str + hwy_str
-                        model_obj.styleIds = _.pluck (docs, 'styleId')
-                        callback (null, model_obj)
+                            if (_.uniq (highway).length > 1)
+                                hwy_str = _.min (highway) + " - " + _.max (highway) + " Highway"
+                            else if (highway.length > 0)
+                                hwy_str =  _.first (highway) + " Highway"
+                            model_obj.mpgDesc = city_str + hwy_str
+                            model_obj.styleIds = _.pluck (docs, 'styleId')
+                        }
+                        callback (null, {'model_desc': model_obj, 'model_info': model_info})
                     }
         })
     }
@@ -1078,10 +846,11 @@ var fetch_generations = function (mongoclient, cars_query, callback) {
                     callback (err)
                 } else {
                     var task_array = []
+                    labels = _.uniq (_.map (labels, function (label) {return parser.parse_label (label) }))
                     _.each (labels, function (label) {
                         var fetch_submodels_worker = function (submodel_callback) {
                             var query = query_obj
-                            query['compact_label'] = label
+                            query['compact_label'] = _.first (parser.make_reg_type ([label]))
                             fetch_submodels (mongoclient, query, submodel_callback)
                         }
                         task_array.push (async.ensureAsync(fetch_submodels_worker))
@@ -1092,13 +861,33 @@ var fetch_generations = function (mongoclient, cars_query, callback) {
                             callback (err)
                         }
                         else {
+                            var res_flattened = _.flatten (res),
+                                model_infos = _.pluck (res_flattened, 'model_info'),
+                                model_descs = _.pluck (res_flattened, 'model_desc')
                             callback (null, {
-                                    'models': res, 
-                                    'make':  _.first (_.pluck (_.flatten (res),'make')),
-                                    'numModels': res.length,
-                                    'imageUrl': _.first (_.pluck (_.flatten (res),'imageUrl'))
+                                'model_stats': {
+                                    'cylinders': _.uniq (_.union(_.pluck (model_infos, 'cylinders'))),
+                                    'compressors':_.uniq (_.union(_.pluck (model_infos, 'compressors'))),
+                                    'transmissionTypes': _.uniq (_.union(_.pluck (model_infos, 'transmissionTypes'))),
+                                    'make': _.first (_.pluck (model_descs, 'make')),
+                                    'model': _.first (_.uniq (_.pluck (model_descs, 'model'))),
+                                    'bodyTypes': _.uniq (_.union(_.pluck (model_infos, 'bodyTypes'))),
+                                    'drivenWheels': _.uniq (_.union (_.pluck (model_infos, 'drivenWheels'))),
+                                    'recallsCount': _.uniq (_.pluck (model_infos, 'recallsCount')),
+                                    'complaintsCount': _.uniq (_.pluck (model_infos, 'complaintsCount')),
+                                    'incentivesCount': _.uniq (_.pluck (model_infos, 'incentivesCount')),
+                                    'years': _.uniq (_.pluck (model_infos, 'years')),
+                                    'hps': _.uniq (_.pluck (model_infos, 'hps')),
+                                    'tqs': _.uniq (_.pluck (model_infos, 'tqs')),
+                                    'city': _.uniq (_.pluck (model_infos, 'city'))
+                                },
+                                'models': {
+                                    'models': model_descs, 
+                                    'make':  _.first (_.pluck (model_descs,'make')),
+                                    'numModels': model_descs.length,
+                                    'imageUrl': _.first (_.pluck (model_descs,'imageUrl'))
                                 }
-                            )
+                            })
                         }
                     })
                 }
@@ -1110,6 +899,8 @@ var fetch_makes = function (cars_query, callback) {
     var query_obj = {}
     if (cars_query.hasOwnProperty('sortBy')) {
         query_obj = _.omit(cars_query, 'sortBy')
+    } else {
+        query_obj = cars_query
     }
     connect_mongo (function (err, mongoClient) {
         if (err) {
@@ -1131,6 +922,36 @@ var fetch_makes = function (cars_query, callback) {
             })
         }
     })
+}
+
+var union_flatten_filter = function (array) {
+    return _.uniq (_.flatten (array))
+}
+var construct_query_obj_from_makes = function (makes_result) {
+    var query = {
+        "car": {
+            "years": union_flatten_filter(_.pluck (makes_result, 'years')),
+            "makes": union_flatten_filter(_.pluck (makes_result, 'make')),
+            "models": union_flatten_filter(_.pluck (makes_result, 'model')),
+            "drivenWheels": union_flatten_filter(_.pluck (makes_result, 'drivenWheels')),
+            "bodyTypes": union_flatten_filter(_.pluck (makes_result, 'bodyTypes')),
+            "transmissionTypes": union_flatten_filter(_.pluck (makes_result, 'transmissionTypes')),
+            "compressors": union_flatten_filter(_.pluck (makes_result, 'compressors')),
+            "cylinders": union_flatten_filter(_.pluck (makes_result, 'cylinders')),
+        }
+    }
+    var mpg = union_flatten_filter(_.pluck (makes_result, 'city'))
+        hp =  union_flatten_filter(_.pluck (makes_result, 'hps'))
+        tq =  union_flatten_filter(_.pluck (makes_result, 'tqs'))
+
+    query.car.minMpg = _.min (mpg)
+    query.car.maxMpg = _.max (mpg)
+    query.car.minHp = _.min (hp)
+    query.car.maxHp = _.max (hp)
+    query.car.minTq = _.min (tq)
+    query.car.maxTq = _.max (tq)
+
+    return query
 }
 
 var fetch_makes_callback = function (err, docs) {
@@ -1159,8 +980,10 @@ var fetch_makes_callback = function (err, docs) {
                         this.res.status (500).json (err)
                     } else {
                         console.log (" [makes request] returned")
-                        var makes_result = _.filter (res, function (make_doc) { return make_doc.numModels > 0})
-                        this.res.status (201).json ({'makes': makes_result, 'makesCount': makes_result.length})
+                        var makes_result = _.filter (res, function (make_doc) { return make_doc.models.numModels > 0}),
+                            query_obj = construct_query_obj_from_makes (_.pluck (makes_result, 'model_stats')),
+                            models = _.pluck (makes_result, 'models')
+                        this.res.status (201).json ({'makes': models, 'makesCount': models.length, 'query': query_obj})
                     }
                 })
 
@@ -1169,18 +992,17 @@ var fetch_makes_callback = function (err, docs) {
     }
 }
 
+
+
 exports.connect_mongo = module.exports.connect_mongo = connect_mongo
 exports.store_to_mongo = module.exports.store_to_mongo = store_to_mongo
 exports.store_to_disk = module.exports.store_to_disk = store_to_disk
 exports.write_classifier_result = module.exports.write_classifier_result = write_classifier_result
-exports.fetch_listings = module.exports.fetch_listings = fetch_listings
-exports.parse_listings_query = module.exports.parse_listings_query = parse_listings_query
-exports.parse_car_query = module.parse_car_query = parse_car_query
 exports.listings_request_worker = module.listings_request_worker = listings_request_worker
 exports.listings_request_callback = module.listings_request_callback = listings_request_callback
-exports.fetch_listings_by_franchise_id = module.fetch_listings_by_franchise_id = fetch_listings_by_franchise_id
 exports.franchise_listings_callback = module.franchise_listings_callback = franchise_listings_callback
 exports.narrow_search = module.exports.narrow_search = narrow_search
 exports.narrow_search_callback = module.exports.narrow_search_callback = narrow_search_callback
 exports.fetch_makes = module.exports.fetch_makes = fetch_makes
+exports.fetch_listings = module.exports.fetch_listings = fetch_listings
 exports.fetch_makes_callback = module.exports.fetch_makes_callback = fetch_makes_callback

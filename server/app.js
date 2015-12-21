@@ -5,6 +5,7 @@ var app = require ('express')(),
 
 var server = require ('http').createServer(app).listen(8080),
     util = require ('./util'),
+    parser = require ('./parser'),
     _ = require ('underscore-node'),
     async = require ('async'),
     temp = require ('temp'),
@@ -73,10 +74,8 @@ app.get ('/vehicle_info', function (req, res) {
 })
 
 app.post ('/listings', function (req, res) {
-    var listings_query = util.parse_listings_query (req.body.api),
-        cars_query = util.parse_car_query (req.body.car, req.body.min_price, req.body.max_price, req.body.sortBy)
-    console.log ('[* server] app query:')
-    console.dir (JSON.stringify(req.body))
+    var listings_query = parser.parse_listings_query (req.body.api),
+        cars_query = parser.parse_car_query (req.body.car, req.body.min_price, req.body.max_price, req.body.sortBy)
     this.res = res
     this.body = req.body
     util.fetch_listings (cars_query, listings_query, util.listings_request_callback.bind (this))
@@ -84,10 +83,8 @@ app.post ('/listings', function (req, res) {
 
 
 app.post ('/narrowSearch', function (req, res) {
-    var listings_query = util.parse_listings_query (req.body.api),
-        cars_query = util.parse_car_query (req.body.car, req.body.min_price, req.body.max_price, req.body.sortBy)
-    console.log ('[* server] app query:')
-    console.dir (JSON.stringify(req.body))
+    var listings_query = parser.parse_listings_query (req.body.api),
+        cars_query = parser.parse_car_query (req.body.car, req.body.min_price, req.body.max_price, req.body.sortBy)
     this.body = req.body
     this.res = res
     util.narrow_search (cars_query, util.narrow_search_callback.bind (this))
@@ -182,9 +179,8 @@ app.post ('/lead', function (req, res) {
 })
 
 app.post ('/makes', function (req, res) {
-    var listings_query = util.parse_listings_query (req.body.api),
-        vehicles_query = util.parse_car_query (req.body.car, req.body.min_price, req.body.max_price, req.body.sortBy)
-    console.dir (vehicles_query)
+    var listings_query = parser.parse_listings_query (req.body.api),
+        vehicles_query = parser.parse_car_query (req.body.car, req.body.min_price, req.body.max_price, req.body.sortBy)
     this.cars_query = vehicles_query
     this.res = res
     util.fetch_makes (cars_query, util.fetch_makes_callback.bind (this))
