@@ -139,8 +139,13 @@ var parse_car_query = function (query_params, min_price, max_price, sort_query) 
                 if (!query.hasOwnProperty ('$and'))
                     query['$and'] = []
                 query['$and'].push ({'$or': [{'complaints.major_complaint': {'$eq': false}}, {'complaints.count': 0}]})
+            } else {
+                if (!query.hasOwnProperty ('good_tags'))
+                    query.good_tags = {}
+                if (!query.good_tags.hasOwnProperty ('$in'))
+                    query.good_tags['$in'] = []
+                query['good_tags']['$in'].push (new RegExp(tag.toLowerCase()))
             }
-
         })
     }
 
@@ -207,8 +212,8 @@ var parse_car_query = function (query_params, min_price, max_price, sort_query) 
     }
 
 
-    // console.log("[** PARSER.JS]: Car Query")
-    // console.log(query)
+    console.log("[** PARSER.JS]: Car Query")
+    console.log(query)
     return query
 }
 
