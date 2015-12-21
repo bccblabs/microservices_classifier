@@ -62,7 +62,8 @@ var parse_label = function (params) {
                 .replace(/suv$/, '')
                 .replace(/wagon$/, '')
                 .replace(/hatchback$/, '')
-                .replace(/463.*facelift[0-9]{4}/, '463')
+                .replace(/facelift[0-9]{4}/, '')
+                // .replace(/463.*facelift[0-9]{4}/, '463')
     // console.log ('[parser.parse_label]: ' + params + ' => '+ label_str)
     return label_str
 }
