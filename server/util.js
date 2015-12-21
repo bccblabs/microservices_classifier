@@ -788,7 +788,9 @@ var fetch_submodels = function (mongoclient, db_query, callback) {
                         model_info.years = years
  
                         {
-                            model_obj.model = _.first (model).replace (/_/g, " ")
+                            var model_name = _.first (model)
+                            if (model_name !== undefined)
+                               model_obj.model = model_name.replace (/_/g, " ")
                             model_obj.make = _.first (make)
                             model_obj.imageUrl = _.first (imageUrl)
 
@@ -925,7 +927,7 @@ var fetch_makes = function (cars_query, callback) {
 }
 
 var union_flatten_filter = function (array) {
-    return _.uniq (_.flatten (array))
+    return _.uniq (_.filter(_.flatten (array), function (name) { return name !== undefined && name !== null }))
 }
 var construct_query_obj_from_makes = function (makes_result) {
     var query = {
