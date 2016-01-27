@@ -307,7 +307,7 @@ var fetch_listings = function (db_query, edmunds_query, listings_callback) {
                                         tasks = []
 
                                     _.each (submodels_docs, function (doc) {
-                                        console.log ("[util.fetch_listings]: submodel oject")
+                                        console.log ("[util.fetch_listings]: submodel object")
                                         console.dir ("[util.fetch_listings: submodel styleid=" + doc.styleId+ " ]: " + doc.year + " " + doc.submodel)
                                         console.log ("\n")
 
@@ -317,7 +317,7 @@ var fetch_listings = function (db_query, edmunds_query, listings_callback) {
                                         fetch_docs[doc.submodel] = doc
                                     })
                                     _.each (_.keys (fetch_ids), function (submodel_key) {
-                                        // console.log (submodel_key, fetch_docs[submodel_key])
+                                        console.log ("[util.listings_request_worker]: ", submodel_key, JSON.stringify (fetch_ids[submodel_key]))
                                         var worker = function (callback) {
                                             listings_request_worker (fetch_ids[submodel_key], edmunds_query, fetch_docs[submodel_key], callback)
                                         }
