@@ -371,7 +371,7 @@ var construct_query_stats = function (queries) {
             if (powertrain.engine.torque !== undefined)
                 query.tq.push (powertrain.engine.torque)
         }
-        if (powertrain.hasOwnProperty ('mpg') && powertrain.mpg.has_color ('highway')) {
+        if (powertrain.hasOwnProperty ('mpg') && powertrain.mpg.hasOwnProperty ('highway')) {
             query.mpg.push (powertrain.mpg.highway)
         }
 
