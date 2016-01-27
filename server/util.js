@@ -402,7 +402,7 @@ var listings_request_callback = function (err, listings) {
         console.dir (err)
     var response_obj = {},
         max_mileage = 5000000,
-        max_price = 5000000,
+        max_price = 5000000
 
     if (this.body.hasOwnProperty ('max_mileage'))
         max_mileage = this.body.max_mileage
