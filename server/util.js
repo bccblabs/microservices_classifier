@@ -380,9 +380,9 @@ var construct_query_stats = function (queries) {
     query.compressors = _.uniq (query.compressors)
     query.transmissionTypes = _.uniq (query.transmissionTypes)
     query.drivenWheels = _.uniq (query.drivenWheels)
-    query.car.minMpg = get_catetory_values (_.min (query.mpg))
-    query.car.minHp = get_catetory_values(_.min (query.hp))
-    query.car.minTq = get_catetory_values(_.min (query.tq))
+    query.minMpg = get_catetory_values (_.min (query.mpg))
+    query.minHp = get_catetory_values(_.min (query.hp))
+    query.minTq = get_catetory_values(_.min (query.tq))
     console.dir (query)
     return query
 }
