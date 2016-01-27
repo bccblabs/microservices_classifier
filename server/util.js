@@ -420,7 +420,7 @@ var listings_request_callback = function (err, listings) {
         if (this.body.max_mileage !== "No Max")        
             max_mileage = this.body.max_mileage
     }
-    if (this.body.hasOwnProperty ('max_price') {
+    if (this.body.hasOwnProperty ('max_price')) {
         console.log (max_price)
         if (this.body.max_price !== "No Max")
             max_price = this.body.max_price
