@@ -319,7 +319,7 @@ var fetch_listings = function (db_query, edmunds_query, listings_callback) {
                                     // _.each (_.keys (fetch_ids), function (submodel_key) {
                                     //     console.log ("[util.listings_request_worker]: ", submodel_key, JSON.stringify (fetch_ids[submodel_key]))
                                         var worker = function (callback) {
-                                            listings_request_worker ( doc.styleId, edmunds_query, doc, callback)
+                                            listings_request_worker ( [doc.styleId], edmunds_query, doc, callback)
                                         }
                                         tasks.push (worker)
                                     })
