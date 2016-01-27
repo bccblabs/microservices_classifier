@@ -529,7 +529,7 @@ var listings_request_callback = function (err, listings) {
     if (this.body.hasOwnProperty ('max_price') {
         if (this.body.max_price !== "No Max")
             max_price = this.body.max_price
-
+    }
     console.log ('[* prefiltered listings count : ' + _.flatten(_.pluck(listings, 'listings')).length + ' ]')
     response_obj['listings'] =  _.filter (
                                     _.map (
@@ -546,7 +546,7 @@ var listings_request_callback = function (err, listings) {
                                                 has_color (listing.colors, 'Exterior', this.body.api.ext_colors))
                                                 // has_equipment (_.union (listing.options, listing.features), this.body.features))
                                     }
-                                ).slice (0, 30)
+                                )
     response_obj['count'] = response_obj['listings'].length
     response_obj['query'] = this.body
     var next_query = construct_query_stats (this.submodels_docs, this.submodels)
