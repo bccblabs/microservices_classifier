@@ -116,7 +116,7 @@ var parse_car_query = function (query_params, min_price, max_price, sort_query) 
 
     if (_.has (query_params, 'compressors') && query_params.compressors.length > 0) {
         console.log ('[parser.parse_car_query]: compressors array\n')
-        console.log (JSON.stringify (JSON.parse (query_params['compressors']), null, 2) )
+        console.log (JSON.stringify (query_params['compressors']))
         // query['powertrain.engine.compressorType'] = {'$in': _.uniq (new RegExp (query_params.compressors), 'i')}
         query['powertrain.engine.compressorType'] = {'$in': _.uniq (parse_compressors (query_params['compressors']))}
     }
