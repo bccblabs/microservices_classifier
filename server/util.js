@@ -301,7 +301,7 @@ var fetch_listings = function (db_query, edmunds_query, listings_callback) {
                                     console.log (err)                    
                                 } else {
                                     this.submodels_docs = submodels_docs
-                                    console.log ('[* fetched ' + submodels_docs.length +' submodels ]\n[* submodels: ]')
+                                    console.log ('[util.fetch_listings]: * fetched ' + submodels_docs.length +' submodels ]\n[* submodels: ]')
                                     var fetch_ids = {},
                                         fetch_docs = {},
                                         tasks = []
@@ -403,16 +403,14 @@ var listings_request_callback = function (err, listings) {
     var response_obj = {},
         max_mileage = 5000000,
         max_price = 5000000,
-        min_price = 0
 
     if (this.body.hasOwnProperty ('max_mileage'))
         max_mileage = this.body.max_mileage
-    if (this.body.hasOwnProperty ('min_price'))
-        min_price = this.body.min_price
     if (this.body.hasOwnProperty ('max_price'))
         max_price = this.body.max_price
 
     console.log ('[* prefiltered listings count : ' + _.flatten(_.pluck(listings, 'listings')).length + ' ]')
+    console.log ('[util.listings_request_callback]: max_mileage=' + max_mileage + " max_price=" + max_price + "")
     response_obj['listings'] =  _.filter (
                                     _.map (
                                         _.flatten(
@@ -421,7 +419,6 @@ var listings_request_callback = function (err, listings) {
                                         listing_formatter
                                     ), function (listing) {
                                         return (listing !== undefined && 
-                                                listing.min_price >= min_price &&
                                                 listing.min_price <= max_price &&
                                                 listing.mileage <= max_mileage)
                                                 // has_color (listing.colors, 'Interior', this.body.api.int_colors) &&
@@ -437,6 +434,8 @@ var listings_request_callback = function (err, listings) {
     next_query.minHp = this.body.car.minHp
     next_query.minTq = this.body.car.minTq
     response_obj['query'].car = next_query
+
+
     console.log ('[New ListingsQuery Object]: \n');
     console.dir (next_query)
     if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'mileage:asc') {
