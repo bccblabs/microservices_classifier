@@ -45,7 +45,7 @@ var parse_listings_query = function (params) {
 var parse_compressors = function (array_compressors_query) {
     var result = _.map (array_compressors_query, function (field) {return new RegExp (field, 'i')})
     console.log ('[parser.parse_compressors]: compressors array')
-    console.log (JSON.stringify(JSON.parse(result),null,2))
+    console.log (JSON.stringify(result))
     return result
 }
 
