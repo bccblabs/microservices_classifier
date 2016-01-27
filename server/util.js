@@ -306,7 +306,11 @@ var fetch_listings = function (db_query, edmunds_query, listings_callback) {
                                         fetch_docs = {},
                                         tasks = []
 
-                                    _.each (submodels_docs.slice (0, 10), function (doc) {
+                                    _.each (submodels_docs.slice (0, 1000), function (doc) {
+                                        console.log ("[util.fetch_listings]: submodel oject")
+                                        console.dir (doc)
+                                        console.log ("\n")
+
                                         if (!fetch_ids.hasOwnProperty (doc.submodel))
                                             fetch_ids[doc.submodel] = []
                                         fetch_ids[doc.submodel].push (doc.styleId)
@@ -433,7 +437,7 @@ var listings_request_callback = function (err, listings) {
     next_query.minHp = this.body.car.minHp
     next_query.minTq = this.body.car.minTq
     response_obj['query'].car = next_query
-
+    console.log ('[New ListingsQuery Object]: \n');
     console.dir (next_query)
     if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'mileage:asc') {
         response_obj['listings'] =  _.sortBy (response_obj['listings'], function (listing) {
