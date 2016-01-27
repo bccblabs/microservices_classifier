@@ -191,7 +191,7 @@ var parse_car_query = function (query_params, min_price, max_price, sort_query) 
     }
 
     if (max_price !== undefined || min_price !== undefined) {
-        query['$or'] = []
+        // query['$or'] = []
         // query['$or'].push ({$or: [{'prices.usedTmvRetail': {'$lte': max_price}}, {'prices.usedTmvRetail': {'$exists': false}}]})
         // query['$or'].push ({$or: [{'prices.usedPrivateParty': {'$lte': max_price}}, {'prices.usedPrivateParty': {'$exists': false}}]})
     }
