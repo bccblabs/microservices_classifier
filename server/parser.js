@@ -45,7 +45,7 @@ var parse_listings_query = function (params) {
 var parse_compressors = function (array_compressors_query) {
     var result = _.map (array_compressors_query, function (field) {return new RegExp (field, 'i')})
     console.log ('[parser.parse_compressors]: compressors array')
-    console.log (JSON.stringify(JSON.parse(result),null,2))
+    console.log (JSON.stringify(JSON.parse(result)),null,2)
     return result
 }
 
@@ -115,10 +115,10 @@ var parse_car_query = function (query_params, min_price, max_price, sort_query) 
     }
 
     if (_.has (query_params, 'compressors') && query_params.compressors.length > 0) {
-        // console.log ('[parser.parse_car_query]: compressors array\n')
-        // console.log (JSON.stringify (JSON.parse (query_params['compressors'], null, 2) ))
+        console.log ('[parser.parse_car_query]: compressors array\n')
+        console.log (JSON.stringify (JSON.parse (query_params['compressors']), null, 2) )
         // query['powertrain.engine.compressorType'] = {'$in': _.uniq (new RegExp (query_params.compressors), 'i')}
-        query['powertrain.engine.compressorType'] = {'$in': parse_compressors (query_params['compressors'])}
+        query['powertrain.engine.compressorType'] = {'$in': _.uniq (parse_compressors (query_params['compressors']))}
     }
     if (_.has (query_params, 'cylinders') && query_params.cylinders.length > 0) {
         query['powertrain.engine.cylinder'] = {'$in': query_params['cylinders']}
@@ -226,7 +226,7 @@ var parse_car_query = function (query_params, min_price, max_price, sort_query) 
 
 
     console.log("[** PARSER.JS]: Car Query")
-    console.log(JSON.stringify (JSON.parse (query,null,2)))
+    console.log(JSON.stringify (JSON.parse (query),null,2))
     return query
 }
 
