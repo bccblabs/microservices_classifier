@@ -306,9 +306,9 @@ var fetch_listings = function (db_query, edmunds_query, listings_callback) {
                                         fetch_docs = {},
                                         tasks = []
 
-                                    _.each (submodels_docs.slice (0, 1000), function (doc) {
+                                    _.each (submodels_docs, function (doc) {
                                         console.log ("[util.fetch_listings]: submodel oject")
-                                        console.dir (doc)
+                                        console.dir ("[util.fetch_listings: submodel styleid=" + doc.styleId+ " ]: " + doc.year + " " + doc.submodel +)
                                         console.log ("\n")
 
                                         if (!fetch_ids.hasOwnProperty (doc.submodel))
@@ -424,8 +424,8 @@ var listings_request_callback = function (err, listings) {
                                                 listing.min_price >= min_price &&
                                                 listing.min_price <= max_price &&
                                                 listing.mileage <= max_mileage &&
-                                                has_color (listing.colors, 'Interior', this.body.api.int_colors) &&
-                                                has_color (listing.colors, 'Exterior', this.body.api.ext_colors))
+                                                // has_color (listing.colors, 'Interior', this.body.api.int_colors) &&
+                                                // has_color (listing.colors, 'Exterior', this.body.api.ext_colors))
                                                 // has_equipment (_.union (listing.options, listing.features), this.body.features))
                                     }
                                 )
