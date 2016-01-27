@@ -308,7 +308,7 @@ var fetch_listings = function (db_query, edmunds_query, listings_callback) {
 
                                     _.each (submodels_docs, function (doc) {
                                         console.log ("[util.fetch_listings]: submodel oject")
-                                        console.dir ("[util.fetch_listings: submodel styleid=" + doc.styleId+ " ]: " + doc.year + " " + doc.submodel +)
+                                        console.dir ("[util.fetch_listings: submodel styleid=" + doc.styleId+ " ]: " + doc.year + " " + doc.submodel)
                                         console.log ("\n")
 
                                         if (!fetch_ids.hasOwnProperty (doc.submodel))
