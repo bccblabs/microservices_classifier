@@ -324,9 +324,9 @@ var fetch_listings = function (db_query, edmunds_query, listings_callback) {
                                         tasks.push (worker)
                                     })
                                     // this.remaining_style_ids = _.difference (_.pluck (submodels_docs, 'styleId'), _.flatten (_.values (fetch_ids)))
-                                    console.log (_.pluck (submodels_docs, 'styleId').length, this.remaining_style_ids.length)
                                     async.parallelLimit (tasks, 10, listings_callback.bind(this))
                                 }           
+                                    console.log (_.pluck (submodels_docs, 'styleId').length, tasks.length)
                             }
                         )
         })
