@@ -432,9 +432,9 @@ var listings_request_callback = function (err, listings) {
     next_query.minMpg = this.body.car.minMpg
     next_query.minHp = this.body.car.minHp
     next_query.minTq = this.body.car.minTq
-    next_query.remaining_ids = undefined
-    next_query.good_tags = undefined
-    
+    _.omit (response_obj['query'], 'remaining_ids')
+    _.omit (response_obj['query'], 'tags')
+
     response_obj['query'].car = next_query
 
 
