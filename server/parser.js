@@ -215,7 +215,7 @@ var parse_car_query = function (query_params, min_price, max_price, sort_query) 
         if (query.hasOwnProperty ('sortBy'))
             last_query['sortBy'] = query['sortBy']
         else
-            last_query['sortBy'] = [['year', -1]]
+            last_query['sortBy'] = 'year:asc'
         if (query.hasOwnProperty ('$or'))
             last_query['$or'] = query['$or']
 
