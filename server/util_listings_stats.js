@@ -524,8 +524,10 @@ var listings_request_callback = function (err, listings) {
         max_price = 5000000,
         min_price = 0
 
-    if (this.body.hasOwnProperty ('max_mileage'))
-        max_mileage = this.body.max_mileage
+    if (this.body.hasOwnProperty ('max_mileage')) {
+        if (this.body.max_mileage !== "No Max")        
+            max_mileage = this.body.max_mileage
+    }
     if (this.body.hasOwnProperty ('max_price') {
         if (this.body.max_price !== "No Max")
             max_price = this.body.max_price
@@ -538,9 +540,9 @@ var listings_request_callback = function (err, listings) {
                                         ),
                                         listing_formatter
                                     ), function (listing) {
-                                        return (listing !== undefined && 
-                                                listing.min_price >= min_price &&
-                                                listing.min_price <= max_price &&
+                                        return (
+                                                listing !== undefined && 
+                                                // listing.min_price <= max_price &&
                                                 listing.mileage <= max_mileage &&
                                                 has_color (listing.colors, 'Interior', this.body.api.int_colors) &&
                                                 has_color (listing.colors, 'Exterior', this.body.api.ext_colors))
