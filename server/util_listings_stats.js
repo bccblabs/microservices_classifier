@@ -526,10 +526,9 @@ var listings_request_callback = function (err, listings) {
 
     if (this.body.hasOwnProperty ('max_mileage'))
         max_mileage = this.body.max_mileage
-    if (this.body.hasOwnProperty ('min_price'))
-        min_price = this.body.min_price
-    if (this.body.hasOwnProperty ('max_price'))
-        max_price = this.body.max_price
+    if (this.body.hasOwnProperty ('max_price') {
+        if (this.body.max_price !== "No Max")
+            max_price = this.body.max_price
 
     console.log ('[* prefiltered listings count : ' + _.flatten(_.pluck(listings, 'listings')).length + ' ]')
     response_obj['listings'] =  _.filter (
