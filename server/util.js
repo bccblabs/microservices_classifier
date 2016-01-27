@@ -429,10 +429,12 @@ var listings_request_callback = function (err, listings) {
     response_obj['count'] = response_obj['listings'].length
     response_obj['query'] = this.body
     var next_query = construct_query_stats (this.submodels_docs)
-    next_query.remaining_ids = this.remaining_style_ids
     next_query.minMpg = this.body.car.minMpg
     next_query.minHp = this.body.car.minHp
     next_query.minTq = this.body.car.minTq
+    next_query.remaining_ids = undefined
+    next_query.good_tags = undefined
+    
     response_obj['query'].car = next_query
 
 
