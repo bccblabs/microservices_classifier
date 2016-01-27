@@ -427,7 +427,7 @@ var listings_request_callback = function (err, listings) {
                                     }
                                 )
     response_obj['count'] = response_obj['listings'].length
-    // response_obj['query'] = this.body
+    response_obj['query'] = {}
     var next_query = construct_query_stats (this.submodels_docs)
     next_query.minMpg = this.body.car.minMpg
     next_query.minHp = this.body.car.minHp
