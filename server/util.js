@@ -361,11 +361,17 @@ var construct_query_stats = function (queries) {
         if (powertrain.hasOwnProperty ('transmission') && powertrain.transmission.hasOwnProperty('transmissionType')) {
             query.transmissionTypes.push (powertrain.transmission.transmissionType)
         }
+        if (powertrain.hasOwnProperty ('engine') && powertrain.engine.hasOwnProperty ('hp')) {
+            query.cylinders.push (powertrain.engine.cylinder)
+        }
     })
     query.cylinders = _.uniq (query.cylinders)
     query.compressors = _.uniq (query.compressors)
     query.transmissionTypes = _.uniq (query.transmissionTypes)
     query.drivenWheels = _.uniq (query.drivenWheels)
+    query.car.minMpg = get_catetory_values (_.min (mpg))
+    query.car.minHp = get_catetory_values(_.min (hp))
+    query.car.minTq = get_catetory_values(_.min (tq))
     console.dir (query)
     return query
 }
@@ -404,12 +410,21 @@ var listings_request_callback = function (err, listings) {
         max_mileage = 5000000,
         max_price = 5000000
 
-    if (this.body.hasOwnProperty ('max_mileage'))
-        max_mileage = this.body.max_mileage
-    if (this.body.hasOwnProperty ('max_price'))
-        max_price = this.body.max_price
+    // if (this.body.hasOwnProperty ('max_mileage'))
+    //     max_mileage = this.body.max_mileage
+    // if (this.body.hasOwnProperty ('max_price'))
+    //     max_price = this.body.max_price
 
-    console.log ('[* prefiltered listings count : ' + _.flatten(_.pluck(listings, 'listings')).length + ' ]')
+    if (this.body.hasOwnProperty ('max_mileage')) {
+        console.log (max_mileage)
+        if (this.body.max_mileage !== "No Max")        
+            max_mileage = this.body.max_mileage
+    }
+    if (this.body.hasOwnProperty ('max_price') {
+        console.log (max_price)
+        if (this.body.max_price !== "No Max")
+            max_price = this.body.max_price
+    }    console.log ('[* prefiltered listings count : ' + _.flatten(_.pluck(listings, 'listings')).length + ' ]')
     console.log ('[util.listings_request_callback]: max_mileage=' + max_mileage + " max_price=" + max_price + "")
     response_obj['listings'] =  _.filter (
                                     _.map (
