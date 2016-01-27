@@ -226,7 +226,7 @@ var parse_car_query = function (query_params, min_price, max_price, sort_query) 
 
 
     console.log("[** PARSER.JS]: Car Query")
-    console.log( JSON.stringify (JSON.parse (query), null ,2 )
+    console.log( JSON.stringify (JSON.parse (query), null ,2 ))
     return query
 }
 
