@@ -273,7 +273,7 @@ var fetch_listings = function (db_query, edmunds_query, listings_callback) {
         } else {
             query_obj = db_query
         }
-        query_obj['listings_stats.inventoriesCount'] = {'$gte': 1}
+        // query_obj['listings_stats.inventoriesCount'] = {'$gte': 1}
         connect_mongo (function (err, mongoClient) {
             mongoClient.db ('trims').collection ('car_data')
                 .find ( query_obj, 
