@@ -903,6 +903,10 @@ var fetch_generations = function (mongoclient, cars_query, callback) {
     }
 }
 
+var get_catetory_values = function (val, inteval) {
+    return val - (val % inteval)
+}
+
 var fetch_makes = function (cars_query, callback) {
     var query_obj = {}
     if (cars_query.hasOwnProperty('sortBy')) {
@@ -952,12 +956,9 @@ var construct_query_obj_from_makes = function (makes_result) {
         hp =  union_flatten_filter(_.pluck (makes_result, 'hps'))
         tq =  union_flatten_filter(_.pluck (makes_result, 'tqs'))
 
-    query.car.minMpg = _.min (mpg)
-    query.car.maxMpg = _.max (mpg)
-    query.car.minHp = _.min (hp)
-    query.car.maxHp = _.max (hp)
-    query.car.minTq = _.min (tq)
-    query.car.maxTq = _.max (tq)
+    query.car.minMpg = get_catetory_values (_.min (mpg))
+    query.car.minHp = get_catetory_values(_.min (hp))
+    query.car.minTq = get_catetory_values(_.min (tq))
 
     return query
 }
