@@ -424,7 +424,7 @@ var listings_request_callback = function (err, listings) {
         console.log (max_price)
         if (this.body.max_price !== "No Max")
             max_price = this.body.max_price
-    }    console.log ('[* prefiltered listings count : ' + _.flatten(_.pluck(listings, 'listings')).length + ' ]')
+    }
     console.log ('[util.listings_request_callback]: max_mileage=' + max_mileage + " max_price=" + max_price + "")
     response_obj['listings'] =  _.filter (
                                     _.map (
