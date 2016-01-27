@@ -311,20 +311,20 @@ var fetch_listings = function (db_query, edmunds_query, listings_callback) {
                                         console.dir ("[util.fetch_listings: submodel styleid=" + doc.styleId+ " ]: " + doc.year + " " + doc.submodel)
                                         console.log ("\n")
 
-                                        if (!fetch_ids.hasOwnProperty (doc.submodel))
-                                            fetch_ids[doc.submodel] = []
-                                        fetch_ids[doc.submodel].push (doc.styleId)
-                                        fetch_docs[doc.submodel] = doc
-                                    })
-                                    _.each (_.keys (fetch_ids), function (submodel_key) {
-                                        console.log ("[util.listings_request_worker]: ", submodel_key, JSON.stringify (fetch_ids[submodel_key]))
+                                    //     if (!fetch_ids.hasOwnProperty (doc.submodel))
+                                    //         fetch_ids[doc.submodel] = []
+                                    //     fetch_ids[doc.submodel].push (doc.styleId)
+                                    //     fetch_docs[doc.submodel] = doc
+                                    // })
+                                    // _.each (_.keys (fetch_ids), function (submodel_key) {
+                                    //     console.log ("[util.listings_request_worker]: ", submodel_key, JSON.stringify (fetch_ids[submodel_key]))
                                         var worker = function (callback) {
-                                            listings_request_worker (fetch_ids[submodel_key], edmunds_query, fetch_docs[submodel_key], callback)
+                                            listings_request_worker ( doc.styleId, edmunds_query, doc, callback)
                                         }
                                         tasks.push (worker)
                                     })
-                                    this.remaining_style_ids = _.difference (_.pluck (submodels_docs, 'styleId'), _.flatten (_.values (fetch_ids)))
-                                    console.log (_.pluck (submodels_docs, 'styleId').length, _.values(fetch_ids).length, this.remaining_style_ids.length)
+                                    // this.remaining_style_ids = _.difference (_.pluck (submodels_docs, 'styleId'), _.flatten (_.values (fetch_ids)))
+                                    console.log (_.pluck (submodels_docs, 'styleId').length, this.remaining_style_ids.length)
                                     async.parallelLimit (tasks, 10, listings_callback.bind(this))
                                 }           
                             }
