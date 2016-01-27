@@ -427,19 +427,20 @@ var listings_request_callback = function (err, listings) {
                                     }
                                 )
     response_obj['count'] = response_obj['listings'].length
-    response_obj['query'] = this.body
+    // response_obj['query'] = this.body
     var next_query = construct_query_stats (this.submodels_docs)
     next_query.minMpg = this.body.car.minMpg
     next_query.minHp = this.body.car.minHp
     next_query.minTq = this.body.car.minTq
-    next_query = _.omit (response_obj['query'], 'remaining_ids')
-    next_query = _.omit (response_obj['query'], 'tags')
+    next_query = _.omit (next_query, 'remaining_ids')
+    next_query = _.omit (next_query, 'tags')
+
+    console.log ('[util.listings_request_worker]: next query\n');
+    console.dir (next_query)
 
     response_obj['query'].car = next_query
 
 
-    console.log ('[New ListingsQuery Object]: \n');
-    console.dir (next_query)
     if (this.body.hasOwnProperty ('sortBy') && this.body.sortBy === 'mileage:asc') {
         response_obj['listings'] =  _.sortBy (response_obj['listings'], function (listing) {
             return listing.mileage
