@@ -348,6 +348,9 @@ var construct_query_stats = function (queries) {
     query.cylinders = []
     query.compressors = []
     query.transmissionTypes = []
+    query.mpg = []
+    query.hp = []
+    query.tq = []
     _.each (_.pluck (queries, 'powertrain'), function (powertrain) {
         if (powertrain.hasOwnProperty ('drivenWheels')) {
             query.drivenWheels.push (powertrain.drivenWheels)
@@ -363,15 +366,23 @@ var construct_query_stats = function (queries) {
         }
         if (powertrain.hasOwnProperty ('engine') && powertrain.engine.hasOwnProperty ('hp')) {
             query.cylinders.push (powertrain.engine.cylinder)
+            if (powertrain.engine.horsepower !== undefined)
+                query.hp.push (powertrain.engine.horsepower)
+            if (powertrain.engine.torque !== undefined)
+                query.tq.push (powertrain.engine.torque)
         }
+        if (powertrain.hasOwnProperty ('mpg') && powertrain.mpg.has_color ('highway')) {
+            query.mpg.push (powertrain.mpg.highway)
+        }
+
     })
     query.cylinders = _.uniq (query.cylinders)
     query.compressors = _.uniq (query.compressors)
     query.transmissionTypes = _.uniq (query.transmissionTypes)
     query.drivenWheels = _.uniq (query.drivenWheels)
-    query.car.minMpg = get_catetory_values (_.min (mpg))
-    query.car.minHp = get_catetory_values(_.min (hp))
-    query.car.minTq = get_catetory_values(_.min (tq))
+    query.car.minMpg = get_catetory_values (_.min (query.mpg))
+    query.car.minHp = get_catetory_values(_.min (query.hp))
+    query.car.minTq = get_catetory_values(_.min (query.tq))
     console.dir (query)
     return query
 }
