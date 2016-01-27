@@ -105,7 +105,9 @@ var parse_car_query = function (query_params, min_price, max_price, sort_query) 
     }
 
     if (_.has (query_params, 'compressors') && query_params.compressors.length > 0) {
-        query['powertrain.engine.compressorType'] = {'$in': make_reg_type(query_params.compressors)}
+        console.log ('[parser.parse_car_query]: compressors array\n')
+        console.log (JSON.stringify (query_params['compressors'], null, 2))
+        query['powertrain.engine.compressorType'] = {'$in': query_params.compressors}
     }
     if (_.has (query_params, 'cylinders') && query_params.cylinders.length > 0) {
         query['powertrain.engine.cylinder'] = {'$in': query_params['cylinders']}
