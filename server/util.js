@@ -423,7 +423,7 @@ var listings_request_callback = function (err, listings) {
                                         return (listing !== undefined && 
                                                 listing.min_price >= min_price &&
                                                 listing.min_price <= max_price &&
-                                                listing.mileage <= max_mileage &&
+                                                listing.mileage <= max_mileage)
                                                 // has_color (listing.colors, 'Interior', this.body.api.int_colors) &&
                                                 // has_color (listing.colors, 'Exterior', this.body.api.ext_colors))
                                                 // has_equipment (_.union (listing.options, listing.features), this.body.features))
