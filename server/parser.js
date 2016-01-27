@@ -141,23 +141,23 @@ var parse_car_query = function (query_params, min_price, max_price, sort_query) 
                 query['incentives.count'] = {'$gte': 1}
             else if (tag.toLowerCase() === 'no recalls')
                 query['recalls.numberOfRecalls'] = {'$eq': 0}
-            else if (tag.toLowerCase() === 'no major recalls') {
-                if (!query.hasOwnProperty ('$and'))
-                    query['$and'] = []
-                query['$and'].push ({'$or': [{'recalls.major_recall': {'$eq': false}}, {'recalls.numberOfRecalls': 0}]})
-            }
-            else if (tag.toLowerCase() === 'no complaints')
+            // else if (tag.toLowerCase() === 'no major recalls') {
+            //     if (!query.hasOwnProperty ('$and'))
+            //         query['$and'] = []
+            //     query['$and'].push ({'$or': [{'recalls.major_recall': {'$eq': false}}, {'recalls.numberOfRecalls': 0}]})
+            // }
+            else if (tag.toLowerCase() === 'no complaints') {
                 query['complaints.count'] = {'$eq': 0}
-            else if (tag.toLowerCase() === 'no major complaints') {
-                if (!query.hasOwnProperty ('$and'))
-                    query['$and'] = []
-                query['$and'].push ({'$or': [{'complaints.major_complaint': {'$eq': false}}, {'complaints.count': 0}]})
+            // else if (tag.toLowerCase() === 'no major complaints') {
+            //     if (!query.hasOwnProperty ('$and'))
+            //         query['$and'] = []
+            //     query['$and'].push ({'$or': [{'complaints.major_complaint': {'$eq': false}}, {'complaints.count': 0}]})
             } else {
-                if (!query.hasOwnProperty ('good_tags'))
-                    query.good_tags = {}
-                if (!query.good_tags.hasOwnProperty ('$in'))
-                    query.good_tags['$in'] = []
-                query['good_tags']['$in'].push (new RegExp(tag.toLowerCase()))
+                // if (!query.hasOwnProperty ('good_tags'))
+                //     query.good_tags = {}
+                // if (!query.good_tags.hasOwnProperty ('$in'))
+                //     query.good_tags['$in'] = []
+                // query['good_tags']['$in'].push (new RegExp(tag.toLowerCase()))
             }
         })
     }
