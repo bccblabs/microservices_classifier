@@ -3,10 +3,13 @@ var _ = require ('underscore-node')
 var make_reg_type = function (original_field) {
     var reg_exp_arr = []
     _.each (original_field, function (field) {
+
         if (field === 'Turbo')
-            reg_exp_arr.push (new RegExp (field.replace (/[^a-zA-Z0-9]/g, ''),'i'))
+            reg_exp_arr.push (new RegExp (field,'i'))
+        else if (field === 'Mercedes-Benz')
+            reg_exp_arr.push (new RegExp (field.))
         else
-            reg_exp_arr.push (new RegExp ("^"+ field.replace (/[^a-zA-Z0-9]/g, ''),'i'))
+            reg_exp_arr.push (new RegExp ("^"+ field,'i'))
     })
     return reg_exp_arr
 }
