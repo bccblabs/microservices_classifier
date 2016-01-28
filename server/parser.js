@@ -6,8 +6,8 @@ var make_reg_type = function (original_field) {
 
         if (field === 'Turbo')
             reg_exp_arr.push (new RegExp (field,'i'))
-        else if (field === 'Mercedes-Benz')
-            reg_exp_arr.push (new RegExp (field.))
+        else if (field === 'mercedes-benz' || field === 'rolls-royce')
+            reg_exp_arr.push (new RegExp (field.replace ('-', ' ')))
         else
             reg_exp_arr.push (new RegExp ("^"+ field,'i'))
     })
