@@ -79,6 +79,7 @@ var parse_label = function (params) {
 }
 
 var parse_car_query = function (query_params, min_price, max_price, sort_query) {
+    console.dir (query_params)
     var query = {}
     if (_.has (query_params, 'makes') && query_params.makes.length > 0) {
         query['make'] = {'$in': make_reg_type(query_params.makes)}
