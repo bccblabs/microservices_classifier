@@ -143,7 +143,7 @@ var parse_car_query = function (query_params, min_price, max_price, sort_query) 
 
     if (_.has (query_params, 'minYr')) {
         console.log ('[parser.parse_car_query]: min year=', query_params['minYr'])
-        query_params['year'] = {'$gte': query_params['minYr']}
+        query['year'] = {'$gte': query_params['minYr']}
 
     }
 
