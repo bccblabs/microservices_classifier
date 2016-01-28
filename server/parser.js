@@ -120,9 +120,9 @@ var parse_car_query = function (query_params, min_price, max_price, sort_query) 
         // query['powertrain.engine.compressorType'] = {'$in': _.uniq (new RegExp (query_params.compressors), 'i')}
         query['powertrain.engine.compressorType'] = {'$in': _.uniq (parse_compressors (query_params['compressors']))}
     }
-    if (_.has (query_params, 'cylinders') && query_params.cylinders.length > 0) {
-        query['powertrain.engine.cylinder'] = {'$in': query_params['cylinders']}
-    }
+    // if (_.has (query_params, 'cylinders') && query_params.cylinders.length > 0) {
+    //     query['powertrain.engine.cylinder'] = {'$in': query_params['cylinders']}
+    // }
     if (_.has (query_params, 'minHp') && query_params['minHp'] > 0) {
         query['powertrain.engine.horsepower'] = {'$gte': query_params['minHp']}
     }
@@ -135,12 +135,20 @@ var parse_car_query = function (query_params, min_price, max_price, sort_query) 
         query['powertrain.mpg.highway'] = {'$gte': query_params['minMpg']}
     }
 
+    if (_.has (query_params, 'minCylinders' && query_params['minCylinders'] > 0))
+        query['powertrain.engine.cylinder'] = {'$gte': query_params['minCylinders']}
+
+    if (_.has (query_params, 'minYr') && query_params['minYr'] > 0)
+        query_params['year'] = {'$gte': query_params['minYr']}
+
     if (_.has (query_params, 'tags') && query_params.tags.length > 0) {
         _.each (query_params.tags, function (tag) {
             if (tag.toLowerCase() === 'has incentives')
                 query['incentives.count'] = {'$gte': 1}
             else if (tag.toLowerCase() === 'no recalls')
                 query['recalls.numberOfRecalls'] = {'$eq': 0}
+            else if (tag.toLowerCase() === 'electric')
+                query['powertrain.engine.fuelType'] = 'electric'
             // else if (tag.toLowerCase() === 'no major recalls') {
             //     if (!query.hasOwnProperty ('$and'))
             //         query['$and'] = []
