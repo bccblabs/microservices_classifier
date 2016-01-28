@@ -97,9 +97,9 @@ var parse_car_query = function (query_params, min_price, max_price, sort_query) 
         query['bodyType'] = {'$in': make_reg_type (query_params.bodyTypes)}
     }
 
-    if (_.has (query_params, 'years') && query_params.years.length > 0) {
-        query['year'] = {'$in': query_params['years']}
-    }
+    // if (_.has (query_params, 'years') && query_params.years.length > 0) {
+    //     query['year'] = {'$in': query_params['years']}
+    // }
 
     if (_.has (query_params, 'labels') && query_params.labels.length > 0) {
         query['compact_label'] = {'$in': _.map (query_params.labels, function (label) {
