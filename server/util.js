@@ -481,6 +481,11 @@ var listing_formatter = function (listing) {
             var matched_nums = photo.href.match (new RegExp (/\d+/g))
             return parseInt (matched_nums[matched_nums.length -1])
         })
+        listing.media.photos.small.links = _.sortBy (listing.media.photos.small.links, function (photo) {
+            var matched_nums = photo.href.match (new RegExp (/\d+/g))
+            return parseInt (matched_nums[matched_nums.length -1])
+        })
+
     }
     if (listing !== undefined && listing.hasOwnProperty ('prices'))
         listing.min_price = _.filter (_.values (listing.prices), function (price) {return price > 0}).sort()[0]
