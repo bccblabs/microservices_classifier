@@ -335,54 +335,33 @@ var fetch_listings = function (db_query, edmunds_query, listings_callback) {
 var construct_query_stats = function (queries) {
     var query = {}
     query.makes = _.uniq (_.pluck (queries, 'make'))
-    query.main_models = _.uniq (_.pluck (queries, 'model'))
+    query.models = _.uniq (_.pluck (queries, 'submodel'))
     query.bodyTypes = _.uniq (_.pluck (queries, 'bodyType'))
     query.years = _.uniq (_.pluck (queries, 'year'))
-    query.tags = _.filter (_.uniq (_.flatten(_.pluck (queries, 'good_tags'))), 
-        function (tag) {
-            return tag !== null && tag !== undefined && tag.indexOf ('usedTmvRetail') < 0 && tag.indexOf ('baseMSRP') < 0
-        }
-    )
 
-    query.drivenWheels = []
-    query.cylinders = []
     query.compressors = []
+    query.cylinders = []
+    query.drivenWheels = []
     query.transmissionTypes = []
-    query.mpg = []
-    query.hp = []
-    query.tq = []
+
     _.each (_.pluck (queries, 'powertrain'), function (powertrain) {
-        if (powertrain.hasOwnProperty ('drivenWheels')) {
-            query.drivenWheels.push (powertrain.drivenWheels)
+        if (powertrain.hasOwnProperty ('engine') && powertrain.engine.hasOwnProperty ('compressorType')) {
+            query.compressors.push (powertrain.engine.compressorType)
         }
         if (powertrain.hasOwnProperty ('engine') && powertrain.engine.hasOwnProperty ('cylinder')) {
             query.cylinders.push (powertrain.engine.cylinder)
         }
-        if (powertrain.hasOwnProperty ('engine') && powertrain.engine.hasOwnProperty ('compressorType')) {
-            query.compressors.push (powertrain.engine.compressorType)
+        if (powertrain.hasOwnProperty ('drivenWheels')) {
+            query.drivenWheels.push (powertrain.drivenWheels)
         }
         if (powertrain.hasOwnProperty ('transmission') && powertrain.transmission.hasOwnProperty('transmissionType')) {
             query.transmissionTypes.push (powertrain.transmission.transmissionType)
         }
-        if (powertrain.hasOwnProperty ('engine') && powertrain.engine.hasOwnProperty ('hp')) {
-            query.cylinders.push (powertrain.engine.cylinder)
-            if (powertrain.engine.horsepower !== undefined)
-                query.hp.push (powertrain.engine.horsepower)
-            if (powertrain.engine.torque !== undefined)
-                query.tq.push (powertrain.engine.torque)
-        }
-        if (powertrain.hasOwnProperty ('mpg') && powertrain.mpg.hasOwnProperty ('highway')) {
-            query.mpg.push (powertrain.mpg.highway)
-        }
-
     })
     query.cylinders = _.uniq (query.cylinders)
+    query.drivenWheels = _.uniq (query.drivenWheels)
     query.compressors = _.uniq (query.compressors)
     query.transmissionTypes = _.uniq (query.transmissionTypes)
-    query.drivenWheels = _.uniq (query.drivenWheels)
-    query.minMpg = get_catetory_values (_.min (query.mpg))
-    query.minHp = get_catetory_values(_.min (query.hp))
-    query.minTq = get_catetory_values(_.min (query.tq))
     console.dir (query)
     return query
 }
@@ -421,11 +400,6 @@ var listings_request_callback = function (err, listings) {
         max_mileage = 5000000,
         max_price = 5000000
 
-    // if (this.body.hasOwnProperty ('max_mileage'))
-    //     max_mileage = this.body.max_mileage
-    // if (this.body.hasOwnProperty ('max_price'))
-    //     max_price = this.body.max_price
-
     if (this.body.hasOwnProperty ('max_mileage')) {
         console.log (max_mileage)
         if (this.body.max_mileage !== "No Max")        
@@ -455,9 +429,7 @@ var listings_request_callback = function (err, listings) {
     response_obj['count'] = response_obj['listings'].length
     response_obj['query'] = {}
     var next_query = construct_query_stats (this.submodels_docs)
-    next_query.minMpg = this.body.car.minMpg
-    next_query.minHp = this.body.car.minHp
-    next_query.minTq = this.body.car.minTq
+
     next_query = _.omit (next_query, 'remaining_ids')
     next_query = _.omit (next_query, 'tags')
 
