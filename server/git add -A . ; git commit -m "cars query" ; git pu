@@ -1,2 +1,0 @@
-git add -A . ; git commit -m "cars query" ; git push origin cars; ub 54.213.195.107
-cd microservices_classifier/; git pull && pm2 stop all && pm2 start server/app.js && pm2 logs
