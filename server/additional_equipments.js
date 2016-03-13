@@ -1,0 +1,5 @@
+
+var additional_equipments = [
+
+
+]
