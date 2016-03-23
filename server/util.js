@@ -101,7 +101,6 @@ function preprocess_query (tagsQuery, type) {
 
   switch (type) {
     case 'categories': {
-      sortBy = ESFactory.SortFactory.create ('mileage', 'asc')
       queryBody = ESFactory.QueryFactory.create ('listings_aggs', tagsQuery.tags, sortBy)
       queryBody['aggs'] = ESFactory.AggFactory.create ('avgPriceModels')
       return queryBody
@@ -113,9 +112,10 @@ function preprocess_query (tagsQuery, type) {
       return queryBody
     }
     case 'listings': {
-      sortBy = ESFactory.SortFactory.create ('engine.horsepower', 'desc')
+      sortBy = ESFactory.SortFactory.create ('make', 'asc')
       queryBody = ESFactory.QueryFactory.create ('listings', tagsQuery.tags, sortBy)
       queryBody['aggs'] = ESFactory.AggFactory.create ('avgPriceModels')
+      queryBody['sort'] = sortBy
     }
     default: {
       console.log ('[preprocess_query] unrecognized tag: ', type)

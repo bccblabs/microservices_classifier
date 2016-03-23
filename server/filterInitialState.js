@@ -2,7 +2,7 @@
 
 
 var FilterInitialState = {
-  cylinders: {
+  cylinder: {
     min: 0,
     max: 12,
   },
@@ -56,6 +56,7 @@ var FilterInitialState = {
   compressorType: [],
   drivetrain: [],
   equipments: [],
+  bodyType: []
 }
 
 exports = module.exports = FilterInitialState
