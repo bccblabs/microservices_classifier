@@ -115,7 +115,6 @@ var AggFactory = {
 var _ = require ('underscore-node')
 var FilterFactory = {
   create: function (tag) {
-    // console.log (tag)
     switch (tag.category) {
       case 'bodyType': {
         return Filters.TermsFilter ('bodyType', tag.value)
@@ -123,14 +122,16 @@ var FilterFactory = {
       case 'compressorType': {
         return Filters.TermsFilter ('engine.compressorType', tag.value)
       }
-      case 'cylinder': {
-        return Filters.RangeFilter ('engine.cylinder', 'gte', tag.value)
+      case 'cylinder':
+      case 'cylinders': {
+        return Filters.RangeFilter ('engine.cylinder', tag.value)
       }
       case 'depreciation': {
-        return Filters.RangeFilter ('ownership_costs.depreciation', 'lte', tag.value)
+        return Filters.RangeFilter ('ownership_costs.depreciation', tag.value)
       }
+      case 'distance':
       case 'displacement': {
-        return Filters.RangeFilter ('engine.displacement', 'gte', tag.value)
+        return Filters.RangeFilter ('engine.displacement', tag.value)
       }
       case 'drivetrain': {
         return Filters.CommonFilter ('drivetrain', tag.value)
@@ -139,10 +140,10 @@ var FilterFactory = {
         return Filters.CommonFilter  ('equipments', tag.value)
       }
       case 'horsepower': {
-        return Filters.RangeFilter ('engine.horsepower', 'gte', tag.value)
+        return Filters.RangeFilter ('engine.horsepower', tag.value)
       }
-      case 'has_incentives': {
-        return Filters.RangeFilter ('incentives.total_incentives_cnt', 'gt', 0)
+      case 'incentives': {
+        return Filters.RangeFilter ('incentives.total_incentives_cnt', tag.value)
       }
       case 'insurance': {
         return Filters.RangeFilter ('ownership_costs.insurance', 'lte', tag.value)
@@ -157,23 +158,23 @@ var FilterFactory = {
         return Filters.TermsFilter ('model', tag.value)
       }
       case 'prices': {
-        var priceRange = Filters.RangeFilter ('prices.price_value', 'lte', tag.value)
+        var priceRange = Filters.RangeFilter ('prices.price_value', tag.value)
         return Filters.NestedFilter ('prices', undefined, priceRange)
       }
-      case 'recall': {
-        return Filters.RangeFilter ('recalls.count', 'lte', 0)
+      case 'recalls': {
+        return Filters.RangeFilter ('recalls.count', 0)
       }
       case 'carsRecalled': {
-        return Filters.RangeFilter ('recalls.total_cars_affected', 'gte', tag.value)
+        return Filters.RangeFilter ('recalls.total_cars_affected', tag.value)
       }
       case 'repairs': {
-        return Filters.RangeFilter ('ownership_costs.repairs', 'lte', tag.value)
+        return Filters.RangeFilter ('ownership_costs.repairs', tag.value)
       }
-      case 'top_safety': {
-        return Filters.TermFilter ('safety.nhtsa_overall', 5)
+      case 'nhtsa_overall': {
+        return Filters.RangeFilter ('safety.nhtsa_overall', tag.value)
       }
       case 'torque': {
-        return Filters.RangeFilter ('engine.torque', 'gte', tag.value)
+        return Filters.RangeFilter ('engine.torque', tag.value)
       }
       case 'transmission': {
         return Filters.TermsFilter ('transmission.transmissionType', tag.value)
@@ -182,7 +183,7 @@ var FilterFactory = {
         return Filters.TermsFilter ('year', tag.value)
       }
       case 'zero_sixty': {
-        return Filters.RangeFilter ('dimensions.zero_sixty', 'lte', tag.value)
+        return Filters.RangeFilter ('dimensions.zero_sixty', tag.value)
       }
       default: {
         console.log ('unrecognized tag category: ', tag.category)
@@ -194,13 +195,19 @@ var FilterFactory = {
 
 var QueryFactory = {
   create: function (type, tags, sortBy) {
-    switch (type) {
-      case 'listings': {
-        var parentQuery = {has_parent: {parent_type: 'trim', query: {bool: {must: []}}}},
-            query = {'_source': 0,'size': 0,'query': {'bool': {'must': []}}}
+    var parentQuery = {has_parent: {parent_type: 'trim', query: {bool: {must: []}}}},
+        query = {_source: 0, size: 0, query: {bool: {must: []}}}
 
+    switch (type) {
+      case 'listings_aggs':
+      case 'listings': {
+        query['_source'] = 1
+        query['size'] = 20
+        if (tags.length === 0 ) {
+          query.query.bool.must.push ({match_all: {}})
+          return query
+        }
         _.each (tags, function (tag) {
-            // console.log (tag)
             if (tag.category === 'prices' || tag.category === 'mileage' || tag.category === 'color') {
               query['query']['bool']['must'].push (FilterFactory.create(tag))
             } else {

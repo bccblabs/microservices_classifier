@@ -48,18 +48,48 @@ describe ('[Test Suit 0] elasticsearch query and aggregations', function () {
     //         done()
     //       })
     // });
+    //
+    // it ('[tc3] => GET /listings', function (done) {
+    //   chai.request (server)
+    //       .get ('/listings')
+    //       .query ({'pageNum': '0'})
+    //       .query ({'pageSize': 10})
+    //       .query ({'subPageNum': '0'})
+    //       .query ({'subPageSize': 3})
+    //       .end (function (err, res) {
+    //         console.log (JSON.stringify(res.body, null, 2))
+    //         res.should.have.status (200)
+    //         done()
+    //       })
+    // })
 
-    it ('[tc3] => GET /listings', function (done) {
+    it ('[tc0] incentives query', function (done) {
       chai.request (server)
-          .get ('/listings')
-          .query ({'pageNum': '0'})
-          .query ({'pageSize': 10})
-          .query ({'subPageNum': '0'})
-          .query ({'subPageSize': 3})
-          .end (function (err, res) {
-            console.log (JSON.stringify(res.body, null, 2))
-            res.should.have.status (200)
-            done()
-          })
+      .post ('listings')
+      .send (
+        { cylinders: { min: 0, max: 12 },
+          distance: { min: 0, max: 20 },
+          displacement: { min: 100, max: 10000 },
+          horsepower: { min: 0, max: 1000 },
+          incentives: { min: 1, max: 1000 },
+          torque: { min: 0, max: 1000 },
+          prices: { min: 0, max: 200000 },
+          mileage: { min: 0, max: 200000 },
+          recalls: { min: 0, max: 10 },
+          years: { min: 1900, max: 2017 },
+          mpg: { min: 5, max: 40 },
+          zero_sixty: { min: 1, max: 10 },
+          makes: [],
+          models: [],
+          transmission: [],
+          compressorType: [],
+          drivetrain: [],
+          equipments: []
+        })
+      .end (function (err, res) {
+        console.log (JSON.stringify(res.body, null, 2))
+        res.should.have.status (200)
+        done()
+      })
     })
 })

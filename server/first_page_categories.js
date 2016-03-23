@@ -4,15 +4,15 @@ var first_page_categories = [
     placeholders: [
       {
         name: 'incentives',
-        tags: [{category: 'has_incentives', value: true}]
+        tags: [{category: 'incentives', value: {min: 1}}]
       },
       {
         name: '40+ mpg hwy',
-        tags: [{category: 'mpg', value: 40}]
+        tags: [{category: 'mpg', value: {min: 40}}]
       },
       {
         name: 'edmunds\' cheapest repairs',
-        tags: [{category: 'repairs', value: 950}],
+        tags: [{category: 'repairs', value: {max: 950}}],
 
       }
     ],
@@ -20,43 +20,38 @@ var first_page_categories = [
       {
         name: '200+hp under $15k',
         tags: [
-          {category: 'horsepower', value: 200},
+          {category: 'horsepower', value: {min: 200}},
           {category: 'bodyType', value: ["Coupe", "Convertible", "Hatchback"]},
-          {category: 'prices', value: 15000}
+          {category: 'prices', value: {max: 15000}}
         ]
       },
       {
         name: 'cars w/ third row under $15k',
         tags: [
           {category: 'equipments', value: ['third row']},
-          {category: 'prices', value: 20000}
+          {category: 'prices', value: {max: 20000}}
         ]
       },
       {
         name: 'all wheel drive under $15k',
         tags: [
-          {category: 'drivetrain', value: 'all wheel drive'},
-          {category: 'prices', value: 15000 }
+          {category: 'drivetrain', value: ['all wheel drive']},
+          {category: 'prices', value: {max: 15000} }
         ]
       },
       {
         name: 'hybrid',
         tags: [
-          {
-            category: 'equipments',
-            value: [
-              'hybrid'
-            ]
-          }
+          {category: 'equipments',value: ['hybrid']}
         ]
       },
       {
          name: 'cheap depreciation',
-         tags: [{category: 'depreciation', value: 7801}]
+         tags: [{category: 'depreciation', value: {max: 7801}}]
        },
        {
          name: 'cheap insurance',
-         tags: [{category: 'insurance', value: 9300}]
+         tags: [{category: 'insurance', value: {max: 9300}}]
        }
     ]
   },
@@ -66,37 +61,37 @@ var first_page_categories = [
       {
         name: 'American Premium',
         tags: [
-            {category: 'prices', value: 35000}, {category: 'makes', value: ['chevrolet', 'ford', 'gmc', 'tesla', 'cadillac', 'buick', 'lincoln', 'amc', 'chrysler', 'hummer']}
+          {category: 'makes', value: ['lincoln', 'cadillac', 'gmc', 'am']}
         ]
       },
       {
         name: 'Japanese Premium',
         tags: [
-          {category: 'prices', value: 35000}, {category: 'makes', value: ['acura', 'infiniti', 'lexus']}
+          {category: 'makes', value: ['acura', 'infiniti', 'lexus']}
         ]
       },
       {
         name: 'european',
-        tags: [{category: 'makes', value: require ('./european_makes.js')}, {category: 'prices', value: 35000}]
+        tags: [{category: 'makes', value: require ('./european_makes.js')}]
       }
     ],
     searches: [
       {
         name: 'British',
         tags: [
-          {category: 'prices', value: 35000}, {category: 'makes', value: ['bentley','jaguar','land-rover','mini', 'rolls-royce']}
+          {category: 'makes', value: ['bentley','jaguar','land-rover','mini', 'rolls-royce']}
         ]
       },
       {
         name: 'German',
         tags: [
-          {category: 'prices', value: 35000}, {category: 'makes', value: ['audi', 'bmw', 'mercedes-benz', 'porsche']}
+          {category: 'makes', value: ['audi', 'bmw', 'mercedes-benz', 'porsche']}
         ]
       },
       {
         name: 'Italian',
         tags: [
-          {category: 'prices', value: 35000}, {category: 'makes', value: ['ferrari', 'lamborghini', 'fiat']}
+          {category: 'makes', value: ['ferrari', 'lamborghini', 'fiat']}
         ]
       }
     ]
@@ -107,32 +102,19 @@ var first_page_categories = [
       {
         name: 'sunroof',
         tags: [
-          {
-            category: 'equipments',
-            value: [
-              'sunroof'
-            ]
-          }
+          {category: 'equipments', value: ['sunroof']}
         ]
       },
       {
         name: 'massaging seat',
         tags: [
-          {
-            category: 'equipments',
-            value: [
-              'massaging'
-            ]
-          }
+          {category: 'equipments', value: ['massaging']}
         ]
-      },    {
+      },
+      {
         name: 'navigation',
         tags: [
-          {
-            category: 'equipments',
-            value: [
-              'navigation'
-            ]
+          {category: 'equipments', value: ['navigation']
           }
         ]
       }
@@ -201,7 +183,7 @@ var first_page_categories = [
     placeholders: [
       {
         name: '8+ cylinders',
-        tags: [{category: 'cylinder', value: 8}]
+        tags: [{category: 'cylinder', value: {min: 8}}]
       },
       {
         name: 'limited-slip differentinal',
@@ -278,7 +260,7 @@ var first_page_categories = [
       {
         name: '300hp+ w/ manual',
         tags: [
-          {category: 'horsepower', value: 300},
+          {category: 'horsepower', value: {min: 300}},
           {category: 'transmission', value: ['manual']}
         ]
       },
@@ -287,13 +269,13 @@ var first_page_categories = [
         tags: [
           {
             category: 'displacement',
-            value: 4000
+            value: {min: 4000}
           }
         ]
       },
       {
         name: '400+ hp',
-        tags: [{category: 'horsepower', value: 400}]
+        tags: [{category: 'horsepower', value: {min: 400}}]
       },
       {
         name: 'bucket seats',
@@ -313,11 +295,11 @@ var first_page_categories = [
     placeholders: [
       {
         name: '5/5 nhtsa overall',
-        tags: [{category: 'top_safety'}]
+        tags: [{category: 'nhtsa_overall' , value: {min: 5}}]
       },
       {
         name: 'no_recalls',
-        tags: [{category: 'recall', value: 0}]
+        tags: [{category: 'recalls', value: {max: 0}}]
       },
       {
         name: 'traction+stability control',
@@ -338,30 +320,20 @@ var first_page_categories = [
         tags: [
           {
             category: 'equipments',
-            value: [
-              'post-collision'
-            ]
+            value: ['post-collision']
           }
         ]
       },
       {
         name: 'knee airbags',
         tags: [
-          {
-            category: 'equipments',
-            value: [
-              'knee airbags'
-            ]
-          }
+          {category: 'equipments',value: ['knee airbags']}
         ]
       },
       {
-        name: '10,000,000+ recalled',
+        name: '1,000,000+ recalled',
         tags: [
-          {
-            category: 'carsRecalled',
-            value: 10000000
-          }
+          {category: 'carsRecalled', value: {min: 1000000}}
         ]
       }
     ]

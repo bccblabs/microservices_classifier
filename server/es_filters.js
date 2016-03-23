@@ -5,10 +5,13 @@ var CommonFilter = function (field, value) {
   return common_json
 }
 
-var RangeFilter = function (field, type, value) {
+var RangeFilter = function (field, value) {
   var filter_json = {'range': {}}
   filter_json['range'][field] = {}
-  filter_json['range'][field][type] = value
+  if (typeof value.min !== 'undefined')
+    filter_json['range'][field]['gte'] = value.min
+  if (typeof value.max !== 'undefined')
+    filter_json['range'][field]['lte'] = value.max
   return filter_json
 }
 
