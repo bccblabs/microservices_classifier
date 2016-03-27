@@ -1,6 +1,7 @@
 'use strict'
 var _ = require ('underscore-node')
 var ESFactory = require ('./es_factory')
+var diff = require('changeset')
 var filterInitialState = require ('./filterInitialState')
 
 var pretty_print = function (obj) {console.log (JSON.stringify (obj, null, 2))}
@@ -10,18 +11,6 @@ var defaultCarSort = {'engine.horsepower': {'order': 'desc'}}
 
 var defaultListingsSort = {"mileage": {"order": "desc"}}
 
-// use at the first level search, when no specific models
-var categoryListingsAgg = {
-}
-
-var listingCntAvgPricePerTrimAgg = {
-}
-
-// use at searchlisting, agg avg price per make/model/gen
-var listingAvgPricePerTrimAggs = {
-}
-
-// use when click into listing and then see how it ranks again search results
 function rank_listing (metrics) {
   var listingAggQuery = {}
   _.each (_.keys (metrics), function (key) {
@@ -90,13 +79,7 @@ function rank_listing (metrics) {
   return listingAggQuery
 }
 
-function filterListingSearchTags (item) {
-  return item.category === 'mileage' || item.category === 'max_price' || item.category === 'ext_color' ||
-  item.category === 'int_color' || item.category === 'seller_location';
-}
-
-// tagsQuery: request_body.tags
-function preprocess_query (tagsQuery, type) {
+function processTagsQuery (tagsQuery, type) {
   var sortBy, queryBody
 
   switch (type) {
@@ -116,6 +99,12 @@ function preprocess_query (tagsQuery, type) {
       queryBody = ESFactory.QueryFactory.create ('listings', tagsQuery.tags, sortBy)
       queryBody['aggs'] = ESFactory.AggFactory.create ('avgPriceModels')
       queryBody['sort'] = sortBy
+      return queryBody
+    }
+    case 'make_model_aggs' : {
+      queryBody = ESFactory.QueryFactory.create ('trims', tagsQuery.tags, undefined)
+      queryBody['aggs'] = ESFactory.AggFactory.create ('makeModelYears')
+      return queryBody
     }
     default: {
       console.log ('[preprocess_query] unrecognized tag: ', type)
@@ -124,8 +113,22 @@ function preprocess_query (tagsQuery, type) {
   }
 }
 
+function preprocessQuery (userQuery, queryType) {
+  var dirtyFilters = diff (userQuery, filterInitialState),
+      tagsQuery = { category: queryType, tags: []},
+      categories = []
 
-exports.preprocess_query = module.exports.preprocess_query = preprocess_query
-exports.rank_listing = module.exports.rank_listing = rank_listing
+      _.each (dirtyFilters, function (filterDiff) {
+        categories.push (filterDiff.key[0])
+      })
+
+      _.each (_.uniq (categories), function (category) {
+        tagsQuery.tags.push ({category: category, value: userQuery[category]})
+      })
+  return processTagsQuery (tagsQuery, queryType)
+}
 
 exports.pretty_print = module.exports.pretty_print =  pretty_print
+exports.preprocessQuery = module.exports.preprocessQuery = preprocessQuery
+exports.processTagsQuery = module.exports.processTagsQuery = processTagsQuery
+exports.rank_listing = module.exports.rank_listing = rank_listing

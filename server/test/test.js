@@ -62,17 +62,17 @@ describe ('[Test Suit 0] elasticsearch query and aggregations', function () {
     //         done()
     //       })
     // })
-
-    it ('[tc0] incentives query', function (done) {
+    //
+    it ('[tc0] test query', function (done) {
       chai.request (server)
-      .post ('listings')
+      .post ('/makeModelAggs')
       .send (
-        { cylinders: { min: 0, max: 12 },
+        { cylinder: { min: 0, max: 12 },
           distance: { min: 0, max: 20 },
           displacement: { min: 100, max: 10000 },
           horsepower: { min: 0, max: 1000 },
-          incentives: { min: 1, max: 1000 },
-          torque: { min: 0, max: 1000 },
+          incentives: { min: 0, max: 1000 },
+          torque: { min: 400, max: 1000 },
           prices: { min: 0, max: 200000 },
           mileage: { min: 0, max: 200000 },
           recalls: { min: 0, max: 10 },
@@ -84,10 +84,11 @@ describe ('[Test Suit 0] elasticsearch query and aggregations', function () {
           transmission: [],
           compressorType: [],
           drivetrain: [],
-          equipments: []
+          equipments: [],
+          bodyType: []
         })
       .end (function (err, res) {
-        console.log (JSON.stringify(res.body, null, 2))
+        // console.log (JSON.stringify(res.body, null, 2))
         res.should.have.status (200)
         done()
       })

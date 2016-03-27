@@ -1,0 +1,996 @@
+{
+    "accepts@1.2.13": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/jshttp/accepts",
+        "licenseUrl": "git+https://github.com/jshttp/accepts/raw/master/LICENSE",
+        "parents": "express:app"
+    },
+    "ansi-regex@2.0.0": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/sindresorhus/ansi-regex",
+        "licenseUrl": "git+https://github.com/sindresorhus/ansi-regex/raw/master/license",
+        "parents": "has-ansi:chalk:elasticsearch:app"
+    },
+    "ansi-styles@2.2.0": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/chalk/ansi-styles",
+        "licenseUrl": "git+https://github.com/chalk/ansi-styles/raw/master/license",
+        "parents": "chalk:elasticsearch:app"
+    },
+    "array-flatten@1.1.1": {
+        "licenses": "MIT",
+        "repository": "https://github.com/blakeembrey/array-flatten",
+        "licenseUrl": "https://github.com/blakeembrey/array-flatten/raw/master/LICENSE",
+        "parents": "express:app"
+    },
+    "asn1@0.2.3": {
+        "licenses": "MIT",
+        "repository": "https://github.com/mcavage/node-asn1",
+        "licenseUrl": "https://github.com/mcavage/node-asn1/raw/master/LICENSE",
+        "parents": "sshpk:http-signature:request:app"
+    },
+    "assert-plus@0.2.0": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/mcavage/node-assert-plus",
+        "licenseUrl": "git+https://github.com/mcavage/node-assert-plus",
+        "parents": "http-signature:request:app"
+    },
+    "assert-plus@1.0.0": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/mcavage/node-assert-plus",
+        "licenseUrl": "git+https://github.com/mcavage/node-assert-plus",
+        "parents": "dashdash:sshpk:http-signature:request:app"
+    },
+    "assert@1.3.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/defunctzombie/commonjs-assert",
+        "licenseUrl": "https://github.com/defunctzombie/commonjs-assert/raw/master/LICENSE",
+        "parents": "app"
+    },
+    "assertion-error@1.0.1": {
+        "licenses": "MIT",
+        "repository": "https://github.com/chaijs/assertion-error",
+        "licenseUrl": "https://github.com/chaijs/assertion-error",
+        "parents": "chai:app"
+    },
+    "async@0.9.2": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/caolan/async",
+        "licenseUrl": "git+https://github.com/caolan/async/raw/master/LICENSE",
+        "parents": "form-data:superagent:chai-http:app"
+    },
+    "async@1.5.2": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/caolan/async",
+        "licenseUrl": "git+https://github.com/caolan/async/raw/master/LICENSE",
+        "parents": "app"
+    },
+    "aws-sdk@2.2.41": {
+        "licenses": "Apache-2.0",
+        "repository": "https://github.com/aws/aws-sdk-js",
+        "licenseUrl": "https://github.com/aws/aws-sdk-js/raw/master/LICENSE.txt",
+        "parents": "app"
+    },
+    "aws-sign2@0.6.0": {
+        "licenses": "Apache-2.0",
+        "repository": "git+https://github.com/mikeal/aws-sign",
+        "licenseUrl": "git+https://github.com/mikeal/aws-sign/raw/master/LICENSE",
+        "parents": "request:app"
+    },
+    "aws4@1.3.2": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/mhart/aws4",
+        "licenseUrl": "git+https://github.com/mhart/aws4/raw/master/LICENSE",
+        "parents": "request:app"
+    },
+    "bl@1.0.3": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/rvagg/bl",
+        "licenseUrl": "git+https://github.com/rvagg/bl/raw/master/LICENSE.md",
+        "parents": "request:app"
+    },
+    "bluebird@2.10.2": {
+        "licenses": "MIT",
+        "repository": "https://github.com/petkaantonov/bluebird",
+        "licenseUrl": "https://github.com/petkaantonov/bluebird/raw/master/LICENSE",
+        "parents": "express-validator:app"
+    },
+    "bluebird@3.3.4": {
+        "licenses": "MIT",
+        "repository": "https://github.com/petkaantonov/bluebird",
+        "licenseUrl": "https://github.com/petkaantonov/bluebird/raw/master/LICENSE",
+        "parents": "app"
+    },
+    "body-parser@1.14.2": {
+        "licenses": "MIT",
+        "repository": "https://github.com/expressjs/body-parser",
+        "licenseUrl": "https://github.com/expressjs/body-parser/raw/master/LICENSE",
+        "parents": "app"
+    },
+    "boom@2.10.1": {
+        "licenses": "BSD-3-Clause",
+        "repository": "https://github.com/hapijs/boom",
+        "licenseUrl": "https://github.com/hapijs/boom/raw/master/LICENSE",
+        "parents": "hawk:request:app"
+    },
+    "bytes@2.2.0": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/visionmedia/bytes.js",
+        "licenseUrl": "git+https://github.com/visionmedia/bytes.js/raw/master/LICENSE",
+        "parents": "body-parser:app"
+    },
+    "caseless@0.11.0": {
+        "licenses": "Apache-2.0",
+        "repository": "git+https://github.com/mikeal/caseless",
+        "licenseUrl": "git+https://github.com/mikeal/caseless/raw/master/LICENSE",
+        "parents": "request:app"
+    },
+    "chai-http@1.0.0": {
+        "licenses": "MIT*",
+        "repository": "https://github.com/chaijs/chai-http",
+        "licenseUrl": "https://github.com/chaijs/chai-http/raw/master/README.md",
+        "parents": "app"
+    },
+    "chai@3.2.0": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/chaijs/chai",
+        "licenseUrl": "git+https://github.com/chaijs/chai",
+        "parents": "app"
+    },
+    "chalk@1.1.1": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/chalk/chalk",
+        "licenseUrl": "git+https://github.com/chalk/chalk/raw/master/license",
+        "parents": "elasticsearch:app"
+    },
+    "changeset@0.1.0": {
+        "licenses": "BSD-3-Clause",
+        "repository": "https://github.com/eugeneware/changeset",
+        "licenseUrl": "https://github.com/eugeneware/changeset/raw/master/LICENSE",
+        "parents": "app"
+    },
+    "color-convert@1.0.0": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/qix-/color-convert",
+        "licenseUrl": "git+https://github.com/qix-/color-convert/raw/master/LICENSE",
+        "parents": "ansi-styles:chalk:elasticsearch:app"
+    },
+    "combined-stream@0.0.7": {
+        "licenses": "MIT*",
+        "repository": "https://github.com/felixge/node-combined-stream",
+        "licenseUrl": "https://github.com/felixge/node-combined-stream/raw/master/License",
+        "parents": "form-data:superagent:chai-http:app"
+    },
+    "combined-stream@1.0.5": {
+        "licenses": "MIT",
+        "repository": "https://github.com/felixge/node-combined-stream",
+        "licenseUrl": "https://github.com/felixge/node-combined-stream/raw/master/License",
+        "parents": "request:app"
+    },
+    "commander@2.9.0": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/tj/commander.js",
+        "licenseUrl": "git+https://github.com/tj/commander.js/raw/master/LICENSE",
+        "parents": "har-validator:request:app"
+    },
+    "component-emitter@1.1.2": {
+        "licenses": "UNKNOWN",
+        "repository": "git+https://github.com/component/emitter",
+        "licenseUrl": "git+https://github.com/component/emitter",
+        "parents": "superagent:chai-http:app"
+    },
+    "component-emitter@1.2.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/component/emitter",
+        "licenseUrl": "https://github.com/component/emitter/raw/master/LICENSE",
+        "parents": "superagent:supertest:app"
+    },
+    "content-disposition@0.5.1": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/jshttp/content-disposition",
+        "licenseUrl": "git+https://github.com/jshttp/content-disposition/raw/master/LICENSE",
+        "parents": "express:app"
+    },
+    "content-type@1.0.1": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/jshttp/content-type",
+        "licenseUrl": "git+https://github.com/jshttp/content-type/raw/master/LICENSE",
+        "parents": "body-parser:app"
+    },
+    "cookie-signature@1.0.6": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/visionmedia/node-cookie-signature",
+        "licenseUrl": "git+https://github.com/visionmedia/node-cookie-signature",
+        "parents": "express:app"
+    },
+    "cookie@0.1.5": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/jshttp/cookie",
+        "licenseUrl": "git+https://github.com/jshttp/cookie/raw/master/LICENSE",
+        "parents": "express:app"
+    },
+    "cookiejar@2.0.1": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/bmeck/node-cookiejar",
+        "licenseUrl": "git+https://github.com/bmeck/node-cookiejar/raw/master/LICENSE",
+        "parents": "superagent:chai-http:app"
+    },
+    "cookiejar@2.0.6": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/bmeck/node-cookiejar",
+        "licenseUrl": "git+https://github.com/bmeck/node-cookiejar/raw/master/LICENSE",
+        "parents": "chai-http:app"
+    },
+    "core-util-is@1.0.2": {
+        "licenses": "MIT",
+        "repository": "https://github.com/isaacs/core-util-is",
+        "licenseUrl": "https://github.com/isaacs/core-util-is/raw/master/LICENSE",
+        "parents": "readable-stream:bl:request:app"
+    },
+    "cryptiles@2.0.5": {
+        "licenses": "BSD-3-Clause",
+        "repository": "https://github.com/hapijs/cryptiles",
+        "licenseUrl": "https://github.com/hapijs/cryptiles/raw/master/LICENSE",
+        "parents": "hawk:request:app"
+    },
+    "dashdash@1.13.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/trentm/node-dashdash",
+        "licenseUrl": "https://github.com/trentm/node-dashdash",
+        "parents": "sshpk:http-signature:request:app"
+    },
+    "debug@1.0.4": {
+        "licenses": "UNKNOWN",
+        "repository": "https://github.com/visionmedia/debug",
+        "licenseUrl": "https://github.com/visionmedia/debug",
+        "parents": "superagent:chai-http:app"
+    },
+    "debug@2.2.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/visionmedia/debug",
+        "licenseUrl": "https://github.com/visionmedia/debug",
+        "parents": "body-parser:app"
+    },
+    "deep-diff@0.3.3": {
+        "licenses": "MIT",
+        "repository": "https://github.com/flitbit/diff",
+        "licenseUrl": "https://github.com/flitbit/diff/raw/master/LICENSE",
+        "parents": "app"
+    },
+    "deep-eql@0.1.3": {
+        "licenses": "MIT",
+        "repository": "https://github.com/chaijs/deep-eql",
+        "licenseUrl": "https://github.com/chaijs/deep-eql",
+        "parents": "chai:app"
+    },
+    "delayed-stream@0.0.5": {
+        "licenses": "MIT*",
+        "repository": "https://github.com/felixge/node-delayed-stream",
+        "licenseUrl": "https://github.com/felixge/node-delayed-stream/raw/master/License",
+        "parents": "combined-stream:form-data:superagent:chai-http:app"
+    },
+    "delayed-stream@1.0.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/felixge/node-delayed-stream",
+        "licenseUrl": "https://github.com/felixge/node-delayed-stream/raw/master/License",
+        "parents": "combined-stream:request:app"
+    },
+    "depd@1.1.0": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/dougwilson/nodejs-depd",
+        "licenseUrl": "git+https://github.com/dougwilson/nodejs-depd/raw/master/LICENSE",
+        "parents": "body-parser:app"
+    },
+    "destroy@1.0.4": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/stream-utils/destroy",
+        "licenseUrl": "git+https://github.com/stream-utils/destroy/raw/master/LICENSE",
+        "parents": "send:express:app"
+    },
+    "ecc-jsbn@0.1.1": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/quartzjer/ecc-jsbn",
+        "licenseUrl": "git+https://github.com/quartzjer/ecc-jsbn/raw/master/LICENSE",
+        "parents": "sshpk:http-signature:request:app"
+    },
+    "ee-first@1.1.1": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/jonathanong/ee-first",
+        "licenseUrl": "git+https://github.com/jonathanong/ee-first/raw/master/LICENSE",
+        "parents": "on-finished:body-parser:app"
+    },
+    "elasticsearch@10.1.3": {
+        "licenses": "Apache-2.0",
+        "repository": "git+ssh://git@github.com/elastic/elasticsearch-js",
+        "licenseUrl": "git+ssh://git@github.com/elastic/elasticsearch-js/raw/master/LICENSE",
+        "parents": "app"
+    },
+    "escape-html@1.0.3": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/component/escape-html",
+        "licenseUrl": "git+https://github.com/component/escape-html/raw/master/LICENSE",
+        "parents": "express:app"
+    },
+    "escape-string-regexp@1.0.5": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/sindresorhus/escape-string-regexp",
+        "licenseUrl": "git+https://github.com/sindresorhus/escape-string-regexp/raw/master/license",
+        "parents": "chalk:elasticsearch:app"
+    },
+    "etag@1.7.0": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/jshttp/etag",
+        "licenseUrl": "git+https://github.com/jshttp/etag/raw/master/LICENSE",
+        "parents": "express:app"
+    },
+    "express-validator@2.19.1": {
+        "licenses": "MIT",
+        "repository": "https://github.com/ctavan/express-validator",
+        "licenseUrl": "https://github.com/ctavan/express-validator/raw/master/LICENSE",
+        "parents": "app"
+    },
+    "express@4.13.4": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/expressjs/express",
+        "licenseUrl": "git+https://github.com/expressjs/express/raw/master/LICENSE",
+        "parents": "app"
+    },
+    "extend@1.2.1": {
+        "licenses": "UNKNOWN",
+        "repository": "git+https://github.com/justmoon/node-extend",
+        "licenseUrl": "git+https://github.com/justmoon/node-extend",
+        "parents": "superagent:chai-http:app"
+    },
+    "extend@3.0.0": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/justmoon/node-extend",
+        "licenseUrl": "git+https://github.com/justmoon/node-extend/raw/master/LICENSE",
+        "parents": "request:app"
+    },
+    "extsprintf@1.0.2": {
+        "licenses": "UNKNOWN",
+        "repository": "https://github.com/davepacheco/node-extsprintf",
+        "licenseUrl": "https://github.com/davepacheco/node-extsprintf/raw/master/LICENSE",
+        "parents": "jsprim:http-signature:request:app"
+    },
+    "finalhandler@0.4.1": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/pillarjs/finalhandler",
+        "licenseUrl": "git+https://github.com/pillarjs/finalhandler/raw/master/LICENSE",
+        "parents": "express:app"
+    },
+    "forever-agent@0.6.1": {
+        "licenses": "Apache-2.0",
+        "repository": "git+https://github.com/mikeal/forever-agent",
+        "licenseUrl": "git+https://github.com/mikeal/forever-agent/raw/master/LICENSE",
+        "parents": "elasticsearch:app"
+    },
+    "form-data@0.1.3": {
+        "licenses": "MIT",
+        "repository": "https://github.com/felixge/node-form-data",
+        "licenseUrl": "https://raw.github.com/felixge/node-form-data/master/License",
+        "parents": "superagent:chai-http:app"
+    },
+    "form-data@1.0.0-rc3": {
+        "licenses": "MIT",
+        "repository": "https://github.com/form-data/form-data",
+        "licenseUrl": "https://github.com/form-data/form-data/raw/master/License",
+        "parents": "request:app"
+    },
+    "formidable@1.0.14": {
+        "licenses": "MIT*",
+        "repository": "https://github.com/felixge/node-formidable",
+        "licenseUrl": "https://github.com/felixge/node-formidable/raw/master/LICENSE",
+        "parents": "superagent:chai-http:app"
+    },
+    "formidable@1.0.17": {
+        "licenses": "UNKNOWN",
+        "repository": "https://github.com/felixge/node-formidable",
+        "licenseUrl": "https://github.com/felixge/node-formidable/raw/master/LICENSE",
+        "parents": "superagent:supertest:app"
+    },
+    "forwarded@0.1.0": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/jshttp/forwarded",
+        "licenseUrl": "git+https://github.com/jshttp/forwarded/raw/master/LICENSE",
+        "parents": "proxy-addr:express:app"
+    },
+    "fresh@0.3.0": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/jshttp/fresh",
+        "licenseUrl": "git+https://github.com/jshttp/fresh/raw/master/LICENSE",
+        "parents": "express:app"
+    },
+    "generate-function@2.0.0": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/mafintosh/generate-function",
+        "licenseUrl": "git+https://github.com/mafintosh/generate-function",
+        "parents": "is-my-json-valid:har-validator:request:app"
+    },
+    "generate-object-property@1.2.0": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/mafintosh/generate-object-property",
+        "licenseUrl": "git+https://github.com/mafintosh/generate-object-property/raw/master/LICENSE",
+        "parents": "is-my-json-valid:har-validator:request:app"
+    },
+    "graceful-readlink@1.0.1": {
+        "licenses": "MIT",
+        "repository": "https://github.com/zhiyelee/graceful-readlink",
+        "licenseUrl": "https://github.com/zhiyelee/graceful-readlink/raw/master/LICENSE",
+        "parents": "commander:har-validator:request:app"
+    },
+    "har-validator@2.0.6": {
+        "licenses": "ISC",
+        "repository": "git+https://github.com/ahmadnassri/har-validator",
+        "licenseUrl": "git+https://github.com/ahmadnassri/har-validator/raw/master/LICENSE",
+        "parents": "request:app"
+    },
+    "has-ansi@2.0.0": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/sindresorhus/has-ansi",
+        "licenseUrl": "git+https://github.com/sindresorhus/has-ansi/raw/master/license",
+        "parents": "chalk:elasticsearch:app"
+    },
+    "hawk@3.1.3": {
+        "licenses": "BSD-3-Clause",
+        "repository": "https://github.com/hueniverse/hawk",
+        "licenseUrl": "https://github.com/hueniverse/hawk/raw/master/LICENSE",
+        "parents": "request:app"
+    },
+    "hoek@2.16.3": {
+        "licenses": "BSD-3-Clause",
+        "repository": "https://github.com/hapijs/hoek",
+        "licenseUrl": "https://github.com/hapijs/hoek/raw/master/LICENSE",
+        "parents": "hawk:request:app"
+    },
+    "http-errors@1.3.1": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/jshttp/http-errors",
+        "licenseUrl": "git+https://github.com/jshttp/http-errors/raw/master/LICENSE",
+        "parents": "body-parser:app"
+    },
+    "http-signature@1.1.1": {
+        "licenses": "MIT",
+        "repository": "https://github.com/joyent/node-http-signature",
+        "licenseUrl": "https://github.com/joyent/node-http-signature/raw/master/LICENSE",
+        "parents": "request:app"
+    },
+    "iconv-lite@0.4.13": {
+        "licenses": "MIT",
+        "repository": "https://github.com/ashtuchkin/iconv-lite",
+        "licenseUrl": "https://github.com/ashtuchkin/iconv-lite/raw/master/LICENSE",
+        "parents": "body-parser:app"
+    },
+    "immutable@3.7.6": {
+        "licenses": "BSD-3-Clause",
+        "repository": "https://github.com/facebook/immutable-js",
+        "licenseUrl": "https://github.com/facebook/immutable-js/raw/master/LICENSE",
+        "parents": "app"
+    },
+    "inherits@2.0.1": {
+        "licenses": "ISC",
+        "repository": "https://github.com/isaacs/inherits",
+        "licenseUrl": "https://github.com/isaacs/inherits/raw/master/LICENSE",
+        "parents": "http-errors:body-parser:app"
+    },
+    "ipaddr.js@1.0.5": {
+        "licenses": "MIT",
+        "repository": "https://github.com/whitequark/ipaddr.js",
+        "licenseUrl": "https://github.com/whitequark/ipaddr.js/raw/master/LICENSE",
+        "parents": "proxy-addr:express:app"
+    },
+    "is-my-json-valid@2.13.1": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/mafintosh/is-my-json-valid",
+        "licenseUrl": "git+https://github.com/mafintosh/is-my-json-valid/raw/master/LICENSE",
+        "parents": "har-validator:request:app"
+    },
+    "is-property@1.0.2": {
+        "licenses": "MIT",
+        "repository": "https://github.com/mikolalysenko/is-property",
+        "licenseUrl": "https://github.com/mikolalysenko/is-property/raw/master/LICENSE",
+        "parents": "generate-object-property:is-my-json-valid:har-validator:request:app"
+    },
+    "is-typedarray@1.0.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/hughsk/is-typedarray",
+        "licenseUrl": "https://github.com/hughsk/is-typedarray/raw/master/LICENSE.md",
+        "parents": "request:app"
+    },
+    "isarray@0.0.1": {
+        "licenses": "MIT",
+        "repository": "https://github.com/juliangruber/isarray",
+        "licenseUrl": "https://github.com/juliangruber/isarray",
+        "parents": "readable-stream:bl:request:app"
+    },
+    "isstream@0.1.2": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/rvagg/isstream",
+        "licenseUrl": "git+https://github.com/rvagg/isstream/raw/master/LICENSE.md",
+        "parents": "request:app"
+    },
+    "jodid25519@1.0.2": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/meganz/jodid25519",
+        "licenseUrl": "git+https://github.com/meganz/jodid25519/raw/master/LICENSE",
+        "parents": "sshpk:http-signature:request:app"
+    },
+    "jsbn@0.1.0": {
+        "licenses": "BSD",
+        "repository": "git+https://github.com/andyperlitch/jsbn",
+        "licenseUrl": "git+https://github.com/andyperlitch/jsbn/raw/master/LICENSE",
+        "parents": "sshpk:http-signature:request:app"
+    },
+    "json-schema@0.2.2": {
+        "licenses": "AFLv2.1,BSD",
+        "repository": "git+ssh://git@github.com/kriszyp/json-schema",
+        "licenseUrl": "http://trac.dojotoolkit.org/browser/dojo/trunk/LICENSE#L43,http://trac.dojotoolkit.org/browser/dojo/trunk/LICENSE#L13",
+        "parents": "jsprim:http-signature:request:app"
+    },
+    "json-stringify-safe@5.0.1": {
+        "licenses": "ISC",
+        "repository": "https://github.com/isaacs/json-stringify-safe",
+        "licenseUrl": "https://github.com/isaacs/json-stringify-safe/raw/master/LICENSE",
+        "parents": "request:app"
+    },
+    "jsonpointer@2.0.0": {
+        "licenses": "MIT",
+        "repository": "git+ssh://git@github.com/janl/node-jsonpointer",
+        "licenseUrl": "git+ssh://git@github.com/janl/node-jsonpointer",
+        "parents": "is-my-json-valid:har-validator:request:app"
+    },
+    "jsprim@1.2.2": {
+        "licenses": "MIT",
+        "repository": "https://github.com/davepacheco/node-jsprim",
+        "licenseUrl": "https://github.com/davepacheco/node-jsprim/raw/master/LICENSE",
+        "parents": "http-signature:request:app"
+    },
+    "lodash-compat@3.10.2": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/lodash/lodash-compat",
+        "licenseUrl": "git+https://github.com/lodash/lodash-compat/raw/master/LICENSE",
+        "parents": "elasticsearch:app"
+    },
+    "lodash@3.10.1": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/lodash/lodash",
+        "licenseUrl": "git+https://github.com/lodash/lodash/raw/master/LICENSE",
+        "parents": "elasticsearch:app"
+    },
+    "lodash@3.5.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/lodash/lodash",
+        "licenseUrl": "https://github.com/lodash/lodash/raw/master/LICENSE.txt",
+        "parents": "xmlbuilder:aws-sdk:app"
+    },
+    "lodash@4.2.1": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/lodash/lodash",
+        "licenseUrl": "git+https://github.com/lodash/lodash/raw/master/LICENSE",
+        "parents": "express-validator:app"
+    },
+    "lodash@4.6.1": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/lodash/lodash",
+        "licenseUrl": "git+https://github.com/lodash/lodash/raw/master/LICENSE",
+        "parents": "app"
+    },
+    "lru-cache@4.0.0": {
+        "licenses": "ISC",
+        "repository": "https://github.com/isaacs/node-lru-cache",
+        "licenseUrl": "https://github.com/isaacs/node-lru-cache/raw/master/LICENSE",
+        "parents": "aws4:request:app"
+    },
+    "media-typer@0.3.0": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/jshttp/media-typer",
+        "licenseUrl": "git+https://github.com/jshttp/media-typer/raw/master/LICENSE",
+        "parents": "type-is:body-parser:app"
+    },
+    "merge-descriptors@1.0.1": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/component/merge-descriptors",
+        "licenseUrl": "git+https://github.com/component/merge-descriptors/raw/master/LICENSE",
+        "parents": "express:app"
+    },
+    "methods@0.0.1": {
+        "licenses": "MIT",
+        "parents": "chai-http:app"
+    },
+    "methods@1.0.1": {
+        "licenses": "MIT",
+        "repository": "https://github.com/visionmedia/node-methods",
+        "licenseUrl": "https://github.com/visionmedia/node-methods/raw/master/LICENSE",
+        "parents": "superagent:chai-http:app"
+    },
+    "methods@1.1.2": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/jshttp/methods",
+        "licenseUrl": "git+https://github.com/jshttp/methods/raw/master/LICENSE",
+        "parents": "express:app"
+    },
+    "mime-db@1.22.0": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/jshttp/mime-db",
+        "licenseUrl": "git+https://github.com/jshttp/mime-db/raw/master/LICENSE",
+        "parents": "mime-types:type-is:body-parser:app"
+    },
+    "mime-types@2.1.10": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/jshttp/mime-types",
+        "licenseUrl": "git+https://github.com/jshttp/mime-types/raw/master/LICENSE",
+        "parents": "type-is:body-parser:app"
+    },
+    "mime@1.2.11": {
+        "licenses": "UNKNOWN",
+        "repository": "git+https://github.com/broofa/node-mime",
+        "licenseUrl": "git+https://github.com/broofa/node-mime/raw/master/LICENSE",
+        "parents": "superagent:chai-http:app"
+    },
+    "mime@1.3.4": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/broofa/node-mime",
+        "licenseUrl": "https://raw.github.com/broofa/node-mime/master/LICENSE",
+        "parents": "send:express:app"
+    },
+    "ms@0.6.2": {
+        "licenses": "UNKNOWN",
+        "repository": "https://github.com/guille/ms.js",
+        "licenseUrl": "https://github.com/guille/ms.js",
+        "parents": "debug:superagent:chai-http:app"
+    },
+    "ms@0.7.1": {
+        "licenses": "MIT*",
+        "repository": "https://github.com/guille/ms.js",
+        "licenseUrl": "https://github.com/guille/ms.js/raw/master/LICENSE",
+        "parents": "debug:body-parser:app"
+    },
+    "negotiator@0.5.3": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/jshttp/negotiator",
+        "licenseUrl": "git+https://github.com/jshttp/negotiator/raw/master/LICENSE",
+        "parents": "accepts:express:app"
+    },
+    "node-uuid@1.4.7": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/broofa/node-uuid",
+        "licenseUrl": "https://raw.github.com/broofa/node-uuid/master/LICENSE.md",
+        "parents": "request:app"
+    },
+    "oauth-sign@0.8.1": {
+        "licenses": "Apache-2.0",
+        "repository": "git+https://github.com/mikeal/oauth-sign",
+        "licenseUrl": "git+https://github.com/mikeal/oauth-sign/raw/master/LICENSE",
+        "parents": "request:app"
+    },
+    "on-finished@2.3.0": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/jshttp/on-finished",
+        "licenseUrl": "git+https://github.com/jshttp/on-finished/raw/master/LICENSE",
+        "parents": "body-parser:app"
+    },
+    "parseurl@1.3.1": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/pillarjs/parseurl",
+        "licenseUrl": "git+https://github.com/pillarjs/parseurl/raw/master/LICENSE",
+        "parents": "express:app"
+    },
+    "path-to-regexp@0.1.7": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/component/path-to-regexp",
+        "licenseUrl": "git+https://github.com/component/path-to-regexp/raw/master/LICENSE",
+        "parents": "express:app"
+    },
+    "pinkie-promise@2.0.0": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/floatdrop/pinkie-promise",
+        "licenseUrl": "git+https://github.com/floatdrop/pinkie-promise/raw/master/license",
+        "parents": "har-validator:request:app"
+    },
+    "pinkie@2.0.4": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/floatdrop/pinkie",
+        "licenseUrl": "git+https://github.com/floatdrop/pinkie/raw/master/license",
+        "parents": "pinkie-promise:har-validator:request:app"
+    },
+    "process-nextick-args@1.0.6": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/calvinmetcalf/process-nextick-args",
+        "licenseUrl": "git+https://github.com/calvinmetcalf/process-nextick-args/raw/master/license.md",
+        "parents": "readable-stream:bl:request:app"
+    },
+    "promise-js@0.0.6": {
+        "licenses": "MIT",
+        "repository": "git+ssh://git@github.com/kevincennis/promise",
+        "licenseUrl": "https://raw.github.com/kevincennis/promise/LICENSE",
+        "parents": "elasticsearch:app"
+    },
+    "proxy-addr@1.0.10": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/jshttp/proxy-addr",
+        "licenseUrl": "git+https://github.com/jshttp/proxy-addr/raw/master/LICENSE",
+        "parents": "express:app"
+    },
+    "pseudomap@1.0.2": {
+        "licenses": "ISC",
+        "repository": "git+https://github.com/isaacs/pseudomap",
+        "licenseUrl": "git+https://github.com/isaacs/pseudomap/raw/master/LICENSE",
+        "parents": "lru-cache:aws4:request:app"
+    },
+    "qs@1.2.0": {
+        "licenses": "BSD",
+        "repository": "https://github.com/hapijs/qs",
+        "licenseUrl": "http://github.com/hapijs/qs/raw/master/LICENSE",
+        "parents": "superagent:chai-http:app"
+    },
+    "qs@2.0.0": {
+        "licenses": "BSD",
+        "repository": "https://github.com/hapijs/qs",
+        "licenseUrl": "http://github.com/hapijs/qs/raw/master/LICENSE",
+        "parents": "chai-http:app"
+    },
+    "qs@2.3.3": {
+        "licenses": "BSD",
+        "repository": "git+https://github.com/hapijs/qs",
+        "licenseUrl": "http://github.com/hapijs/qs/raw/master/LICENSE",
+        "parents": "superagent:supertest:app"
+    },
+    "qs@4.0.0": {
+        "licenses": "BSD-3-Clause",
+        "repository": "git+https://github.com/hapijs/qs",
+        "licenseUrl": "git+https://github.com/hapijs/qs/raw/master/LICENSE",
+        "parents": "express:app"
+    },
+    "qs@5.2.0": {
+        "licenses": "BSD-3-Clause",
+        "repository": "git+https://github.com/hapijs/qs",
+        "licenseUrl": "git+https://github.com/hapijs/qs/raw/master/LICENSE",
+        "parents": "body-parser:app"
+    },
+    "qs@6.0.2": {
+        "licenses": "BSD-3-Clause",
+        "repository": "git+https://github.com/ljharb/qs",
+        "licenseUrl": "git+https://github.com/ljharb/qs/raw/master/LICENSE",
+        "parents": "request:app"
+    },
+    "range-parser@1.0.3": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/jshttp/range-parser",
+        "licenseUrl": "git+https://github.com/jshttp/range-parser/raw/master/LICENSE",
+        "parents": "express:app"
+    },
+    "raw-body@2.1.5": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/stream-utils/raw-body",
+        "licenseUrl": "git+https://github.com/stream-utils/raw-body/raw/master/LICENSE",
+        "parents": "body-parser:app"
+    },
+    "readable-stream@1.0.27-1": {
+        "licenses": "MIT",
+        "repository": "https://github.com/isaacs/readable-stream",
+        "licenseUrl": "https://github.com/isaacs/readable-stream/raw/master/LICENSE",
+        "parents": "superagent:chai-http:app"
+    },
+    "readable-stream@2.0.5": {
+        "licenses": "MIT",
+        "repository": "https://github.com/nodejs/readable-stream",
+        "licenseUrl": "https://github.com/nodejs/readable-stream/raw/master/LICENSE",
+        "parents": "bl:request:app"
+    },
+    "reduce-component@1.0.1": {
+        "licenses": "Apache, Version 2.0",
+        "repository": "https://github.com/redventures/reduce",
+        "licenseUrl": "https://github.com/redventures/reduce/raw/master/LICENSE",
+        "parents": "superagent:chai-http:app"
+    },
+    "request-promise@2.0.1": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/request/request-promise",
+        "licenseUrl": "git+https://github.com/request/request-promise/raw/master/LICENSE",
+        "parents": "app"
+    },
+    "request@2.69.0": {
+        "licenses": "Apache-2.0",
+        "repository": "git+https://github.com/request/request",
+        "licenseUrl": "git+https://github.com/request/request/raw/master/LICENSE",
+        "parents": "app"
+    },
+    "sax@1.1.5": {
+        "licenses": "ISC",
+        "repository": "https://github.com/isaacs/sax-js",
+        "licenseUrl": "https://github.com/isaacs/sax-js/raw/master/LICENSE",
+        "parents": "aws-sdk:app"
+    },
+    "send@0.13.1": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/pillarjs/send",
+        "licenseUrl": "git+https://github.com/pillarjs/send/raw/master/LICENSE",
+        "parents": "express:app"
+    },
+    "serve-static@1.10.2": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/expressjs/serve-static",
+        "licenseUrl": "git+https://github.com/expressjs/serve-static/raw/master/LICENSE",
+        "parents": "express:app"
+    },
+    "sntp@1.0.9": {
+        "licenses": "BSD",
+        "repository": "https://github.com/hueniverse/sntp",
+        "licenseUrl": "http://github.com/hueniverse/sntp/raw/master/LICENSE",
+        "parents": "hawk:request:app"
+    },
+    "sshpk@1.7.4": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/arekinath/node-sshpk",
+        "licenseUrl": "git+https://github.com/arekinath/node-sshpk/raw/master/LICENSE",
+        "parents": "http-signature:request:app"
+    },
+    "statuses@1.2.1": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/jshttp/statuses",
+        "licenseUrl": "git+https://github.com/jshttp/statuses/raw/master/LICENSE",
+        "parents": "http-errors:body-parser:app"
+    },
+    "string_decoder@0.10.31": {
+        "licenses": "MIT",
+        "repository": "https://github.com/rvagg/string_decoder",
+        "licenseUrl": "https://github.com/rvagg/string_decoder/raw/master/LICENSE",
+        "parents": "readable-stream:bl:request:app"
+    },
+    "stringstream@0.0.5": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/mhart/StringStream",
+        "licenseUrl": "git+https://github.com/mhart/StringStream/raw/master/LICENSE.txt",
+        "parents": "request:app"
+    },
+    "strip-ansi@3.0.1": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/chalk/strip-ansi",
+        "licenseUrl": "git+https://github.com/chalk/strip-ansi/raw/master/license",
+        "parents": "chalk:elasticsearch:app"
+    },
+    "superagent@0.19.1": {
+        "licenses": "MIT*",
+        "repository": "https://github.com/visionmedia/superagent",
+        "licenseUrl": "https://github.com/visionmedia/superagent/raw/master/LICENSE",
+        "parents": "chai-http:app"
+    },
+    "superagent@1.8.0-beta.2": {
+        "licenses": "MIT",
+        "repository": "https://github.com/visionmedia/superagent",
+        "licenseUrl": "https://github.com/visionmedia/superagent/raw/master/LICENSE",
+        "parents": "supertest:app"
+    },
+    "supertest@1.2.0": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/visionmedia/supertest",
+        "licenseUrl": "git+https://github.com/visionmedia/supertest/raw/master/LICENSE",
+        "parents": "app"
+    },
+    "supports-color@2.0.0": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/chalk/supports-color",
+        "licenseUrl": "git+https://github.com/chalk/supports-color/raw/master/license",
+        "parents": "chalk:elasticsearch:app"
+    },
+    "tough-cookie@2.2.1": {
+        "licenses": "BSD-3-Clause",
+        "repository": "https://github.com/SalesforceEng/tough-cookie",
+        "licenseUrl": "https://github.com/SalesforceEng/tough-cookie/raw/master/LICENSE",
+        "parents": "request:app"
+    },
+    "tunnel-agent@0.4.2": {
+        "licenses": "Apache-2.0",
+        "repository": "git+https://github.com/mikeal/tunnel-agent",
+        "licenseUrl": "git+https://github.com/mikeal/tunnel-agent/raw/master/LICENSE",
+        "parents": "request:app"
+    },
+    "tweetnacl@0.14.1": {
+        "licenses": "SEE LICENSE IN COPYING.txt",
+        "repository": "git+https://github.com/dchest/tweetnacl-js",
+        "licenseUrl": "git+https://github.com/dchest/tweetnacl-js",
+        "parents": "sshpk:http-signature:request:app"
+    },
+    "type-detect@0.1.1": {
+        "licenses": "MIT",
+        "repository": "https://github.com/chaijs/type-detect",
+        "licenseUrl": "https://github.com/chaijs/type-detect",
+        "parents": "deep-eql:chai:app"
+    },
+    "type-detect@1.0.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/chaijs/type-detect",
+        "licenseUrl": "https://github.com/chaijs/type-detect",
+        "parents": "chai:app"
+    },
+    "type-is@1.6.12": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/jshttp/type-is",
+        "licenseUrl": "git+https://github.com/jshttp/type-is/raw/master/LICENSE",
+        "parents": "body-parser:app"
+    },
+    "udc@1.0.1": {
+        "licenses": "MIT",
+        "repository": "https://github.com/imbcmdth/UltraDeepClone",
+        "licenseUrl": "https://github.com/imbcmdth/UltraDeepClone/raw/master/LICENSE",
+        "parents": "changeset:app"
+    },
+    "underscore-node@0.1.2": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/joonho1101/underscore-node",
+        "licenseUrl": "git+https://github.com/joonho1101/underscore-node/raw/master/LICENSE",
+        "parents": "app"
+    },
+    "underscore@1.4.4": {
+        "licenses": "UNKNOWN",
+        "repository": "https://github.com/documentcloud/underscore",
+        "licenseUrl": "https://github.com/documentcloud/underscore/raw/master/LICENSE",
+        "parents": "changeset:app"
+    },
+    "unpipe@1.0.0": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/stream-utils/unpipe",
+        "licenseUrl": "git+https://github.com/stream-utils/unpipe/raw/master/LICENSE",
+        "parents": "raw-body:body-parser:app"
+    },
+    "util-deprecate@1.0.2": {
+        "licenses": "MIT",
+        "repository": "https://github.com/TooTallNate/util-deprecate",
+        "licenseUrl": "https://github.com/TooTallNate/util-deprecate/raw/master/LICENSE",
+        "parents": "readable-stream:bl:request:app"
+    },
+    "util@0.10.3": {
+        "licenses": "MIT",
+        "repository": "https://github.com/defunctzombie/node-util",
+        "licenseUrl": "https://github.com/defunctzombie/node-util/raw/master/LICENSE",
+        "parents": "assert:app"
+    },
+    "utils-merge@1.0.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/jaredhanson/utils-merge",
+        "licenseUrl": "http://www.opensource.org/licenses/MIT",
+        "parents": "express:app"
+    },
+    "validator@4.5.2": {
+        "licenses": "MIT",
+        "repository": "git+ssh://git@github.com/chriso/validator.js",
+        "licenseUrl": "git+ssh://git@github.com/chriso/validator.js/raw/master/LICENSE",
+        "parents": "express-validator:app"
+    },
+    "vary@1.0.1": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/jshttp/vary",
+        "licenseUrl": "git+https://github.com/jshttp/vary/raw/master/LICENSE",
+        "parents": "express:app"
+    },
+    "verror@1.3.6": {
+        "licenses": "UNKNOWN",
+        "repository": "https://github.com/davepacheco/node-verror",
+        "licenseUrl": "https://github.com/davepacheco/node-verror/raw/master/LICENSE",
+        "parents": "jsprim:http-signature:request:app"
+    },
+    "xml2js@0.4.15": {
+        "licenses": "MIT",
+        "repository": "git+https://github.com/Leonidas-from-XIV/node-xml2js",
+        "licenseUrl": "git+https://github.com/Leonidas-from-XIV/node-xml2js/raw/master/LICENSE",
+        "parents": "aws-sdk:app"
+    },
+    "xmlbuilder@2.6.2": {
+        "licenses": "MIT",
+        "repository": "https://github.com/oozcitak/xmlbuilder-js",
+        "licenseUrl": "https://github.com/oozcitak/xmlbuilder-js/raw/master/LICENSE",
+        "parents": "aws-sdk:app"
+    },
+    "xtend@4.0.1": {
+        "licenses": "MIT",
+        "repository": "https://github.com/Raynos/xtend",
+        "licenseUrl": "https://github.com/Raynos/xtend/raw/master/LICENCE",
+        "parents": "is-my-json-valid:har-validator:request:app"
+    },
+    "yallist@2.0.0": {
+        "licenses": "ISC",
+        "repository": "git+https://github.com/isaacs/yallist",
+        "licenseUrl": "git+https://github.com/isaacs/yallist/raw/master/LICENSE",
+        "parents": "lru-cache:aws4:request:app"
+    }
+}

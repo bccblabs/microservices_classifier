@@ -13,8 +13,11 @@ var server = require ('http').createServer(app).listen(8080),
     request = require ('request-promise'),
     Promise = require ('bluebird'),
     numeral = require ('numeral'),
-    diff = require('changeset'),
-    filterInitialState = require ('./FilterInitialState')
+    filterInitialState = require ('./FilterInitialState'),
+    first_page_categories = require ('./first_page_categories'),
+    format_numerals = function (number) {
+      return numeral (number).format ('0,0')
+    }
 
 console.log ("[* app.js] server starts listening on 8080")
 
@@ -28,10 +31,6 @@ client.ping ({requestTimeout: Infinity, hello: 'es!'})
         });
 
 
-var first_page_categories = require ('./first_page_categories')
-var format_numerals = function (number) {
-  return numeral (number).format ('0,0')
-}
 
 app.get ('/listings', function (req, res) {
   console.log ('[listings req params]',req.query)
@@ -51,7 +50,7 @@ app.get ('/listings', function (req, res) {
         placeholder = []
 
       var placeholder_promises = Promise.map (placeholders, function (placeholder_query) {
-          var query_body = util.preprocess_query (placeholder_query, 'categories')
+          var query_body = util.processTagsQuery (placeholder_query, 'categories')
           var query_promise = Promise.resolve (client.search ({index: 'car', body: query_body}))
           return query_promise.then (function (query_res) {
             return {
@@ -64,7 +63,8 @@ app.get ('/listings', function (req, res) {
           })
       })
       var searches_promises = Promise.map (searches, function (sub_query) {
-        var query_promise = Promise.resolve (client.search ({index: 'car', body: util.preprocess_query (sub_query, 'categories')}))
+        var query_body = util.processTagsQuery (sub_query, 'categories')
+        var query_promise = Promise.resolve (client.search ({index: 'car', body: query_body }))
         return query_promise.then (function (query_res) {
           return {
               name: sub_query.name,
@@ -80,7 +80,8 @@ app.get ('/listings', function (req, res) {
         return {
           category: categoryQuery.topCategory,
           placeholders: placeholder_res,
-          searches: search_res
+          searches: search_res,
+          filters: categoryQuery.filters
         }
       })
     })
@@ -92,20 +93,25 @@ app.get ('/listings', function (req, res) {
     })
 })
 
+app.post ('/makeModelAggs', function (req, res) {
+  var es_query = util.preprocessQuery (req.body, 'make_model_aggs'),
+      search_promise = Promise.resolve (client.search ({index: 'car', body: es_query}))
+
+  search_promise.then (function (response) {
+    var formattedAggs = { makes: {
+
+    }}
+    res.status (200).json ({'topLevelAggs': formattedAggs})
+    })
+    .error (function (err) {
+      res.status (500).json (err)
+    })
+})
+
 app.post ('/listings', function (req, res) {
-    var userQuery = req.body,
-        dirtyFilters = diff (req.body, filterInitialState),
-        tagsQuery = { category : 'listings', tags : []}
-    var categories = []
-    _.each (dirtyFilters, function (filterChange) {
-      categories.push (filterChange.key[0])
-    })
-    _.each (_.uniq (categories), function (category) {
-      tagsQuery.tags.push ({category: category, value: userQuery[category]})
-    })
-    var es_query = util.preprocess_query (tagsQuery, 'listings')
-    util.pretty_print (es_query)
-    var search_promise = Promise.resolve (client.search ({index: 'car', body: es_query}))
+    var es_query = util.preprocessQuery (req.body, 'listings'),
+        search_promise = Promise.resolve (client.search ({index: 'car', body: es_query}))
+
     search_promise.then (function (response) {
       listings = _.pluck (response.hits.hits, '_source')
       console.log ('fetched ',listings.length, ' listings' )

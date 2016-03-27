@@ -1,7 +1,70 @@
+var _ = require ('underscore-node')
 var Filters = require ('./es_filters')
+
+
 var AggFactory = {
   create: function (type) {
     switch (type) {
+      case 'makeModelYears': {
+        return {
+          prices: {
+            "children": {
+              "type": "listing"
+            },
+            "aggs": {
+              "prices": {
+                "nested": {
+                  "path": "prices"
+                },
+                "aggs": {
+                  "avg_price": {
+                    "avg": {
+                      "field": "prices.price_value"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          makes: {
+            terms: {
+              field: "make",
+              size: 100
+            },
+            aggs: {
+              models: {
+                terms: {
+                  field: "model",
+                  missing: "n/a"
+                },
+                aggs: {
+                  trims: {
+                    terms: {
+                      field: "trim",
+                      missing: "n/a"
+                    },
+                    aggs: {
+                      generations: {
+                        terms: {
+                          field: "generation",
+                          missing: "n/a"
+                        },
+                        aggs: {
+                          years: {
+                            terms: {
+                              field: "year",
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
       case 'avgPriceModels': {
         return {
           prices: {
@@ -112,7 +175,7 @@ var AggFactory = {
     }
   }
 }
-var _ = require ('underscore-node')
+
 var FilterFactory = {
   create: function (tag) {
     switch (tag.category) {
@@ -122,8 +185,7 @@ var FilterFactory = {
       case 'compressorType': {
         return Filters.TermsFilter ('engine.compressorType', tag.value)
       }
-      case 'cylinder':
-      case 'cylinders': {
+      case 'cylinder': {
         return Filters.RangeFilter ('engine.cylinder', tag.value)
       }
       case 'depreciation': {
@@ -196,10 +258,25 @@ var FilterFactory = {
 var QueryFactory = {
   create: function (type, tags, sortBy) {
     var parentQuery = {has_parent: {parent_type: 'trim', query: {bool: {must: []}}}},
-        query = {_source: 0, size: 0, query: {bool: {must: []}}}
+    childQuery = {has_child: {type: "listing", query: {bool: {must: []}}}}
+    query = {_source: 0, size: 0, query: {bool: {must: []}}}
 
     switch (type) {
-      case 'listings_aggs':
+      case 'listings_aggs': {
+        if (tags.length === 0) {
+          query.query.bool.must.push ({match_all: {}})
+        } else {
+          _.each (tags, function (tag) {
+            if (tag.category === 'prices' || tag.category === 'mileage' || tag.category === 'color') {
+              query['query']['bool']['must'].push (FilterFactory.create(tag))
+            } else {
+              parentQuery['has_parent']['query']['bool']['must'].push (FilterFactory.create(tag))
+            }
+          })
+          query['query']['bool']['must'].push (parentQuery)
+        }
+        return query
+      }
       case 'listings': {
         query['_source'] = 1
         query['size'] = 20
@@ -208,20 +285,25 @@ var QueryFactory = {
           return query
         }
         _.each (tags, function (tag) {
-            if (tag.category === 'prices' || tag.category === 'mileage' || tag.category === 'color') {
-              query['query']['bool']['must'].push (FilterFactory.create(tag))
-            } else {
-              parentQuery['has_parent']['query']['bool']['must'].push (FilterFactory.create(tag))
-            }
+          if (tag.category === 'prices' || tag.category === 'mileage' || tag.category === 'color') {
+            query['query']['bool']['must'].push (FilterFactory.create(tag))
+          } else {
+            parentQuery['has_parent']['query']['bool']['must'].push (FilterFactory.create(tag))
+          }
         })
         query['query']['bool']['must'].push (parentQuery)
         return query
       }
       case 'trims': {
-        return {
-          '_source': 0,
-          'size': 50000
-        }
+        _.each (tags, function (tag) {
+          if (tag.category === 'prices' || tag.category === 'mileage' || tag.category === 'color') {
+            childQuery['query']['bool']['must'].push (FilterFactory.create(tag))
+          } else {
+            query['query']['bool']['must'].push (FilterFactory.create(tag))
+          }
+        })
+        query['query']['bool']['must'].push (childQuery)
+        return query
       }
     }
   }
