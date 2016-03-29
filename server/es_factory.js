@@ -5,6 +5,51 @@ var Filters = require ('./es_filters')
 var AggFactory = {
   create: function (type) {
     switch (type) {
+      case 'makeModelTrims': {
+        return {
+          prices: {
+            "children": {
+              "type": "listing"
+            },
+            "aggs": {
+              "prices": {
+                "nested": {
+                  "path": "prices"
+                },
+                "aggs": {
+                  "avg_price": {
+                    "avg": {
+                      "field": "prices.price_value"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          makes: {
+            terms: {
+              field: "make",
+              size: 100
+            },
+            aggs: {
+              models: {
+                terms: {
+                  field: "model",
+                  missing: "n/a"
+                },
+                aggs: {
+                  trims: {
+                    terms: {
+                      field: "trim",
+                      missing: "n/a"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
       case 'makeModelYears': {
         return {
           prices: {
@@ -246,6 +291,10 @@ var FilterFactory = {
       }
       case 'zero_sixty': {
         return Filters.RangeFilter ('dimensions.zero_sixty', tag.value)
+      }
+      case 'location': {
+        console.log ('unrecognized tag category: ', tag.category)
+        break
       }
       default: {
         console.log ('unrecognized tag category: ', tag.category)

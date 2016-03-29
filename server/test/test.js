@@ -88,7 +88,7 @@ describe ('[Test Suit 0] elasticsearch query and aggregations', function () {
           bodyType: []
         })
       .end (function (err, res) {
-        // console.log (JSON.stringify(res.body, null, 2))
+        console.log (JSON.stringify(res.body, null, 2))
         res.should.have.status (200)
         done()
       })

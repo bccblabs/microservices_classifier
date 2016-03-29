@@ -103,7 +103,7 @@ function processTagsQuery (tagsQuery, type) {
     }
     case 'make_model_aggs' : {
       queryBody = ESFactory.QueryFactory.create ('trims', tagsQuery.tags, undefined)
-      queryBody['aggs'] = ESFactory.AggFactory.create ('makeModelYears')
+      queryBody['aggs'] = ESFactory.AggFactory.create ('makeModelTrims')
       return queryBody
     }
     default: {
@@ -123,7 +123,15 @@ function preprocessQuery (userQuery, queryType) {
       })
 
       _.each (_.uniq (categories), function (category) {
-        tagsQuery.tags.push ({category: category, value: userQuery[category]})
+        switch (category) {
+          case 'location':
+          case 'selectedMake':
+          case 'selectedModel':
+          case 'selectedTrim':
+          break
+          default:
+            tagsQuery.tags.push ({category: category, value: userQuery[category]})
+        }
       })
   return processTagsQuery (tagsQuery, queryType)
 }

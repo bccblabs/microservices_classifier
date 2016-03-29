@@ -98,10 +98,23 @@ app.post ('/makeModelAggs', function (req, res) {
       search_promise = Promise.resolve (client.search ({index: 'car', body: es_query}))
 
   search_promise.then (function (response) {
-    var formattedAggs = { makes: {
-
-    }}
-    res.status (200).json ({'topLevelAggs': formattedAggs})
+    var formattedAggs = { makes: []}
+    _.each (response.aggregations.makes.buckets, function (make_object) {
+      var make_level_object = {key: make_object.key, models: []}
+      _.each (make_object.models.buckets, function (model_object) {
+        var model_level_object = {key: model_object.key, trims: []}
+          _.each (model_object.trims.buckets, function (trim_object) {
+            model_level_object.trims.push ({'key': trim_object.key})
+        })
+        make_level_object.models.push (model_level_object)
+      })
+      formattedAggs.makes.push (make_level_object)
+    })
+    console.log (formattedAggs)
+    res.status (200).json ({
+        'makes': formattedAggs.makes,
+        'avg_price_aggregation': response.aggregations.prices.prices.avg_price.value
+      })
     })
     .error (function (err) {
       res.status (500).json (err)
