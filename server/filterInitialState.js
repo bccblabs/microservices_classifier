@@ -6,10 +6,6 @@ var FilterInitialState = {
     min: 0,
     max: 12,
   },
-  distance: {
-    min: 0,
-    max: 20
-  },
   displacement: {
       min: 100,
       max: 10000
@@ -43,8 +39,8 @@ var FilterInitialState = {
     max: 2017,
   },
   mpg: {
-    min: 5,
-    max: 40,
+    min: 0,
+    max: 100,
   },
   zero_sixty: {
     min: 1,
@@ -52,11 +48,16 @@ var FilterInitialState = {
   },
   makes: [],
   models: [],
+  trims: [],
   transmission: [],
   compressorType: [],
   drivetrain: [],
   equipments: [],
-  bodyType: []
+  bodyType: [],
+  sortBy: {
+    category: 'engine.horsepower',
+    order: 'desc'
+  }
 }
 
 exports = module.exports = FilterInitialState

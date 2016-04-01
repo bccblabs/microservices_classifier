@@ -62,35 +62,51 @@ describe ('[Test Suit 0] elasticsearch query and aggregations', function () {
     //         done()
     //       })
     // })
-    //
+
     it ('[tc0] test query', function (done) {
       chai.request (server)
-      .post ('/makeModelAggs')
+      .post ('/listings')
       .send (
         { cylinder: { min: 0, max: 12 },
-          distance: { min: 0, max: 20 },
           displacement: { min: 100, max: 10000 },
           horsepower: { min: 0, max: 1000 },
           incentives: { min: 0, max: 1000 },
-          torque: { min: 400, max: 1000 },
-          prices: { min: 0, max: 200000 },
+          torque: { min: 0, max: 1000 },
+          prices: { min: 0, max: 1000000 },
           mileage: { min: 0, max: 200000 },
           recalls: { min: 0, max: 10 },
           years: { min: 1900, max: 2017 },
-          mpg: { min: 5, max: 40 },
+          mpg: { min: 0, max: 100 },
           zero_sixty: { min: 1, max: 10 },
           makes: [],
           models: [],
+          trims: [],
           transmission: [],
           compressorType: [],
           drivetrain: [],
           equipments: [],
-          bodyType: []
-        })
+          bodyType: [],
+          sortBy: {
+            category: 'engine.horsepower',
+            order: 'desc'
+          }
+      })
       .end (function (err, res) {
         console.log (JSON.stringify(res.body, null, 2))
         res.should.have.status (200)
         done()
       })
     })
-})
+    // it ('[tc3] => GET /fetchCategorySearches', function (done) {
+    //   chai.request (server)
+    //       .get ('/fetchCategorySearches')
+    //       .query ({'categoryName': 'top'})
+    //       .query ({'pageSize': 10})
+    //       .query ({'pageNum': 0})
+    //       .end (function (err, res) {
+    //         console.log (JSON.stringify(res.body, null, 2))
+    //         res.should.have.status (200)
+    //         done()
+    //       })
+    // })
+  })

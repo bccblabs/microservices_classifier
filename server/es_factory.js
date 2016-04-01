@@ -236,7 +236,9 @@ var FilterFactory = {
       case 'depreciation': {
         return Filters.RangeFilter ('ownership_costs.depreciation', tag.value)
       }
-      case 'distance':
+      case 'mileage': {
+        return Filters.RangeFilter ('mileage', tag.value)
+      }
       case 'displacement': {
         return Filters.RangeFilter ('engine.displacement', tag.value)
       }
@@ -259,10 +261,13 @@ var FilterFactory = {
         return Filters.TermsFilter ('make', tag.value)
       }
       case 'mpg': {
-        return Filters.RangeFilter ('mpg.highway', 'gte', tag.value)
+        return Filters.RangeFilter ('mpg.highway', tag.value)
       }
       case 'models': {
         return Filters.TermsFilter ('model', tag.value)
+      }
+      case 'trims': {
+        return Filters.TermsFilter ('trim', tag.value)
       }
       case 'prices': {
         var priceRange = Filters.RangeFilter ('prices.price_value', tag.value)
@@ -309,7 +314,8 @@ var QueryFactory = {
     var parentQuery = {has_parent: {parent_type: 'trim', query: {bool: {must: []}}}},
     childQuery = {has_child: {type: "listing", query: {bool: {must: []}}}}
     query = {_source: 0, size: 0, query: {bool: {must: []}}}
-
+    if (typeof sortBy !== 'undefined')
+      query['sort'] = sortBy
     switch (type) {
       case 'listings_aggs': {
         if (tags.length === 0) {
@@ -334,6 +340,7 @@ var QueryFactory = {
           return query
         }
         _.each (tags, function (tag) {
+          console.log (tag)
           if (tag.category === 'prices' || tag.category === 'mileage' || tag.category === 'color') {
             query['query']['bool']['must'].push (FilterFactory.create(tag))
           } else {
@@ -346,12 +353,13 @@ var QueryFactory = {
       case 'trims': {
         _.each (tags, function (tag) {
           if (tag.category === 'prices' || tag.category === 'mileage' || tag.category === 'color') {
-            childQuery['query']['bool']['must'].push (FilterFactory.create(tag))
+            childQuery['has_child']['query']['bool']['must'].push (FilterFactory.create(tag))
           } else {
             query['query']['bool']['must'].push (FilterFactory.create(tag))
           }
         })
-        query['query']['bool']['must'].push (childQuery)
+        if (childQuery['has_child']['query']['bool']['must'].length  > 0)
+          query['query']['bool']['must'].push (childQuery)
         return query
       }
     }

@@ -79,9 +79,8 @@ function rank_listing (metrics) {
   return listingAggQuery
 }
 
-function processTagsQuery (tagsQuery, type) {
-  var sortBy, queryBody
-
+function processTagsQuery (tagsQuery, type, sortBy) {
+  var queryBody = {}
   switch (type) {
     case 'categories': {
       queryBody = ESFactory.QueryFactory.create ('listings_aggs', tagsQuery.tags, sortBy)
@@ -95,10 +94,8 @@ function processTagsQuery (tagsQuery, type) {
       return queryBody
     }
     case 'listings': {
-      sortBy = ESFactory.SortFactory.create ('make', 'asc')
       queryBody = ESFactory.QueryFactory.create ('listings', tagsQuery.tags, sortBy)
       queryBody['aggs'] = ESFactory.AggFactory.create ('avgPriceModels')
-      queryBody['sort'] = sortBy
       return queryBody
     }
     case 'make_model_aggs' : {
@@ -116,24 +113,27 @@ function processTagsQuery (tagsQuery, type) {
 function preprocessQuery (userQuery, queryType) {
   var dirtyFilters = diff (userQuery, filterInitialState),
       tagsQuery = { category: queryType, tags: []},
+      sortBy = defaultCarSort,
       categories = []
-
-      _.each (dirtyFilters, function (filterDiff) {
-        categories.push (filterDiff.key[0])
-      })
-
-      _.each (_.uniq (categories), function (category) {
-        switch (category) {
-          case 'location':
-          case 'selectedMake':
-          case 'selectedModel':
-          case 'selectedTrim':
-          break
-          default:
-            tagsQuery.tags.push ({category: category, value: userQuery[category]})
-        }
-      })
-  return processTagsQuery (tagsQuery, queryType)
+  _.each (dirtyFilters, function (filterDiff) {
+      categories.push (filterDiff.key[0])
+  })
+  _.each (_.uniq (categories), function (category) {
+    switch (category) {
+      case 'location':
+      case 'selectedMake':
+      case 'selectedModel':
+      case 'selectedTrim':
+      break
+      case 'sortBy': {
+        sortBy = ESFactory.SortFactory.create (category, userQuery[category])
+        break
+      }
+      default:
+        tagsQuery.tags.push ({category: category, value: userQuery[category]})
+    }
+  })
+  return processTagsQuery (tagsQuery, queryType, sortBy)
 }
 
 exports.pretty_print = module.exports.pretty_print =  pretty_print
