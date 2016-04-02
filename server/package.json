@@ -12,6 +12,7 @@
     "express-validator": "^2.18.0",
     "immutable": "^3.7.6",
     "lodash": "^4.6.1",
+    "normalizr": "^2.0.1",
     "request": "^2.69.0",
     "request-promise": "^2.0.1",
     "underscore-node": "^0.1.2"

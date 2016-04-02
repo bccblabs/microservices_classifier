@@ -5,6 +5,14 @@ var diff = require('changeset')
 var filterInitialState = require ('./filterInitialState')
 
 var pretty_print = function (obj) {console.log (JSON.stringify (obj, null, 2))}
+var es = require ('elasticsearch')
+var client = new es.Client ({host: 'localhost:9200', log: 'error', path: './log/testing.log'})
+client.ping ({requestTimeout: Infinity, hello: 'es!'})
+        .then (
+        function () {
+        }, function (e) {
+            console.trace ('es server down')
+        });
 
 
 var defaultCarSort = {'engine.horsepower': {'order': 'desc'}}
@@ -88,9 +96,10 @@ function processTagsQuery (tagsQuery, type, sortBy) {
       return queryBody
     }
     case 'trims': {
-      sortBy = ESFactory.SortFactory.create ('engine.horsepower', 'desc')
+      sortBy = sortBy
       queryBody = ESFactory.QueryFactory.create ('trims', tagsQuery.tags, sortBy)
       queryBody['aggs'] = ESFactory.AggFactory.create ('avgPricePerTrim')
+      queryBody['fields'] = ['make', 'model', 'trim', 'generation']
       return queryBody
     }
     case 'listings': {
@@ -126,7 +135,10 @@ function preprocessQuery (userQuery, queryType) {
       case 'selectedTrim':
       break
       case 'sortBy': {
-        sortBy = ESFactory.SortFactory.create (category, userQuery[category])
+        console.log (userQuery)
+        console.log (category)
+        console.log (userQuery[category])
+        sortBy = ESFactory.SortFactory.create (userQuery[category].category, userQuery[category].order)
         break
       }
       default:
@@ -136,7 +148,32 @@ function preprocessQuery (userQuery, queryType) {
   return processTagsQuery (tagsQuery, queryType, sortBy)
 }
 
+function createListingsPromise (requestBody) {
+  var es_query = preprocessQuery (requestBody, 'listings')
+  return Promise.resolve (client.search ({index: 'car', body: es_query}))
+}
+
+function createTrimsPromise (requestBody) {
+  var es_query = preprocessQuery (requestBody, 'trims')
+  return Promise.resolve (client.search ({index: 'car', body: es_query}))
+}
+
+function renderRange (min, max, unit) {
+  if (typeof min === 'undefined' || typeof max === 'undefined')
+    return undefined
+  else if (min === max) {
+    return min + ' ' + unit
+  }
+  else {
+    return min + '-' + max + ' ' + unit
+  }
+}
+
+
 exports.pretty_print = module.exports.pretty_print =  pretty_print
 exports.preprocessQuery = module.exports.preprocessQuery = preprocessQuery
 exports.processTagsQuery = module.exports.processTagsQuery = processTagsQuery
 exports.rank_listing = module.exports.rank_listing = rank_listing
+exports.createListingsPromise = module.exports.createListingsPromise = createListingsPromise
+exports.createTrimsPromise = module.exports.createTrimsPromise = createTrimsPromise
+exports.renderRange = module.exports.renderRange = renderRange

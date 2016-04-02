@@ -65,20 +65,20 @@ describe ('[Test Suit 0] elasticsearch query and aggregations', function () {
 
     it ('[tc0] test query', function (done) {
       chai.request (server)
-      .post ('/listings')
+      .post ('/trims')
       .send (
         { cylinder: { min: 0, max: 12 },
           displacement: { min: 100, max: 10000 },
           horsepower: { min: 0, max: 1000 },
           incentives: { min: 0, max: 1000 },
           torque: { min: 0, max: 1000 },
-          prices: { min: 0, max: 1000000 },
+          prices: { min: 0, max: 20000 },
           mileage: { min: 0, max: 200000 },
           recalls: { min: 0, max: 10 },
           years: { min: 1900, max: 2017 },
           mpg: { min: 0, max: 100 },
           zero_sixty: { min: 1, max: 10 },
-          makes: [],
+          makes: ['ford'],
           models: [],
           trims: [],
           transmission: [],
@@ -87,11 +87,12 @@ describe ('[Test Suit 0] elasticsearch query and aggregations', function () {
           equipments: [],
           bodyType: [],
           sortBy: {
-            category: 'engine.horsepower',
+            category: 'engine.torque',
             order: 'desc'
           }
       })
       .end (function (err, res) {
+        // console.log (res.body.trimHighlight.length)
         console.log (JSON.stringify(res.body, null, 2))
         res.should.have.status (200)
         done()
