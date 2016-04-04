@@ -461,7 +461,7 @@ var QueryFactory = {
 var SortFactory = {
   create: function (field, order) {
     var sortBy = {}
-    sortBy[field] = {order: order}
+    sortBy[field] = {missing: "_last", order: order}
     return sortBy
   }
 }

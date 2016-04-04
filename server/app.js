@@ -97,7 +97,6 @@ app.post ('/trims', function (req, res) {
          .then (function (resp) {
            var aggs = resp.aggregations.makes.buckets
            var trimInfo = _.map (resp.hits.hits, function (trimDoc) {
-             console.log (trimDoc)
                             var make = _.first(trimDoc.fields.make),
                                 model = _.first(trimDoc.fields.model),
                                 trim = _.first(trimDoc.fields.trim),

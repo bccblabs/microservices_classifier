@@ -54,7 +54,7 @@ var FilterInitialState = {
   drivetrain: [],
   equipments: [],
   bodyType: [],
-  sortBy: {
+  sortTrimsBy: {
     category: 'engine.horsepower',
     order: 'desc'
   }

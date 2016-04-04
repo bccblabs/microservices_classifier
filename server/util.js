@@ -134,10 +134,7 @@ function preprocessQuery (userQuery, queryType) {
       case 'selectedModel':
       case 'selectedTrim':
       break
-      case 'sortBy': {
-        console.log (userQuery)
-        console.log (category)
-        console.log (userQuery[category])
+      case 'sortTrimsBy': {
         sortBy = ESFactory.SortFactory.create (userQuery[category].category, userQuery[category].order)
         break
       }
