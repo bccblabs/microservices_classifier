@@ -3,7 +3,7 @@ var _ = require ('underscore-node')
 var ESFactory = require ('./es_factory')
 var diff = require('changeset')
 var filterInitialState = require ('./filterInitialState')
-
+var Promise = require ('bluebird')
 var pretty_print = function (obj) {console.log (JSON.stringify (obj, null, 2))}
 var es = require ('elasticsearch')
 var client = new es.Client ({host: 'localhost:9200', log: 'error', path: './log/testing.log'})
@@ -133,6 +133,8 @@ function preprocessQuery (userQuery, queryType) {
       case 'selectedMake':
       case 'selectedModel':
       case 'selectedTrim':
+      case 'filterHash':
+      case 'listingsHash':
       break
       case 'sortTrimsBy': {
         sortBy = ESFactory.SortFactory.create (userQuery[category].category, userQuery[category].order)

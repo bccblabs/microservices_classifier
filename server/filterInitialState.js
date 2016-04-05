@@ -49,6 +49,7 @@ var FilterInitialState = {
   makes: [],
   models: [],
   trims: [],
+  generations: [],
   transmission: [],
   compressorType: [],
   drivetrain: [],

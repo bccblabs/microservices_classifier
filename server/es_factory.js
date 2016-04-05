@@ -355,6 +355,9 @@ var FilterFactory = {
       case 'trims': {
         return Filters.TermsFilter ('trim', tag.value)
       }
+      case 'generations': {
+        return Filters.TermsFilter ('generation', tag.value)
+      }
       case 'prices': {
         var priceRange = Filters.RangeFilter ('prices.price_value', tag.value)
         return Filters.NestedFilter ('prices', undefined, priceRange)
@@ -429,9 +432,9 @@ var QueryFactory = {
         }
         _.each (tags, function (tag) {
           if (tag.category === 'prices' || tag.category === 'mileage' || tag.category === 'color') {
-            query['query']['bool']['must'].push (FilterFactory.create(tag))
+            query['query']['bool']['filter'].push (FilterFactory.create(tag))
           } else {
-            parentQuery['has_parent']['query']['bool']['filter'].push (FilterFactory.create(tag))
+            parentQuery['has_parent']['query']['bool']['must'].push (FilterFactory.create(tag))
           }
         })
         query['query']['bool']['filter'].push (parentQuery)

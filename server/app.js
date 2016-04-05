@@ -1,8 +1,8 @@
+require("babel-polyfill")
 var app = require ('express')(),
     bodyParser = require ('body-parser')
     app.use(bodyParser.json({limit: '50mb'}));
     app.use(bodyParser.urlencoded({limit: '50mb'}));
-
 var server = require ('http').createServer(app).listen(8080),
     util = require ('./util'),
     parser = require ('./parser'),
@@ -16,6 +16,7 @@ var server = require ('http').createServer(app).listen(8080),
     normalizr = require ('normalizr'),
     filterInitialState = require ('./FilterInitialState'),
     first_page_categories = require ('./first_page_categories'),
+    hash = require ('json-hash'),
     format_numerals = function (number) {
       return numeral (number).format ('0,0')
     }
@@ -127,7 +128,7 @@ app.post ('/trims', function (req, res) {
                             }
 
                             listings_stats = genAgg.listings
-                            return {
+                            var obj = {
                               make: make,
                               model: model,
                               trim: trim,
@@ -142,8 +143,10 @@ app.post ('/trims', function (req, res) {
                               avgPrice: listings_stats.prices.avg_price.value,
                               listingsCnt: listings_stats.vin_cnt.value,
                             }
+                            obj['key'] = hash.digest (obj)
+                            return obj
                           })
-            res.status(200).send ({trimHighlight: _.uniq (trimInfo, false, function (field) {return JSON.stringify (field)})})
+            res.status(200).send ({trimData: _.uniq (trimInfo, false, function (trimObject) {return trimObject.key})})
           })
          .error (function (error) {res.status(500).send (error)})
 })
@@ -152,12 +155,10 @@ app.post ('/listings', function (req, res) {
   var search_promise = util.createListingsPromise (req.body)
   Promise.resolve (search_promise)
           .then (function (response) {
-            _.each (response.hits.hits, function (model) {
-              _.each (model.inner_hits.listing.hits, function (listing) {
-                console.log (typeof listing)
-              })
+            var listings = _.map (response.hits.hits, function (listing) {
+              return listing._source
             })
-            res.status (200).json (response)
+            res.status(200).json ({listings: listings})
           })
           .error (function (error) {res.status(500).json (error)})
 })
