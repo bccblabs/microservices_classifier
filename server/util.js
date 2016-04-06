@@ -87,39 +87,42 @@ function rank_listing (metrics) {
   return listingAggQuery
 }
 
-function processTagsQuery (tagsQuery, type, sortBy) {
+function processTagsQuery (tagsQuery, type, sortBy, pageNum) {
   var queryBody = {}
   switch (type) {
     case 'categories': {
       queryBody = ESFactory.QueryFactory.create ('listings_aggs', tagsQuery.tags, sortBy)
       queryBody['aggs'] = ESFactory.AggFactory.create ('avgPriceModels')
-      return queryBody
+      break
     }
     case 'trims': {
       sortBy = sortBy
       queryBody = ESFactory.QueryFactory.create ('trims', tagsQuery.tags, sortBy)
       queryBody['aggs'] = ESFactory.AggFactory.create ('avgPricePerTrim')
       queryBody['fields'] = ['make', 'model', 'trim', 'generation']
-      return queryBody
+      break
     }
     case 'listings': {
       queryBody = ESFactory.QueryFactory.create ('listings', tagsQuery.tags, sortBy)
       queryBody['aggs'] = ESFactory.AggFactory.create ('avgPriceModels')
-      return queryBody
+      break
     }
     case 'make_model_aggs' : {
       queryBody = ESFactory.QueryFactory.create ('trims', tagsQuery.tags, undefined)
       queryBody['aggs'] = ESFactory.AggFactory.create ('makeModelTrims')
-      return queryBody
+      break
     }
     default: {
       console.log ('[preprocess_query] unrecognized tag: ', type)
-      return queryBody
+      break
     }
   }
+  queryBody['size'] = 20
+  queryBody['from'] = pageNum*20
+  return queryBody
 }
 
-function preprocessQuery (userQuery, queryType) {
+function preprocessQuery (userQuery, queryType, pageNum) {
   var dirtyFilters = diff (userQuery, filterInitialState),
       tagsQuery = { category: queryType, tags: []},
       sortBy = defaultCarSort,
@@ -144,16 +147,17 @@ function preprocessQuery (userQuery, queryType) {
         tagsQuery.tags.push ({category: category, value: userQuery[category]})
     }
   })
-  return processTagsQuery (tagsQuery, queryType, sortBy)
+  return processTagsQuery (tagsQuery, queryType, sortBy, pageNum)
 }
 
-function createListingsPromise (requestBody) {
-  var es_query = preprocessQuery (requestBody, 'listings')
+function createListingsPromise (requestBody, pageNum) {
+  var es_query = preprocessQuery (requestBody, 'listings', pageNum)
+  console.log (es_query)
   return Promise.resolve (client.search ({index: 'car', body: es_query}))
 }
 
-function createTrimsPromise (requestBody) {
-  var es_query = preprocessQuery (requestBody, 'trims')
+function createTrimsPromise (requestBody, pageNum) {
+  var es_query = preprocessQuery (requestBody, 'trims', pageNum)
   return Promise.resolve (client.search ({index: 'car', body: es_query}))
 }
 

@@ -48,7 +48,6 @@ app.post ('/makeModelAggs', function (req, res) {
       })
       formattedAggs.makes.push (make_level_object)
     })
-    console.log (formattedAggs)
     res.status (200).json ({
         'makes': formattedAggs.makes,
         'avg_price_aggregation': response.aggregations.prices.prices.avg_price.value
@@ -65,7 +64,6 @@ app.get ('/fetchCategorySearches', function (req, res) {
       pageSize = req.query['pageSize'],
       categoryQuery = first_page_categories[categoryName]
 
-    console.log (categoryName)
     searches = categoryQuery.searches
     var searches_promises = Promise.map (searches, function (sub_query) {
       var query_body = util.processTagsQuery (sub_query, 'categories')
@@ -82,7 +80,6 @@ app.get ('/fetchCategorySearches', function (req, res) {
     })
 
     searches_promises.all().then (function (data) {
-      console.log (data)
       res.status(200).json({aggs: data})
     })
     .error (function (err) {
@@ -93,10 +90,12 @@ app.get ('/fetchCategorySearches', function (req, res) {
 
 
 app.post ('/trims', function (req, res) {
-  var trims_promise = util.createTrimsPromise (req.body)
+  var pageNum = typeof req.query.pageNum ==='undefined'?0:parseInt(req.query.pageNum),
+      trims_promise = util.createTrimsPromise (req.body, pageNum)
   Promise.resolve (trims_promise)
          .then (function (resp) {
-           var aggs = resp.aggregations.makes.buckets
+           var aggs = resp.aggregations.makes.buckets,
+               nextPageUrl = resp.hits.hits.length>0?'/trims?pageNum=' + (pageNum+1):null
            var trimInfo = _.map (resp.hits.hits, function (trimDoc) {
                             var make = _.first(trimDoc.fields.make),
                                 model = _.first(trimDoc.fields.model),
@@ -146,19 +145,24 @@ app.post ('/trims', function (req, res) {
                             obj['key'] = hash.digest (obj)
                             return obj
                           })
-            res.status(200).send ({trimData: _.uniq (trimInfo, false, function (trimObject) {return trimObject.key})})
+            console.log ('trims,nextPageUrl=',nextPageUrl)
+            res.status(200).send ({nextPageUrl: nextPageUrl, trimData: _.uniq (trimInfo, false, function (trimObject) {return trimObject.key})})
           })
          .error (function (error) {res.status(500).send (error)})
 })
 
 app.post ('/listings', function (req, res) {
-  var search_promise = util.createListingsPromise (req.body)
+  var pageNum = typeof req.query.pageNum ==='undefined'?0:req.query.pageNum
+  console.log (pageNum)
+  var search_promise = util.createListingsPromise (req.body, pageNum)
   Promise.resolve (search_promise)
           .then (function (response) {
+            var nextPageUrl = response.hits.hits.length>0?'/listings?pageNum=' + (parseInt(pageNum)+1):null
             var listings = _.map (response.hits.hits, function (listing) {
               return listing._source
             })
-            res.status(200).json ({listings: listings})
+            console.log ('listings,nextPageUrl=',nextPageUrl)
+            res.status(200).json ({listings: listings, nextPageUrl: nextPageUrl})
           })
           .error (function (error) {res.status(500).json (error)})
 })
