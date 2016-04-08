@@ -138,6 +138,7 @@ function preprocessQuery (userQuery, queryType, pageNum) {
       case 'selectedTrim':
       case 'filterHash':
       case 'listingsHash':
+      case 'conditions':
       break
       case 'sortTrimsBy': {
         sortBy = ESFactory.SortFactory.create (userQuery[category].category, userQuery[category].order)
