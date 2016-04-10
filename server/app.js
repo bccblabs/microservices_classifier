@@ -88,6 +88,21 @@ app.get ('/fetchCategorySearches', function (req, res) {
 
 })
 
+app.get ('/trim', function (req, res) {
+  var vin = req.query.vin
+  if (vin.length > 11) {
+    vin = util.parseSquishVin(req.query.vin)
+  }
+  trimPromise = util.createTrimPromise (vin)
+
+  Promise.resolve (trimPromise)
+         .then (function (resp) {
+           res.status (200).json ({trims: [_.extend (resp, {'squishVin': vin})]})
+         })
+         .error (function (err) {
+           res.status (500).json (err)
+         })
+})
 
 app.post ('/trims', function (req, res) {
   var pageNum = typeof req.query.pageNum ==='undefined'?0:parseInt(req.query.pageNum),

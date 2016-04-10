@@ -173,7 +173,18 @@ function renderRange (min, max, unit) {
   }
 }
 
+function parseSquishVin (vin) {
+  var squishVin = vin.substring (0, 8) + vin.substring (9, 11)
+  console.log (vin, squishVin)
+  return squishVin
+}
 
+function createTrimPromise (squishVin) {
+  return Promise.resolve (client.getSource ({id: squishVin, index: 'car', type: 'trim'} ))
+}
+
+exports.parseSquishVin = module.exports.parseSquishVin = parseSquishVin
+exports.createTrimPromise = module.exports.createTrimPromise = createTrimPromise
 exports.pretty_print = module.exports.pretty_print =  pretty_print
 exports.preprocessQuery = module.exports.preprocessQuery = preprocessQuery
 exports.processTagsQuery = module.exports.processTagsQuery = processTagsQuery
