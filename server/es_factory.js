@@ -400,6 +400,9 @@ var FilterFactory = {
 
 var QueryFactory = {
   create: function (type, tags, sortBy) {
+    Array.prototype.isNull = function () {
+      return this.join().replace(/,/g,'').length === 0
+    }
     var parentQuery = {has_parent: {parent_type: 'trim', query: {bool: {must: []}}}},
 
     childQuery = {has_child: {type: "listing", query: {bool: {filter: []}}}}
@@ -407,16 +410,20 @@ var QueryFactory = {
     if (typeof sortBy !== 'undefined') {
       query['sort'] = sortBy
     }
+    tags = _.filter (tags, function (tag) {return (Array.isArray(tag.value) && !tag.value.isNull()) || (!Array.isArray(tag.value))})
+    console.log (tags)
     switch (type) {
       case 'listings_aggs': {
         if (tags.length === 0) {
           query.query.bool.must.push ({match_all: {}})
         } else {
           _.each (tags, function (tag) {
-            if (tag.category === 'prices' || tag.category === 'mileage' || tag.category === 'color') {
-              query['query']['bool']['filter'].push (FilterFactory.create(tag))
-            } else {
-              parentQuery['has_parent']['query']['bool']['must'].push (FilterFactory.create(tag))
+            if (tag.value !== undefined && tag.val !== null) {
+              if (tag.category === 'prices' || tag.category === 'mileage' || tag.category === 'color') {
+                query['query']['bool']['filter'].push (FilterFactory.create(tag))
+              } else {
+                parentQuery['has_parent']['query']['bool']['must'].push (FilterFactory.create(tag))
+              }
             }
           })
           query['query']['bool']['filter'].push (parentQuery)
@@ -425,7 +432,6 @@ var QueryFactory = {
       }
       case 'listings': {
         query['_source'] = 1
-        query['size'] = 20
         if (tags.length === 0 ) {
           query.query.bool.must.push ({match_all: {}})
           return query
@@ -441,9 +447,7 @@ var QueryFactory = {
         return query
       }
       case 'trims': {
-        query['size'] = 20
         query['_source'] = 0
-
         _.each (tags, function (tag) {
           if (tag.category === 'prices' || tag.category === 'mileage' || tag.category === 'color') {
             childQuery['has_child']['query']['bool']['filter'].push (FilterFactory.create(tag))
@@ -451,7 +455,6 @@ var QueryFactory = {
             query['query']['bool']['filter'].push (FilterFactory.create(tag))
           }
         })
-        // trims doesn't return listings, only the trims and mmtg aggs
         childQuery['has_child']['inner_hits'] = {'size': 0}
         if (childQuery['has_child']['query']['bool']['filter'].length  > 0)
           query['query']['bool']['filter'].push (childQuery)

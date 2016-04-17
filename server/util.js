@@ -139,6 +139,7 @@ function preprocessQuery (userQuery, queryType, pageNum) {
       case 'filterHash':
       case 'listingsHash':
       case 'conditions':
+      case 'isDirty':
       break
       case 'sortTrimsBy': {
         sortBy = ESFactory.SortFactory.create (userQuery[category].category, userQuery[category].order)
@@ -153,7 +154,8 @@ function preprocessQuery (userQuery, queryType, pageNum) {
 
 function createListingsPromise (requestBody, pageNum) {
   var es_query = preprocessQuery (requestBody, 'listings', pageNum)
-  console.log (es_query)
+  console.log ('listings query=')
+  pretty_print (es_query)
   return Promise.resolve (client.search ({index: 'car', body: es_query}))
 }
 

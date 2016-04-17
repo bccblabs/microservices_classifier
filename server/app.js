@@ -160,7 +160,6 @@ app.post ('/trims', function (req, res) {
                             obj['key'] = hash.digest (obj)
                             return obj
                           })
-            console.log ('trims,nextPageUrl=',nextPageUrl)
             res.status(200).send ({nextPageUrl: nextPageUrl, trimData: _.uniq (trimInfo, false, function (trimObject) {return trimObject.key})})
           })
          .error (function (error) {res.status(500).send (error)})
@@ -168,11 +167,11 @@ app.post ('/trims', function (req, res) {
 
 app.post ('/listings', function (req, res) {
   var pageNum = typeof req.query.pageNum ==='undefined'?0:req.query.pageNum
-  console.log (pageNum)
   var search_promise = util.createListingsPromise (req.body, pageNum)
   Promise.resolve (search_promise)
           .then (function (response) {
-            var nextPageUrl = response.hits.hits.length>0?'/listings?pageNum=' + (parseInt(pageNum)+1):null
+            console.log ('total', response.hits.total, 'pageNum', pageNum)
+            var nextPageUrl = response.hits.total>(20*(1+parseInt(pageNum)))?'/listings?pageNum=' + (parseInt(pageNum)+1):null
             var listings = _.map (response.hits.hits, function (listing) {
               return listing._source
             })
